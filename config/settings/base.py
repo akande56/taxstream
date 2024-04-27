@@ -333,7 +333,7 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "taxapp2 API",
     "DESCRIPTION": "Documentation of API endpoints of taxapp2",
     "VERSION": "1.0.0",
-    "SERVE_PERMISSIONS": ["rest_framework.permissions.IsAdminUser"],
+    "SERVE_PERMISSIONS": [],
     "SCHEMA_PATH_PREFIX": "/api/",
 }
 # Your stuff...
