@@ -1,0 +1,7 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=taxapp2
+POSTGRES_USER=igAFZoClreWktFjmLsPBrJVnSYDutRTs
+POSTGRES_PASSWORD=EtP1m1GDzNnk0n2WOoAbtZ2L21pvh9MNCABwadz8unGbCP5nBf5UFe0A4aEiWdV5
