@@ -1,8 +1,10 @@
+import logging
+import os
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
-
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -26,10 +28,10 @@ def send_password_reset_email(sender, instance, reset_password_token, **kwargs):
 
         if response.status_code == 202:
             print('*********************************')
-            print('Password reset email sent successfully.')
+            logger.info("Password reset email sent successfully to %s", user.email) 
         else:
             print('*********************************')
-            print(f'Error sending password reset email: {response.body}')
+            logger.error(f"Error sending password reset email to {user.email}: {response.body}")
 
     except Exception as e:
-        print(f'An error occurred while sending the password reset email: {e}') 
+        logger.error(f"An error occurred while sending the password reset email: {e}") 
