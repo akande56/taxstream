@@ -26,7 +26,7 @@ def send_password_reset_email(sender, instance, reset_password_token, **kwargs):
         sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
         response = sg.send(message)
 
-        if response.status_code == 202:
+        if response.status_code == 200:
             print('*********************************')
             logger.info("Password reset email sent successfully to %s", user.email) 
         else:
