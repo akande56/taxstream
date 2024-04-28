@@ -10,11 +10,12 @@ from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView
 from rest_framework_simplejwt import views as jwt_views
 from rest_framework.routers import DefaultRouter
-from taxapp2.users.views import CurrentUserViewSet
+from taxapp2.users.views import CurrentUserViewSet, SendEmailView   
 from drf_spectacular.views import SpectacularAPIView
 
 router = DefaultRouter()
 router.register(r'users/me', CurrentUserViewSet)
+router.register('send-email', SendEmailView)
 
 urlpatterns = [
     

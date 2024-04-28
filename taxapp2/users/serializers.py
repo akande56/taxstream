@@ -23,3 +23,9 @@ class CreateUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'password', 'first_name', 'last_name', 'email')
         # read_only_fields = ('auth_token',)
         extra_kwargs = {'password': {'write_only': True}}
+
+
+class EmailSerializer(serializers.Serializer):
+    subject = serializers.CharField(max_length=255)
+    message = serializers.CharField()
+    recipient_email = serializers.EmailField()
