@@ -29,11 +29,13 @@ class SendEmailView(APIView):
             subject = serializer.validated_data['subject']
             message = serializer.validated_data['message']
             recipient_email = serializer.validated_data['recipient_email']
+            from_email = serializer.validated_data['from_email']
 
             try:
-                send_mail(subject, message, 'your_email@example.com', [recipient_email])
+                send_mail(subject, message, from_email, [recipient_email])
                 return Response({'message': 'Email sent successfully.'})
             except Exception as e:
+                logger.error("Error sending email: %s", str(e))
                 return Response({'error': str(e)}, status=500)
         else:
             return Response(serializer.errors, status=400)
