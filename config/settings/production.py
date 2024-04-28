@@ -160,3 +160,4 @@ SPECTACULAR_SETTINGS["SERVERS"] = [
 # ------------------------------------------------------------------------------
 EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
 SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
+DEFAULT_FROM_EMAIL = os.environ.get('SENDGRID_FROM_EMAIL')
