@@ -47,7 +47,6 @@ logger = logging.getLogger(__name__)
 
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
-    logger.info('signal initiated..................&&&....')
     """
     Handles password reset tokens
     When a token is created, an e-mail needs to be sent to the user
@@ -83,8 +82,5 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
         [reset_password_token.user.email]
     )
     msg.attach_alternative(email_html_message, "text/html")
-    response = msg.send()
-    if response.status_code == 200:
-        logger.info("Password reset email sent successfully %s") 
-    else:
-        logger.error(f"Error sending password reset email : {response.body}")
+    msg.send()
+    logger.info('end.()()()()()()()')
