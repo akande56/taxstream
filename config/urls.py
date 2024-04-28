@@ -15,7 +15,7 @@ from drf_spectacular.views import SpectacularAPIView
 
 router = DefaultRouter()
 router.register(r'users/me', CurrentUserViewSet)
-router.register('send-email', SendEmailView,  basename='send_email')
+# router.register('send-email', SendEmailView,  basename='send_email')
 
 urlpatterns = [
     
@@ -28,6 +28,7 @@ urlpatterns = [
 # API URLS
 urlpatterns += [
     path('api/v1/', include(router.urls)),
+    path('api/v1/send-mail/', SendEmailView.as_view(), name = 'send-emdil'),
     path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),  
     path(r'api/password_reset/', include('django_rest_passwordreset.urls', namespace = 'password_reset')),
