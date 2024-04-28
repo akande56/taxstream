@@ -15,7 +15,7 @@ from drf_spectacular.views import SpectacularAPIView
 
 router = DefaultRouter()
 router.register(r'users/me', CurrentUserViewSet)
-router.register('send-email', SendEmailView)
+router.register('send-email', SendEmailView,  basename='send_email')
 
 urlpatterns = [
     
