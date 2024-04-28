@@ -9,5 +9,5 @@ class UsersConfig(AppConfig):
     verbose_name = _("Users")
 
     def ready(self):
-        with contextlib.suppress(ImportError):
-            import taxapp2.users.signals  # noqa: F401
+        # with contextlib.suppress(ImportError):
+        import taxapp2.users.signals  # noqa: F401
