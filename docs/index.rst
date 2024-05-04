@@ -12,6 +12,8 @@ Welcome to taxapp2's documentation!
 
    howto
    users
+   authentication_security
+   react_note_handlingTokens
 
 
 
