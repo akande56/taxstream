@@ -29,6 +29,4 @@ For an in-use example, see the `page source <_sources/users.rst.txt>`_ for :ref:
 
 To compile all docstrings automatically into documentation source files, use the command:
     ::
-
         make apidocs
-

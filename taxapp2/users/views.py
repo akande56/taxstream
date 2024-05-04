@@ -69,7 +69,7 @@ class UserViewSet(GenericAPIView, ListModelMixin, UpdateModelMixin, DestroyModel
 
 class ChangePasswordView(APIView):
     """
-    parameter: old_password, and new_password
+    parameter: old_password, new_password1, new_password2 
     """
     permission_classes = [IsAuthenticated]
 
