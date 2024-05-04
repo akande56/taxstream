@@ -1,46 +1,12 @@
-# import logging
-# import os
-# from django.contrib.auth import get_user_model
-# from django.core.mail import send_mail
-# from sendgrid import SendGridAPIClient
-# from sendgrid.helpers.mail import Mail
-# logger = logging.getLogger(__name__)
-
-# User = get_user_model()
-
-# def send_password_reset_email(sender, instance, reset_password_token, **kwargs):
-#     user = User.objects.get(pk=reset_password_token.user_pk)
-#     context = {
-#         'user': user,
-#         'reset_url' : f'https://https://taxstream-3bf552628416.herokuapp.com/api/password_reset/confirm/{instance.uidb64}/{instance.token}',
-#     }
-
-#     try:
-#         message = Mail(
-#             from_email='taxstream@startupjigawa.com.ng',
-#             to_emails=user.email,
-#             subject='Password Reset Request',
-#             template_id='your_sendgrid_template_id',  # Replace with your SendGrid template ID
-#             dynamic_template_data=context,
-#         )
-#         sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
-#         response = sg.send(message)
-
-#         if response.status_code == 200:
-#             print('*********************************')
-#             logger.info("Password reset email sent successfully to %s", user.email) 
-#         else:
-#             print('*********************************')
-#             logger.error(f"Error sending password reset email to {user.email}: {response.body}")
-
-#     except Exception as e:
-#         logger.error(f"An error occurred while sending the password reset email: {e}") 
 import logging
 import os
 from django.core.mail import EmailMultiAlternatives
 from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.db.models.signals import post_save
+from django.contrib.auth.models import Group, User
+
 from django_rest_passwordreset.signals import reset_password_token_created
 
 logger = logging.getLogger(__name__)
@@ -83,4 +49,20 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     )
     msg.attach_alternative(email_html_message, "text/html")
     msg.send()
-    logger.info('end.()()()()()()()')
+    logger.info('email....................................................................................')
+
+
+@receiver(post_save, sender=User)
+def assign_user_to_group(sender, instance, created, **kwargs):
+    if created:
+        print('signal for adding user group called....')
+        # Logic to determine the appropriate group(s) based on user attributes or other factors
+        if instance.staff_role == 'supervisor1':
+            supervisor1_group.user_set.add(instance)
+        elif instance.staff_role == 'supervisor2':
+            supervisor2_group.user_set.add(instance)
+        elif instance.staff_role == 'ward_monitor':
+            ward_monitor_group.user_set.add(instance)
+        else:
+            tax_collector_group.user_set.add(instance)
+

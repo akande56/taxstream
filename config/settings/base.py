@@ -320,7 +320,7 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,  # Rotate refresh tokens on refresh
-    'TOKEN_BACKEND': 'users.utils.HttpOnlyTokenCookieBackend',  # Custom backend class
+    'TOKEN_BACKEND': 'taxapp2.users.utils.HttpOnlyTokenCookieBackend',  # Custom backend class
     'BLACKLIST_AFTER_ROTATION': True,
 }
 
