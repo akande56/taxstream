@@ -154,7 +154,7 @@ LOGGING = {
 # -------------------------------------------------------------------------------
 # Tools that generate code samples can use SERVERS to point to the correct domain
 SPECTACULAR_SETTINGS["SERVERS"] = [
-    {"url": "https://example.com", "description": "Production server"},
+    {"url": "https://taxstream-3bf552628416.herokuapp.com/", "description": "Production server endpoints documentation"},
 ]
 # Your stuff...
 # ------------------------------------------------------------------------------

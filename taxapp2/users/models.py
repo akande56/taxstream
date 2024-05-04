@@ -16,7 +16,7 @@ class User(AbstractUser):
         ('tax_collector', 'TAX COLLECTOR'),
     )
     staff_role = models.CharField(max_length=20, choices=STAFF_ROLES)
-    staff_id = models.CharField(max_length=50)
+    staff_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4)
     phone = models.CharField(max_length=11)
     def __str__(self):
         return self.username

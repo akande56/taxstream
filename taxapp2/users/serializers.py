@@ -1,3 +1,4 @@
+import uuid
 from rest_framework import serializers
 from .models import User
 
@@ -7,7 +8,6 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
-        read_only_fields = ('username', )
 
 
 
@@ -16,15 +16,37 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'phone', 'staff_id', 'staff_role','full_name')
+        fields = ('username', 'email', 'password', 'phone', 'staff_role','full_name')
 
     def create(self, validated_data):
         full_name = validated_data.pop('full_name')
         first_name, last_name = full_name.split()
         validated_data['first_name'] = first_name
         validated_data['last_name'] = last_name
+        # generate unique staff ID
+        validated_data['staff_id'] = str(uuid.uuid4())
         user = User.objects.create_user(**validated_data)
         return user
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password1 = serializers.CharField(required=True)
+    new_password2 = serializers.CharField(required=True)
+    
+    def validate(self, attrs):
+        
+        new_password1 = attrs.get('new_password1')
+        new_password2 = attrs.get('new_password2')
+        if not new_password1:
+            raise serializers.ValidationError({'new_password1': 'This field is required.'})
+        if not new_password2:
+            raise serializers.ValidationError({'new_password2': 'This field is required.'})
+        if new_password1 != new_password2:
+            raise serializers.ValidationError({'password_mismatch': 'Passwords do not match..'})
+
+        return attrs
+
 
 # class CreateUserSerializer(serializers.ModelSerializer):
 

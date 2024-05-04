@@ -1,6 +1,10 @@
+from django.contrib.auth import authenticate
+from django.contrib.auth import update_session_auth_hash
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.status import HTTP_201_CREATED
+from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import ListModelMixin, DestroyModelMixin, UpdateModelMixin
 # from rest_framework.request import Request
 # from rest_framework.exceptions import PermissionDenied
 # from rest_framework.decorators import api_view
@@ -15,6 +19,7 @@ from .permissions import (
 from .serializers import (
     UserSerializer, 
     CreateUserSerializer,
+    ChangePasswordSerializer,
 )
 
 class CurrentUserViewSet(viewsets.ViewSet):
@@ -38,6 +43,57 @@ class UserCreateView(APIView):
         user = serializer.save()
         serializer = UserSerializer(user)
         return Response(serializer.data, status=HTTP_201_CREATED)
+
+
+class UserViewSet(GenericAPIView, ListModelMixin, UpdateModelMixin, DestroyModelMixin):
+    permission_classes = [IsAuthenticated]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def get(self, request):
+        """"
+        Get request does not require any ID. the endpoint returns all users
+        """
+        return self.list(request)
+
+    def put(self, request, pk):
+        instance = self.get_object()  # Get the user instance by pk
+        serializer = self.get_serializer(instance, data=request.data, partial=True)  # Serialize the instance with the request data
+        serializer.is_valid(raise_exception=True)  # Validate the serializer data
+        serializer.save()  # Save the serializer data
+        return self.partial_update(request, pk)
+
+    def delete(self, request, pk):
+        return self.destroy(request, pk)
+
+
+class ChangePasswordView(APIView):
+    """
+    parameter: old_password, and new_password
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        print('request..')
+        print(request.data)
+        serializer = ChangePasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        print('error:')
+        print(serializer.errors)
+        print('sssssssssss')
+        print(serializer.data)
+        old_password = serializer.data['old_password']
+        new_password = serializer.data['new_password1']
+
+        if not authenticate(username=user.username, password=old_password):
+            return Response({'error': 'Invalid old password'}, status=HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+        update_session_auth_hash(self.request, user)
+
+        return Response({'message': 'Password changed successfully'}, status=HTTP_200_OK)
 
 # class SendEmailView(APIView):
 #     def post(self, request):

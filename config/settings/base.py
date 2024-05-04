@@ -317,7 +317,7 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     'AUTH_TOKEN_CLASSES': ['rest_framework_simplejwt.tokens.AccessToken'],
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=30),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=15),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,  # Rotate refresh tokens on refresh
     'TOKEN_BACKEND': 'taxapp2.users.utils.HttpOnlyTokenCookieBackend',  # Custom backend class
