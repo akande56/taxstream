@@ -10,6 +10,7 @@ Before running the application, ensure you have the following software installed
 
 - Node.js (v18.0.0 or higher)
 - npm (v6.0.0 or higher) or yarn (v1.22.0 or higher)
+- Install Node.js by downloading it from [Node.js official website](https://nodejs.org/).
 
 ### Installation
 
@@ -18,7 +19,7 @@ Follow these steps to install the required dependencies and run the application:
 1. Clone the repository:
 
    ```bash
-   git clone -b frontend https://github.com/<your-username>/taxstream.git
+   git clone -b frontend https://github.com/muhammadui/taxstream.git
    ```
 
 2. Navigate to the project directory:
@@ -31,8 +32,6 @@ Follow these steps to install the required dependencies and run the application:
 
    ```bash
    npm install
-   # or
-   yarn
    ```
 
 ### Development Server
@@ -41,11 +40,9 @@ To start the development server, run the following command:
 
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
-This will launch the application in development mode. Open [http://localhost:3000](http://localhost:3000) in your browser to view it.
+This will launch the application in development mode. Open [http://localhost:5173](http://localhost:5173) in your browser to view it.
 
 ### Building for Production
 
@@ -53,8 +50,6 @@ To build the application for production, use the following command:
 
 ```bash
 npm run build
-# or
-yarn build
 ```
 
 This will generate optimized production-ready files in the `dist` directory.
