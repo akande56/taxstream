@@ -1,4 +1,5 @@
 import uuid
+from django.contrib.auth.models import Group
 from rest_framework import serializers
 from .models import User
 
@@ -47,6 +48,11 @@ class ChangePasswordSerializer(serializers.Serializer):
 
         return attrs
 
+
+class GroupSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['name']
 
 # class CreateUserSerializer(serializers.ModelSerializer):
 

@@ -5,7 +5,8 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.db.models.signals import post_save
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group
+from .models import User
 
 from django_rest_passwordreset.signals import reset_password_token_created
 
@@ -52,10 +53,15 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     logger.info('email....................................................................................')
 
 
+supervisor1_group = Group.objects.get_or_create(name='supervisor1')[0]
+supervisor2_group = Group.objects.get_or_create(name='supervisor2')[0]
+ward_monitor_group = Group.objects.get_or_create(name='ward_monitor')[0]
+tax_collector_group = Group.objects.get_or_create(name='tax_collector')[0]
+
+
 @receiver(post_save, sender=User)
 def assign_user_to_group(sender, instance, created, **kwargs):
     if created:
-        print('signal for adding user group called....')
         # Logic to determine the appropriate group(s) based on user attributes or other factors
         if instance.staff_role == 'supervisor1':
             supervisor1_group.user_set.add(instance)
