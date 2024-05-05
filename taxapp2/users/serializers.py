@@ -52,7 +52,7 @@ class ChangePasswordSerializer(serializers.Serializer):
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Group
-        fields = ['name']
+        fields = ['url', 'name']
 
 # class CreateUserSerializer(serializers.ModelSerializer):
 

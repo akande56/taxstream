@@ -1,10 +1,11 @@
-from django.contrib.auth import authenticate
-from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import update_session_auth_hash, authenticate
+from django.contrib.auth.models import Group
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import ListModelMixin, DestroyModelMixin, UpdateModelMixin
+
 # from rest_framework.request import Request
 # from rest_framework.exceptions import PermissionDenied
 # from rest_framework.decorators import api_view
@@ -20,6 +21,7 @@ from .serializers import (
     UserSerializer, 
     CreateUserSerializer,
     ChangePasswordSerializer,
+    GroupSerializer,
 )
 
 class CurrentUserViewSet(viewsets.ViewSet):
@@ -90,45 +92,9 @@ class ChangePasswordView(APIView):
 
         return Response({'message': 'Password changed successfully'}, status=HTTP_200_OK)
 
-# class SendEmailView(APIView):
-#     def post(self, request):
-#         serializer = EmailSerializer(data=request.data)
-#         if serializer.is_valid():
-#             subject = serializer.validated_data['subject']
-#             message = serializer.validated_data['message']
-#             recipient_email = serializer.validated_data['recipient_email']
-#             from_email = serializer.validated_data['from_email']
 
-#             try:
-#                 send_mail(subject, message, from_email, [recipient_email])
-#                 return Response({'message': 'Email sent successfully.'})
-#             except Exception as e:
-#                 logger.error("Error sending email: %s", str(e))
-#                 return Response({'error': str(e)}, status=500)
-#         else:
-#             return Response(serializer.errors, status=400)
 
-# class UserViewSet(mixins.RetrieveModelMixin,
-#                   mixins.UpdateModelMixin,
-#                   viewsets.GenericViewSet):
-#     """
-#     Updates and retrieves user accounts
-#     """
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-#     permission_classes = (IsUserOrReadOnly,)
-
-#     def get_object(self, request: Request, pk = None) -> User:
-#         if request.user.is_authenticated:
-#             return request.user
-#         else:
-#             raise PermissionDenied("You are not authenticated.")
-    
-# class UserCreateViewSet(mixins.CreateModelMixin,
-#                         viewsets.GenericViewSet):
-#     """
-#     Creates user accounts...
-#     """
-#     queryset = User.objects.all()
-#     serializer_class = CreateUserSerializer
-#     permission_classes = (AllowAny,)
+class GroupViewSet(viewsets.ModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    permission_classes = [IsAuthenticated, IsSupervisor1]

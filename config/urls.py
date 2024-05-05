@@ -10,11 +10,18 @@ from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView
 from rest_framework_simplejwt import views as jwt_views
 from rest_framework.routers import DefaultRouter
-from taxapp2.users.views import CurrentUserViewSet, UserCreateView, UserViewSet, ChangePasswordView
+from taxapp2.users.views import (
+    CurrentUserViewSet, 
+    UserCreateView, 
+    UserViewSet, 
+    ChangePasswordView,
+    GroupViewSet,
+)
 from drf_spectacular.views import SpectacularAPIView
 
 router = DefaultRouter()
 router.register(r'user/me', CurrentUserViewSet)
+router.register('groups', GroupViewSet)
 # router.register(r'users', UserViewSet)
 # router.register('user', UserCreateView, basename = 'new_user')
 
@@ -32,9 +39,9 @@ urlpatterns = [
 urlpatterns += [
     #custom endpoints
     path('api/v1/', include(router.urls)),
-    path('api/v1/new_user', UserCreateView.as_view(), name = 'new_user'),
+    path('api/v1/user/new_user', UserCreateView.as_view(), name = 'new_user'),
     re_path(r'^api/v1/users/(?P<pk>[^/]+)?$', UserViewSet.as_view(), name='user-detail'),
-    path('api/v1/change_password/', ChangePasswordView.as_view(), name = 'change_password'),
+    path('api/v1/user/change_password/', ChangePasswordView.as_view(), name = 'change_password'),
     
     #Token
     path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
