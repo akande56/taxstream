@@ -1,5 +1,7 @@
 from django.contrib.auth import update_session_auth_hash, authenticate
 from django.contrib.auth.models import Group
+from django.utils.http import urlsafe_base64_encode
+from django.urls import reverse
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_400_BAD_REQUEST
@@ -12,6 +14,7 @@ from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 # from django.core.mail import send_mail
+from django_rest_passwordreset.views import ResetPasswordRequestToken
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from .models import User
 from .permissions import (
@@ -113,3 +116,18 @@ class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     permission_classes = [IsAdminUser]
+    
+
+
+class CustomResetPasswordRequestToken(ResetPasswordRequestToken):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        token = getattr(self, 'token', None)
+        print('here.......')
+
+        if token:
+            reset_url = self.request.build_absolute_uri(reverse(
+                'password_reset_confirm', args=[urlsafe_base64_encode(self.user.pk), token]))
+            response.data['reset_url'] = reset_url
+
+        return response
