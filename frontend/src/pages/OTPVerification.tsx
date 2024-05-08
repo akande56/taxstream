@@ -34,6 +34,7 @@ const OTPVerification = () => {
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
+    // handle otp validation
     console.log(data);
   }
 
@@ -102,5 +103,3 @@ const OTPVerification = () => {
 };
 
 export default OTPVerification;
-
-// SHit Code
