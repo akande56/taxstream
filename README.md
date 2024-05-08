@@ -75,5 +75,20 @@ See detailed [cookiecutter-django Heroku documentation](http://cookiecutter-djan
 
 
 
-###
- 
+### Running in Local
+1) assuming existing virtual environment....
+2) run pip3 install -r requirement/base.txt
+3) run pip3 install -r requirement/local.txt
+3) if using postgres create a DB with name taxapp2. 
+    update password at config/settings/base.py
+
+    DATABASES = {
+        "default": env.db(
+            "DATABASE_URL",
+            default="postgres://postgres:<password>@127.0.0.1:5432/taxapp2",
+        ),  
+    }
+    change <password> to ur default postgress password
+4) run: pip3 manage.py migrate
+5) run: pip3 manage.py runserver
+    this will automatically start the backend server with localhost:8000

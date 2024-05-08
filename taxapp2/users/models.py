@@ -21,8 +21,6 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
-
-
 def validate_supervisor1_role(value):
     if value is not None and not value.groups.filter(name='supervisor1').exists():
         raise ValidationError('User must be a supervisor1 to be assigned as state supervisor.')

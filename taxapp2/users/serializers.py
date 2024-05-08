@@ -1,6 +1,7 @@
 import uuid
 from django.contrib.auth.models import Group
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema
 from .models import User
 
 
@@ -50,6 +51,8 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.CharField()
+    name = serializers.CharField()
     class Meta:
         model = Group
         fields = ['url', 'name']

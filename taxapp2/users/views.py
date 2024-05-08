@@ -1,17 +1,18 @@
 from django.contrib.auth import update_session_auth_hash, authenticate
 from django.contrib.auth.models import Group
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import ListModelMixin, DestroyModelMixin, UpdateModelMixin
-
+from rest_framework import serializers
 # from rest_framework.request import Request
 # from rest_framework.exceptions import PermissionDenied
 # from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 # from django.core.mail import send_mail
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from .models import User
 from .permissions import (
     IsSupervisor1, 
@@ -71,7 +72,7 @@ class UserViewSet(GenericAPIView, ListModelMixin, UpdateModelMixin, DestroyModel
 
 class ChangePasswordView(APIView):
     """
-    parameter: old_password, new_password1, new_password2 
+    body: old_password, new_password1, new_password2 
     """
     permission_classes = [IsAuthenticated]
 
@@ -93,8 +94,22 @@ class ChangePasswordView(APIView):
         return Response({'message': 'Password changed successfully'}, status=HTTP_200_OK)
 
 
-
 class GroupViewSet(viewsets.ModelViewSet):
+    """
+    This API provides a comprehensive set of endpoints for managing groups within the system. "
+                "All endpoints require authentication with admin privileges. Here's a summary of the functionalities provided: "
+                "\n  - **GET ;Listing Groups:** Retrieve a list of all groups in the system. "
+                "\n  - **POST ;Creating Groups:** Create a new group with the provided name. "
+                "\n  - **GET/ID ;Retrieving Groups:** Get detailed information about a specific group by its ID. "
+                "\n  - **PUT ;Updating Groups:** Modify the name or other relevant attributes of an existing group. "
+                "\n  - **DEL ;Deleting Groups:** Permanently remove a group from the system. "
+                "\nCommon response codes include: "
+                "- 200: Successful operation."
+                "- 400: Bad request (e.g., validation errors, invalid data format)."
+                "- 401: Unauthorized access (missing authentication credentials or invalid credentials)."
+                "- 403: Permission denied (user lacks necessary privileges)."
+                "- 404: Not Found (resource with the provided ID does not exist)."
+    """
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = [IsAuthenticated, IsSupervisor1]
+    permission_classes = [IsAdminUser]
