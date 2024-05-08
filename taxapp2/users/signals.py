@@ -64,7 +64,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     msg.attach_alternative(email_html_message, "text/html")
     msg.send()
     logger.info('email....................................................................................')
-    logger.info(response.data)
+    
 
 
 supervisor1_group = Group.objects.get_or_create(name='supervisor1')[0]
