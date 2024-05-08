@@ -6,6 +6,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.db.models.signals import post_save
 from django.contrib.auth.models import Group
+from django.utils.http import urlsafe_base64_encode
 from .models import User
 
 from django_rest_passwordreset.signals import reset_password_token_created
@@ -24,6 +25,18 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     :param kwargs:
     :return:
     """
+    if hasattr(instance, 'response'):
+        response = instance.response  # Assuming response is set in the view
+
+        # Construct the reset password URL
+        reset_password_url = reverse('password_reset:reset-password-confirm', kwargs={
+            'uidb64': urlsafe_base64_encode(user.pk).decode(),
+            'token': reset_password_token.key
+        })
+
+        # Update the response to include the reset_password_url
+        response.data.update({'reset_password_url': reset_password_url})
+
     # send an e-mail to the user
     context = {
         'current_user': reset_password_token.user,
@@ -51,6 +64,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     msg.attach_alternative(email_html_message, "text/html")
     msg.send()
     logger.info('email....................................................................................')
+    logger.info(response.data)
 
 
 supervisor1_group = Group.objects.get_or_create(name='supervisor1')[0]
