@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { toast, Toaster } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -39,6 +40,23 @@ export function LoginPage() {
     // Do something with the form data.
     // integrate api endpoint from ustaz
     // ✅ This will be type-safe and validated.
+    const promise: () => Promise<{ name: string }> = () =>
+      new Promise<{ name: string }>((_, reject) =>
+        setTimeout(() => {
+          reject(new Error("Invalid login credentials"));
+        }, 2000)
+      );
+
+    toast.promise(promise, {
+      loading: "Logging in...",
+      success: (data) => {
+        return `${data.name} login successful`;
+      },
+      error: (error) => {
+        return error.message;
+      },
+    });
+
     console.log(data);
   }
 
@@ -47,6 +65,7 @@ export function LoginPage() {
       <div className="flex items-center order-1 justify-center py-12">
         <div className="mx-auto grid w-[420px] gap-6 p-8 bg-white">
           <Form {...form}>
+            <Toaster richColors position="top-right" />
             <div className="grid gap-2 ">
               <h1 className="text-3xl font-bold">Login</h1>
             </div>
