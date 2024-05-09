@@ -52,7 +52,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     msg.send()
     logger.info('email....................................................................................')
     logger.info(context)
-    instance.reset_password_context = context
+    instance.reset_password_context = reset_password_token
 
 
 supervisor1_group = Group.objects.get_or_create(name='supervisor1')[0]

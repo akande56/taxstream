@@ -124,8 +124,8 @@ class CustomResetPasswordRequestToken(ResetPasswordRequestToken):
         response = super().post(request, *args, **kwargs)
         if hasattr(self, 'instance'):
             token = getattr(self.instance, 'reset_password_token', None)
-        # print('here.......')
-        # print(token)
+        print('here.......')
+        print(token)
 
         if token:
             reset_url = self.request.build_absolute_uri(reverse(
