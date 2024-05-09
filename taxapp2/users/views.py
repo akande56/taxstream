@@ -122,7 +122,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 class CustomResetPasswordRequestToken(ResetPasswordRequestToken):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
-        token = self.token
+        token = kwargs.get('reset_password_token')
         print('here.......')
         print(token)
 

@@ -53,6 +53,12 @@ DATABASES = {
         default="postgres://postgres:abdul52.@127.0.0.1:5432/taxapp2",
     ),
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE' : 'django.db.backends.sqlite3',
+#         'NAME' : BASE_DIR / "db.sqlite3",
+#     }
+# }
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
