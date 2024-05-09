@@ -122,7 +122,8 @@ class GroupViewSet(viewsets.ModelViewSet):
 class CustomResetPasswordRequestToken(ResetPasswordRequestToken):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
-        token = kwargs.get('reset_password_token')
+        if hasattr(self, 'instance'):
+            token = getattr(self.instance, 'reset_password_token', None)
         print('here.......')
         print(token)
 
