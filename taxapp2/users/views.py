@@ -29,7 +29,12 @@ from django_rest_passwordreset.views import (
     HTTP_USER_AGENT_HEADER
     )
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from .models import User
+from .models import (
+    User,
+    State,
+    LGA,
+    Ward,
+)
 from .permissions import (
     IsSupervisor1, 
     IsSupervisor2,
@@ -39,7 +44,11 @@ from .serializers import (
     CreateUserSerializer,
     ChangePasswordSerializer,
     GroupSerializer,
-    CustomEmailSerializer
+    CustomEmailSerializer,
+    StateSerializer,
+    LGASerializer,
+    WardSerializer,
+
 )
 
 class CurrentUserViewSet(viewsets.ViewSet):
@@ -157,18 +166,42 @@ class CustomResetPasswordRequestToken(GenericAPIView):
             ip_address=request.META.get(HTTP_IP_ADDRESS_HEADER, ''),
         )
 
-        # Build the confirmation URL using Django's reverse function
-        # reset_password_url = reverse('password_reset:reset-password-confirm', args=[urlsafe_base64_encode(str(user.pk).encode('utf-8')), token])
-        # reset_password_url = reverse('password_reset:reset-password-confirm', kwargs={
-        # 'uidb64': urlsafe_base64_encode(user.pk).decode(),
-        # 'token': user.get_password_reset_token()
-        # })
-
-
-        
         return Response({
             'token': token.key,
             'reset_password_url': "{}?token={}".format(
             request.build_absolute_uri(reverse('password_reset:reset-password-confirm')),
             token.key),
         })
+
+
+class StateViewSet(viewsets.ModelViewSet):
+    queryset = State.objects.all()
+    serializer_class = StateSerializer
+    filter_fields = ('name',)  
+    permission_classes = [IsSupervisor1, IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Add custom filtering based on request.GET parameters (optional)
+        return queryset
+
+
+class LGASViewSet(viewsets.ModelViewSet):
+    queryset = LGA.objects.select_related('state').all()  # Pre-fetch related state data
+    serializer_class = LGASerializer
+    filter_fields = ('name', 'code', 'state__name')  # Allow filtering by name, code, and state name
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Add custom filtering based on request.GET parameters (optional)
+        return queryset
+
+
+class WardViewSet(viewsets.ModelViewSet):
+    queryset = Ward.objects.select_related('lga').all()  # Pre-fetch related LGA data
+    serializer_class = WardSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Add custom filtering based on request.GET parameters (optional)
+        return queryset

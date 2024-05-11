@@ -2,7 +2,12 @@ import uuid
 from django.contrib.auth.models import Group
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema
-from .models import User
+from .models import (
+    User,
+    State,
+    LGA,
+    Ward,
+)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -50,26 +55,43 @@ class ChangePasswordSerializer(serializers.Serializer):
         return attrs
 
 
-class GroupSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.CharField()
+class GroupSerializer(serializers.ModelSerializer):
+    # url = serializers.CharField()
+    url = serializers.HyperlinkedIdentityField(view_name='group-detail')
     name = serializers.CharField()
     class Meta:
         model = Group
-        fields = ['url', 'name']
+        fields = ['url','name', 'pk']
 
-# class CreateUserSerializer(serializers.ModelSerializer):
 
-#     def create(self, validated_data):
-#         # call create_user on user object. Without this
-#         # the password will be stored in plain text.
-#         user = User.objects.create_user(**validated_data)
-#         return user
+class StateSerializer(serializers.ModelSerializer):
+    supervisor1 = serializers.SlugRelatedField(
+        slug_field='username', queryset=User.objects.filter(groups__name='supervisor1'), required=False
+    )
 
-#     class Meta:
-#         model = User
-#         fields = ('id', 'username', 'password', 'first_name', 'last_name', 'email')
-#         # read_only_fields = ('auth_token',)
-#         extra_kwargs = {'password': {'write_only': True}}
+    class Meta:
+        model = State
+        fields = ('id', 'name', 'supervisor1')
+
+
+class LGASerializer(serializers.ModelSerializer):
+    state = StateSerializer(read_only=True)
+    supervisor2 = serializers.SlugRelatedField(
+        slug_field='username', queryset=User.objects.filter(groups__name='supervisor2'), required=False
+    )
+
+    class Meta:
+        model = LGA
+        fields = ('id', 'name', 'code', 'state', 'supervisor2')
+
+
+class WardSerializer(serializers.ModelSerializer):
+    lga = LGASerializer(read_only=True)
+
+    class Meta:
+        model = Ward
+        fields = ('id', 'area_name', 'area_code', 'lga')
+
 
 
 class EmailSerializer(serializers.Serializer):
@@ -77,6 +99,7 @@ class EmailSerializer(serializers.Serializer):
     message = serializers.CharField()
     recipient_email = serializers.EmailField()
     from_email = serializers.EmailField()
+
 
 class CustomEmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
