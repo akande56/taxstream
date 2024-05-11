@@ -1,31 +1,45 @@
-from django.contrib.auth import update_session_auth_hash, authenticate
+from django.contrib.auth import update_session_auth_hash, authenticate, get_user_model
 from django.contrib.auth.models import Group
 from django.utils.http import urlsafe_base64_encode
 from django.urls import reverse
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from rest_framework.status import (
+    HTTP_201_CREATED, 
+    HTTP_200_OK, 
+    HTTP_400_BAD_REQUEST,
+)
 from rest_framework.generics import GenericAPIView
-from rest_framework.mixins import ListModelMixin, DestroyModelMixin, UpdateModelMixin
-from rest_framework import serializers
+from rest_framework.mixins import (
+    ListModelMixin, 
+    DestroyModelMixin, 
+    UpdateModelMixin,
+)
+# from rest_framework import serializers
 # from rest_framework.request import Request
 # from rest_framework.exceptions import PermissionDenied
 # from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 # from django.core.mail import send_mail
-from django_rest_passwordreset.views import ResetPasswordRequestToken
+from django_rest_passwordreset.views import (
+    clear_expired_tokens,
+    generate_token_for_email, 
+    HTTP_IP_ADDRESS_HEADER, 
+    HTTP_USER_AGENT_HEADER
+    )
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from .models import User
 from .permissions import (
     IsSupervisor1, 
-    IsSupervisor2
+    IsSupervisor2,
 )
 from .serializers import (
     UserSerializer, 
     CreateUserSerializer,
     ChangePasswordSerializer,
     GroupSerializer,
+    CustomEmailSerializer
 )
 
 class CurrentUserViewSet(viewsets.ViewSet):
@@ -119,17 +133,42 @@ class GroupViewSet(viewsets.ModelViewSet):
     
 
 
-class CustomResetPasswordRequestToken(ResetPasswordRequestToken):
+class CustomResetPasswordRequestToken(GenericAPIView):
+    serializer_class = CustomEmailSerializer
+    permission_classes = ()
     def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        if hasattr(self, 'instance'):
-            token = getattr(self.instance, 'reset_password_token', None)
-        print('here.......')
-        print(token)
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
 
-        if token:
-            reset_url = self.request.build_absolute_uri(reverse(
-                'password_reset_confirm', args=[urlsafe_base64_encode(self.user.pk), token]))
-            response.data['reset_url'] = reset_url
+        email = serializer.validated_data['email']
+        user_model = get_user_model()
 
-        return response
+        # Check if user exists with the provided email
+        try:
+            user = user_model.objects.get(email=email)
+        except user_model.DoesNotExist:
+            return Response({'error': 'Email address not found'}, status=HTTP_400_BAD_REQUEST)
+
+        clear_expired_tokens()  
+        token = generate_token_for_email(
+            email=email,
+            user_agent=request.META.get(HTTP_USER_AGENT_HEADER, ''),
+            ip_address=request.META.get(HTTP_IP_ADDRESS_HEADER, ''),
+        )
+
+        # Build the confirmation URL using Django's reverse function
+        # reset_password_url = reverse('password_reset:reset-password-confirm', args=[urlsafe_base64_encode(str(user.pk).encode('utf-8')), token])
+        # reset_password_url = reverse('password_reset:reset-password-confirm', kwargs={
+        # 'uidb64': urlsafe_base64_encode(user.pk).decode(),
+        # 'token': user.get_password_reset_token()
+        # })
+
+
+        
+        return Response({
+            'token': token.key,
+            'reset_password_url': "{}?token={}".format(
+            request.build_absolute_uri(reverse('password_reset:reset-password-confirm')),
+            token.key),
+        })

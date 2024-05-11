@@ -77,3 +77,6 @@ class EmailSerializer(serializers.Serializer):
     message = serializers.CharField()
     recipient_email = serializers.EmailField()
     from_email = serializers.EmailField()
+
+class CustomEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
