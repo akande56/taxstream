@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import axios from "axios";
 
 import { toast, Toaster } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -36,26 +37,46 @@ export function LoginPage() {
     },
   });
 
-  function onSubmit(data: z.infer<typeof loginSchema>) {
+  async function onSubmit(data: z.infer<typeof loginSchema>) {
     // Do something with the form data.
+
+    try {
+      const response = await axios.post("http://localhost:8000/api/token/", {
+        email: data.email,
+        password: data.password,
+      });
+
+      // Handle successful login
+      const authToken = response.data.token; // Assuming the token is returned in the response
+      // Store the authToken securely (e.g., in local storage or a cookie)
+      localStorage.setItem("authToken", authToken);
+      // Redirect the user to the dashboard or any other authenticated page
+      window.location.href = "/dashboard"; // Redirect to the dashboard page
+    } catch (error) {
+      // Handle login error
+      console.error("Login failed:", error);
+      // Display error message to the user
+      toast.error("Login failed. Please check your credentials and try again.");
+    }
+
     // integrate api endpoint from ustaz
     // ✅ This will be type-safe and validated.
-    const promise: () => Promise<{ name: string }> = () =>
-      new Promise<{ name: string }>((_, reject) =>
-        setTimeout(() => {
-          reject(new Error("Invalid login credentials"));
-        }, 2000)
-      );
+    // const promise: () => Promise<{ name: string }> = () =>
+    //   new Promise<{ name: string }>((_, reject) =>
+    //     setTimeout(() => {
+    //       reject(new Error("Invalid login credentials"));
+    //     }, 2000)
+    //   );
 
-    toast.promise(promise, {
-      loading: "Logging in...",
-      success: (data) => {
-        return `${data.name} login successful`;
-      },
-      error: (error) => {
-        return error.message;
-      },
-    });
+    // toast.promise(promise, {
+    //   loading: "Logging in...",
+    //   success: (data) => {
+    //     return `${data.name} login successful`;
+    //   },
+    //   error: (error) => {
+    //     return error.message;
+    //   },
+    // });
 
     console.log(data);
   }
