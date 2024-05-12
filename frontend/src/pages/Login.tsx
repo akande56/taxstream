@@ -3,8 +3,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
 import { toast, Toaster } from "sonner";
+import { ThreeDots } from "react-loader-spinner";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -17,10 +19,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useState } from "react";
 
 const loginSchema = z.object({
-  email: z.string().min(2, {
-    message: "invalid email or username.",
+  username: z.string().min(2, {
+    message: "invalid username or username.",
   }),
   password: z.string().min(8, {
     message: "password must be at least 8 characters.",
@@ -29,56 +32,51 @@ const loginSchema = z.object({
 });
 
 export function LoginPage() {
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
 
+  const navigate = useNavigate();
   async function onSubmit(data: z.infer<typeof loginSchema>) {
-    // Do something with the form data.
-
+    setIsLoggingIn(true); // Start login process
     try {
-      const response = await axios.post("http://localhost:8000/api/token/", {
-        email: data.email,
-        password: data.password,
-      });
+      const response = await axios.post(
+        "https://taxstream-3bf552628416.herokuapp.com/api/token/",
+        { username: data.username, password: data.password }
+      );
 
-      // Handle successful login
-      const authToken = response.data.token; // Assuming the token is returned in the response
-      // Store the authToken securely (e.g., in local storage or a cookie)
-      localStorage.setItem("authToken", authToken);
-      // Redirect the user to the dashboard or any other authenticated page
-      window.location.href = "/dashboard"; // Redirect to the dashboard page
-    } catch (error) {
-      // Handle login error
-      console.error("Login failed:", error);
-      // Display error message to the user
-      toast.error("Login failed. Please check your credentials and try again.");
+      const accessToken = response.data.access;
+      const refreshToken = response.data.refresh;
+
+      // Store tokens in localStorage
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+
+      toast.success(`You are logged in successfully`);
+
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 2500);
+    } catch (error: any) {
+      if (error.response) {
+        const errorMessage = error.response.data.detail;
+        toast.error(errorMessage || "An error occurred", {
+          position: "top-right",
+        });
+      } else {
+        toast.error("An error occurred", {
+          position: "top-right",
+          duration: 1500,
+        });
+      }
+    } finally {
+      setIsLoggingIn(false); // End login process
     }
-
-    // integrate api endpoint from ustaz
-    // ✅ This will be type-safe and validated.
-    // const promise: () => Promise<{ name: string }> = () =>
-    //   new Promise<{ name: string }>((_, reject) =>
-    //     setTimeout(() => {
-    //       reject(new Error("Invalid login credentials"));
-    //     }, 2000)
-    //   );
-
-    // toast.promise(promise, {
-    //   loading: "Logging in...",
-    //   success: (data) => {
-    //     return `${data.name} login successful`;
-    //   },
-    //   error: (error) => {
-    //     return error.message;
-    //   },
-    // });
-
-    console.log(data);
   }
 
   return (
@@ -93,14 +91,13 @@ export function LoginPage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
-                name="email"
+                name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email or Username</FormLabel>
+                    <FormLabel>username or Username</FormLabel>
                     <FormControl>
-                      <Input placeholder="Staff ID or Email" {...field} />
+                      <Input placeholder="Staff ID or username" {...field} />
                     </FormControl>
-
                     <FormMessage />
                   </FormItem>
                 )}
@@ -119,7 +116,6 @@ export function LoginPage() {
                         {...field}
                       />
                     </FormControl>
-
                     <FormMessage />
                   </FormItem>
                 )}
@@ -146,18 +142,32 @@ export function LoginPage() {
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
-
                       <FormLabel>remember me </FormLabel>
                     </FormItem>
                   )}
                 />
               </div>
-
-              <Button className="w-full" type="submit">
-                Login
-              </Button>
+              <div className="button-wrapper">
+                {isLoggingIn ? (
+                  <Button
+                    className="w-full"
+                    type="submit"
+                    disabled={isLoggingIn}
+                  >
+                    <ThreeDots
+                      visible={true}
+                      height="24"
+                      width="24"
+                      color="#FFFFFF"
+                    />
+                  </Button>
+                ) : (
+                  <Button className="w-full" type="submit">
+                    Login
+                  </Button>
+                )}
+              </div>
               {/* remember me */}
-
               <div className="mt-4  text-sm">
                 <p>Don&apos;t have an account?</p>
                 <Link to="#" className="underline">

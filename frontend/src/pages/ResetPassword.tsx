@@ -27,24 +27,31 @@ const ResetPassword = () => {
     },
   });
 
+  const baseUrl = "https://taxstream-3bf552628416.herokuapp.com/api/";
+
   async function onSubmit(data: z.infer<typeof resetPasswordSchema>) {
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/password_reset/",
+        `https://taxstream-3bf552628416.herokuapp.com/api/password_reset/`,
         {
           email: data.email,
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
       );
 
       // Handle successful password reset request
       console.log("Password reset email sent:", response.data.message);
+      console.log(response.data.message);
       // Display success message to the user
       toast.success("Password reset email sent. Please check your inbox.");
     } catch (error) {
       // Handle error
       console.error("Password reset failed:", error);
       // Display error message to the user
-      toast.error("Password reset failed. Please try again later.");
+
+      // toast.error("We couldn't find an account associated with that email.");
     }
     // ✅ This will be type-safe and validated.
     console.log(data);
@@ -55,7 +62,7 @@ const ResetPassword = () => {
         <div className="mx-auto grid w-[420px] gap-6 p-8 bg-white">
           <Form {...form}>
             <div className="grid gap-2 ">
-              <Toaster />
+              <Toaster richColors />
               <h1 className="text-3xl font-bold">Reset your password</h1>
               <p>
                 Enter your email address below, and we’ll send you a link to
