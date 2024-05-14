@@ -78,6 +78,7 @@ class StateSerializer(serializers.ModelSerializer):
 
 class LGASerializer(serializers.ModelSerializer):
     # state = StateSerializer()
+    state = serializers.PrimaryKeyRelatedField(queryset=State.objects.all()) 
     supervisor2 = serializers.SlugRelatedField(
         slug_field='username', queryset=User.objects.filter(groups__name='supervisor2'), required=False
     )
