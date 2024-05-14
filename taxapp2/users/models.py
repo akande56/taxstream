@@ -14,6 +14,8 @@ class User(AbstractUser):
         ('supervisor2', 'LGA SUPERVISOR/MONITOR'),
         ('ward_monitor', 'WARD SUPERVISOR/MONITOR'),
         ('tax_collector', 'TAX COLLECTOR'),
+        ('assessment_officer', 'ASSESSMENT OFFICER'),
+        ('audit_officer', 'AUDIT OFFICER' ),
     )
     staff_role = models.CharField(max_length=20, choices=STAFF_ROLES)
     staff_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4)

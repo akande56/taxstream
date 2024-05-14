@@ -59,7 +59,8 @@ supervisor1_group = Group.objects.get_or_create(name='supervisor1')[0]
 supervisor2_group = Group.objects.get_or_create(name='supervisor2')[0]
 ward_monitor_group = Group.objects.get_or_create(name='ward_monitor')[0]
 tax_collector_group = Group.objects.get_or_create(name='tax_collector')[0]
-
+assessment_officer_group = Group.objects.get_or_create(name = 'assessment_officer'[0])
+audit_officer_group = Group.objects.get_or_create(name= 'audit_officer')[0]
 
 @receiver(post_save, sender=User)
 def assign_user_to_group(sender, instance, created, **kwargs):
@@ -71,6 +72,10 @@ def assign_user_to_group(sender, instance, created, **kwargs):
             supervisor2_group.user_set.add(instance)
         elif instance.staff_role == 'ward_monitor':
             ward_monitor_group.user_set.add(instance)
-        else:
+        elif instance.staff_role == 'tax_collector':
             tax_collector_group.user_set.add(instance)
+        elif instance.staff_role == 'assessment_officer':
+            assessment_officer_group.user_set.add(instance)
+        else:
+            audit_officer_group.user_set.add(instance)
 

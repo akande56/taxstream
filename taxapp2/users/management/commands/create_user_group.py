@@ -10,4 +10,6 @@ class Command(BaseCommand):
         supervisor2_group, created = Group.objects.get_or_create(name='supervisor2')
         ward_monitor_group, created = Group.objects.get_or_create(name='ward_monitor')
         tax_collector_group, created = Group.objects.get_or_create(name='tax_collector')
+        assessment_officer_group, created = Group.objects.get_or_create(name = 'assessment_officer')
+        audit_officer_group, created = Group.objects.get_or_create(name = 'audit_officer')
         self.stdout.write(self.style.SUCCESS('Successfully created user groups'))
