@@ -7,6 +7,7 @@ from .models import (
     State,
     LGA,
     Ward,
+    TaxArea,
 )
 
 
@@ -66,7 +67,8 @@ class GroupSerializer(serializers.ModelSerializer):
 
 class StateSerializer(serializers.ModelSerializer):
     supervisor1 = serializers.SlugRelatedField(
-        slug_field='username', queryset=User.objects.filter(groups__name='supervisor1'), required=False
+        slug_field='username', queryset=User.objects.filter(groups__name='supervisor1'), required=False, 
+        help_text = 'username for User Object'
     )
 
     class Meta:
@@ -79,7 +81,6 @@ class LGASerializer(serializers.ModelSerializer):
     supervisor2 = serializers.SlugRelatedField(
         slug_field='username', queryset=User.objects.filter(groups__name='supervisor2'), required=False
     )
-
     class Meta:
         model = LGA
         fields = ('id', 'name', 'code', 'state', 'supervisor2')
@@ -87,11 +88,16 @@ class LGASerializer(serializers.ModelSerializer):
 
 class WardSerializer(serializers.ModelSerializer):
     lga = LGASerializer(read_only=True)
-
     class Meta:
         model = Ward
-        fields = ('id', 'area_name', 'area_code', 'lga')
+        fields = ('id', 'area_name', 'area_code', 'lga', 'status')
 
+class TaxAreaSerializer(serializers.ModelSerializer):
+    ward = WardSerializer(read_only=True)  # Nested serializer for ward information
+
+    class Meta:
+        model = TaxArea
+        fields = ['id', 'ward', 'tax_area_office', 'tax_area_code']
 
 
 class EmailSerializer(serializers.Serializer):

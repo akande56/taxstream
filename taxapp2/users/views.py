@@ -34,6 +34,7 @@ from .models import (
     State,
     LGA,
     Ward,
+    TaxArea,
 )
 from .permissions import (
     IsSupervisor1, 
@@ -48,6 +49,7 @@ from .serializers import (
     StateSerializer,
     LGASerializer,
     WardSerializer,
+    TaxAreaSerializer,
 
 )
 
@@ -62,7 +64,11 @@ class CurrentUserViewSet(viewsets.ViewSet):
     queryset = User.objects.none()
     serializer_class = UserSerializer
 
+
 class UserCreateView(APIView):
+    """
+    Permissions: isAuthenticated
+    """
     serializer_class = CreateUserSerializer
     permission_classes = [IsAuthenticated]
 
@@ -75,21 +81,25 @@ class UserCreateView(APIView):
 
 
 class UserViewSet(GenericAPIView, ListModelMixin, UpdateModelMixin, DestroyModelMixin):
+    """
+    Permissions: isAuthenticated
+    """
     permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
     def get(self, request):
         """"
-        Get request does not require any ID. the endpoint returns all users
+        the Get request does not require any ID. the endpoint returns all users
+        
         """
         return self.list(request)
 
     def put(self, request, pk):
-        instance = self.get_object()  # Get the user instance by pk
-        serializer = self.get_serializer(instance, data=request.data, partial=True)  # Serialize the instance with the request data
-        serializer.is_valid(raise_exception=True)  # Validate the serializer data
-        serializer.save()  # Save the serializer data
+        instance = self.get_object() 
+        serializer = self.get_serializer(instance, data=request.data, partial=True)  
+        serializer.is_valid(raise_exception=True)  
+        serializer.save()  
         return self.partial_update(request, pk)
 
     def delete(self, request, pk):
@@ -98,7 +108,8 @@ class UserViewSet(GenericAPIView, ListModelMixin, UpdateModelMixin, DestroyModel
 
 class ChangePasswordView(APIView):
     """
-    body: old_password, new_password1, new_password2 
+    body: old_password, new_password1, new_password2
+    Permissions: isAuthenticated 
     """
     permission_classes = [IsAuthenticated]
 
@@ -122,6 +133,7 @@ class ChangePasswordView(APIView):
 
 class GroupViewSet(viewsets.ModelViewSet):
     """
+    Permissions: isAdminUser
     This API provides a comprehensive set of endpoints for managing groups within the system. "
                 "All endpoints require authentication with admin privileges. Here's a summary of the functionalities provided: "
                 "\n  - **GET ;Listing Groups:** Retrieve a list of all groups in the system. "
@@ -143,6 +155,9 @@ class GroupViewSet(viewsets.ModelViewSet):
 
 
 class CustomResetPasswordRequestToken(GenericAPIView):
+    """
+    Permissions: AllowAny
+    """
     serializer_class = CustomEmailSerializer
     permission_classes = ()
     def post(self, request, *args, **kwargs):
@@ -153,7 +168,6 @@ class CustomResetPasswordRequestToken(GenericAPIView):
         email = serializer.validated_data['email']
         user_model = get_user_model()
 
-        # Check if user exists with the provided email
         try:
             user = user_model.objects.get(email=email)
         except user_model.DoesNotExist:
@@ -174,34 +188,107 @@ class CustomResetPasswordRequestToken(GenericAPIView):
         })
 
 
+
 class StateViewSet(viewsets.ModelViewSet):
+    """
+    "\n **Permissions:** IsAuthenticated, IsAdminUser "
+    "\n **Allow filter by**: name(state object field; name), supervisor1(username) "
+    "\n"
+    "\n This API provides a comprehensive set of endpoints for managing State within the system. "
+                "All endpoints require authentication with admin privileges. Here's a summary of the functionalities provided: "
+                "\n  - **GET ;Listing States:** Retrieve a list of all states in the system. "
+                "\n  - **POST ;Creating State:** Create a new state. "
+                "\n  - **GET/ID ;Retrieving a State detail:** Get detailed information about a specific state by its ID. "
+                "\n  - **PUT ;Updating State:** Modify the name or other relevant attributes of an existing state. "
+                "\n  - **DEL ;Deleting State:** Permanently remove a state from the system. "
+                "\nCommon response codes include: "
+                "- 200: Successful operation."
+                "- 400: Bad request (e.g., validation errors, invalid data format)."
+                "- 401: Unauthorized access (missing authentication credentials or invalid credentials)."
+                "- 403: Permission denied (user lacks necessary privileges)."
+                "- 404: Not Found (resource with the provided ID does not exist)."
+    """
     queryset = State.objects.all()
     serializer_class = StateSerializer
     filter_fields = ('name',)  
-    permission_classes = [IsSupervisor1, IsAuthenticated]
+    permission_classes = [IsAdminUser, IsAuthenticated]
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        # Add custom filtering based on request.GET parameters (optional)
+        
         return queryset
 
 
 class LGASViewSet(viewsets.ModelViewSet):
-    queryset = LGA.objects.select_related('state').all()  # Pre-fetch related state data
+    """
+    "\nPermissions: IsAdminUser, IsAuthenticated"
+    "\nAllow filter: name (LGA object field; name), code, state__name (ForeignKey to state object, field; name)"
+    "\n"
+    "\n This API provides a comprehensive set of endpoints for managing LGA within the system. "
+                "All endpoints require authentication with admin privileges. Here's a summary of the functionalities provided: "
+                "\n  - **GET ;Listing LGAs:** Retrieve a list of all LGA in the system. "
+                "\n  - **POST ;Creating new LGA:** Create a new LGA. "
+                "\n  - **GET/ID ;Retrieving a LGA detail:** Get detailed information about a specific LGA by its ID. "
+                "\n  - **PUT ;Updating LGA:** Modify the name or other relevant attributes of an existing LGA. "
+                "\n  - **DEL ;Deleting LGA:** Permanently remove a LGA from the system. "
+                "\nCommon response codes include: "
+                "- 200: Successful operation."
+                "- 400: Bad request (e.g., validation errors, invalid data format)."
+                "- 401: Unauthorized access (missing authentication credentials or invalid credentials)."
+                "- 403: Permission denied (user lacks necessary privileges)."
+                "- 404: Not Found (resource with the provided ID does not exist)."
+    """
+    queryset = LGA.objects.select_related('state').all() 
     serializer_class = LGASerializer
-    filter_fields = ('name', 'code', 'state__name')  # Allow filtering by name, code, and state name
+    filter_fields = ('name', 'code', 'state__name')  
+    permission_classes = [IsAdminUser, IsAuthenticated]
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        # Add custom filtering based on request.GET parameters (optional)
+        
         return queryset
 
 
 class WardViewSet(viewsets.ModelViewSet):
-    queryset = Ward.objects.select_related('lga').all()  # Pre-fetch related LGA data
+    """
+    Permissions: IsAdminUser, IsAuthenticated
+    "\n"
+    "\n This API provides a comprehensive set of endpoints for managing LGA within the system. "
+                "All endpoints require authentication with admin privileges. Here's a summary of the functionalities provided: "
+                "\n  - **GET ;Listing LGAs:** Retrieve a list of all LGA in the system. "
+                "\n  - **POST ;Creating new LGA:** Create a new LGA. "
+                "\n  - **GET/ID ;Retrieving a LGA detail:** Get detailed information about a specific LGA by its ID. "
+                "\n  - **PUT ;Updating LGA:** Modify the name or other relevant attributes of an existing LGA. "
+                "\n  - **DEL ;Deleting LGA:** Permanently remove a LGA from the system. "
+                "\nCommon response codes include: "
+                "- 200: Successful operation."
+                "- 400: Bad request (e.g., validation errors, invalid data format)."
+                "- 401: Unauthorized access (missing authentication credentials or invalid credentials)."
+                "- 403: Permission denied (user lacks necessary privileges)."
+                "- 404: Not Found (resource with the provided ID does not exist)."
+
+    """
+
+    queryset = Ward.objects.select_related('lga').all()
     serializer_class = WardSerializer
+    permission_classes = [IsAdminUser, IsAuthenticated]
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        # Add custom filtering based on request.GET parameters (optional)
+        
         return queryset
+
+
+
+class TaxAreaViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for managing tax areas.
+    """
+    queryset = TaxArea.objects.all().select_related('ward')  # Prefetch ward data
+    serializer_class = TaxAreaSerializer
+    permission_classes = [IsAdminUser]  
+
+    # def perform_create(self, serializer):
+    #     # You can add custom logic here before saving the TaxArea object,
+    #     # such as accessing data from the request or performing additional validations.
+    #     serializer.save()

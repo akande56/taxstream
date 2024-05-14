@@ -8,3 +8,4 @@ class HttpOnlyTokenCookieBackend(SimpleJWTCookieBackend):
             'secure': True if self.request.is_secure() else False,
             'samesite': 'lax',  # Adjust if needed
         }
+ 

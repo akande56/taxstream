@@ -45,10 +45,34 @@ class LGA(models.Model):
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     supervisor2 = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='lga_supervisor2', validators=[validate_supervisor2_role])
 
+
 class Ward(models.Model):
     area_name = models.CharField(max_length=50)
     area_code = models.CharField(max_length=2)
     lga = models.ForeignKey(LGA, on_delete=models.CASCADE)
+    created_date = models.DateField(auto_now_add=True)
+    status = models.CharField(max_length=50, choices=
+    (
+        ("active", "activae"),
+        ("inactive", "inactive")
+        )
+    )
+
+class TaxArea(models.Model):
+    """
+    Model representing a Tax Area within a jurisdiction.
+    """
+    ward = models.ForeignKey(Ward, on_delete=models.CASCADE)
+    tax_area_office = models.CharField(max_length=255)
+    tax_area_code = models.CharField(max_length=20, unique=True)
+    # map_location = models.PointField(blank=True, null=True, srid=4326)  # Latitude & Longitude
+
+    class Meta:
+        ordering = ['ward', 'tax_area_code']
+
+    def __str__(self):
+        return f"{self.ward} - {self.tax_area_code}"
+
 
 class WardAndMonitor(models.Model):
     ward = models.OneToOneField(Ward, on_delete=models.CASCADE, primary_key=True)

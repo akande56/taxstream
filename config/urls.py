@@ -18,6 +18,9 @@ from taxapp2.users.views import (
     GroupViewSet,
     CustomResetPasswordRequestToken,
     StateViewSet,
+    LGASViewSet,
+    WardViewSet,
+    TaxAreaViewSet,
 )
 from drf_spectacular.views import SpectacularAPIView
 
@@ -25,8 +28,9 @@ router = DefaultRouter()
 router.register(r'user/me', CurrentUserViewSet)
 router.register('groups', GroupViewSet)
 router.register('states', StateViewSet)
-# router.register('lgas', LGASViewSet)
-# router.register('wards', WardViewSet)
+router.register('lgas', LGASViewSet)
+router.register('wards', WardViewSet)
+router.register('tax-areas', TaxAreaViewSet)
 # router.register(r'users', UserViewSet)
 # router.register('user', UserCreateView, basename = 'new_user')
 
