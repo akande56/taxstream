@@ -77,7 +77,7 @@ class StateSerializer(serializers.ModelSerializer):
 
 
 class LGASerializer(serializers.ModelSerializer):
-    state = StateSerializer(read_only=True)
+    # state = StateSerializer()
     supervisor2 = serializers.SlugRelatedField(
         slug_field='username', queryset=User.objects.filter(groups__name='supervisor2'), required=False
     )
@@ -87,13 +87,13 @@ class LGASerializer(serializers.ModelSerializer):
 
 
 class WardSerializer(serializers.ModelSerializer):
-    lga = LGASerializer(read_only=True)
+    # lga = LGASerializer(read_only=True)
     class Meta:
         model = Ward
         fields = ('id', 'area_name', 'area_code', 'lga', 'status')
 
 class TaxAreaSerializer(serializers.ModelSerializer):
-    ward = WardSerializer(read_only=True)  # Nested serializer for ward information
+    # ward = WardSerializer(read_only=True)  # Nested serializer for ward information
 
     class Meta:
         model = TaxArea
