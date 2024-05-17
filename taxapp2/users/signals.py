@@ -65,7 +65,7 @@ audit_officer_group = Group.objects.get_or_create(name= 'audit_officer')[0]
 @receiver(post_save, sender=User)
 def assign_user_to_group(sender, instance, created, **kwargs):
     if created:
-        # Logic to determine the appropriate group(s) based on user attributes or other factors
+        # New Users
         if instance.staff_role == 'supervisor1':
             supervisor1_group.user_set.add(instance)
         elif instance.staff_role == 'supervisor2':
@@ -78,4 +78,36 @@ def assign_user_to_group(sender, instance, created, **kwargs):
             assessment_officer_group.user_set.add(instance)
         else:
             audit_officer_group.user_set.add(instance)
-
+    else:
+        # Updated users
+        user_groups = instance.groups.all()  
+        if instance.staff_role == 'supervisor1':
+            # Add to supervisor1 if not already assigned
+            if not supervisor1_group in user_groups:
+                supervisor1_group.user_set.add(instance)
+            # Remove from other groups
+            for group in user_groups.exclude(name='supervisor1'):
+                group.user_set.remove(instance)
+        elif instance.staff_role == 'supervisor2':
+            if not supervisor2_group in user_groups:
+                supervisor2_group.user_set.add(instance)
+            for group in user_groups.exclude(name='supervisor2'):
+                group.user_set.remove(instance)
+        elif instance.staff_role == 'ward_monitor':
+            if not ward_monitor_group in user_groups:
+                ward_monitor_group.user_set.add(instance)
+            for group in user_groups.exclude(name='ward_monitor'):
+                group.user_set.remove(instance)
+        elif instance.staff_role == 'tax_collector':
+            if not tax_collector_group in user_groups:
+                tax_collector_group.user_set.add(instance)
+            for group in user_groups.exclude(name='tax_collector'):
+                group.user_set.remove(instance)
+        elif instance.staff_role == 'assessment_officer':
+            if not assessment_officer_group in user_groups:
+                assessment_officer_group.user_set.add(instance)
+            for group in user_groups.exclude(name='assessment_officer'):
+                group.user_set.remove(instance)
+        else:
+            user_groups.clear()  # Remove all groups
+            audit_officer_group.user_set.add(instance)

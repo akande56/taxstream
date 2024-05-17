@@ -16,10 +16,12 @@ class User(AbstractUser):
         ('tax_collector', 'TAX COLLECTOR'),
         ('assessment_officer', 'ASSESSMENT OFFICER'),
         ('audit_officer', 'AUDIT OFFICER' ),
+        ('tax_payer', 'TAX PAYER'),
     )
     staff_role = models.CharField(max_length=20, choices=STAFF_ROLES)
-    staff_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4)
+    staff_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4, null=True)
     phone = models.CharField(max_length=11)
+    
     def __str__(self):
         return self.username
 
@@ -84,3 +86,59 @@ class WardAndMonitor(models.Model):
 class BlacklistedToken(models.Model):
     token = models.CharField(max_length=255, unique=True)
     blacklisted_at = models.DateTimeField(auto_now_add=True)
+
+
+
+
+# class BusinessClassification(models.Model):
+#     """
+#     Model representing a business classification.
+#     """
+#     name = models.CharField(max_length=255)
+#     description = models.TextField(blank=True)
+
+#     class Meta:
+#         ordering = ['name']
+
+#     def __str__(self):
+#         return self.name
+
+# class WithholdingTaxRate(models.Model):
+#     """
+#     Model representing a withholding tax rate.
+#     """
+#     rate = models.DecimalField(max_digits=5, decimal_places=2)
+
+#     class Meta:
+#         ordering = ['rate']
+
+#     def __str__(self):
+#         return f"{self.rate:.2%}"  # Display rate as a percentage
+
+# class BusinessStatus(models.Model):
+#     """
+#     Model representing a business status.
+#     """
+#     status = models.CharField(max_length=50)
+
+#     class Meta:
+#         ordering = ['status']
+
+#     def __str__(self):
+#         return self.status
+
+# class BusinessUser(models.Model):
+#     """
+#     Model representing a business user (taxpayer).
+#     """
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)  # Link to User model
+#     business_name = models.CharField(max_length=255)
+#     classification = models.ForeignKey(BusinessClassification, on_delete=models.CASCADE)
+#     withholding_tax_rate = models.ForeignKey(WithholdingTaxRate, on_delete=models.SET_NULL, null=True)
+#     business_status = models.ForeignKey(BusinessStatus, on_delete=models.CASCADE)
+
+#     class Meta:
+#         ordering = ['business_name']
+
+#     def __str__(self):
+#         return self.business_name

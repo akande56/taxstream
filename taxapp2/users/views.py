@@ -70,7 +70,7 @@ class UserCreateView(APIView):
     Permissions: isAuthenticated
     """
     serializer_class = CreateUserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = CreateUserSerializer(data=request.data)
@@ -84,7 +84,7 @@ class UserViewSet(GenericAPIView, ListModelMixin, UpdateModelMixin, DestroyModel
     """
     Permissions: isAuthenticated
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -111,7 +111,7 @@ class ChangePasswordView(APIView):
     body: old_password, new_password1, new_password2
     Permissions: isAuthenticated 
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         user = request.user
@@ -150,7 +150,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     """
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [AllowAny]
     
 
 
@@ -211,7 +211,7 @@ class StateViewSet(viewsets.ModelViewSet):
     queryset = State.objects.all()
     serializer_class = StateSerializer
     filter_fields = ('name',)  
-    permission_classes = [IsAdminUser, IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -241,7 +241,7 @@ class LGASViewSet(viewsets.ModelViewSet):
     queryset = LGA.objects.select_related('state').all() 
     serializer_class = LGASerializer
     filter_fields = ('name', 'code', 'state__name')  
-    permission_classes = [IsAdminUser, IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -271,7 +271,7 @@ class WardViewSet(viewsets.ModelViewSet):
 
     queryset = Ward.objects.select_related('lga').all()
     serializer_class = WardSerializer
-    permission_classes = [IsAdminUser, IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -286,7 +286,7 @@ class TaxAreaViewSet(viewsets.ModelViewSet):
     """
     queryset = TaxArea.objects.all().select_related('ward')  # Prefetch ward data
     serializer_class = TaxAreaSerializer
-    permission_classes = [IsAdminUser]  
+    permission_classes = [AllowAny]  
 
     # def perform_create(self, serializer):
     #     # You can add custom logic here before saving the TaxArea object,
