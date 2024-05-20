@@ -4,6 +4,13 @@ from django.utils.http import urlsafe_base64_encode
 from django.urls import reverse
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from drf_spectacular.utils import (
+    extend_schema,
+    extend_schema_view,
+    OpenApiParameter,
+    OpenApiTypes,
+    OpenApiExample,
+)
 from rest_framework.status import (
     HTTP_201_CREATED, 
     HTTP_200_OK, 
@@ -35,6 +42,8 @@ from .models import (
     LGA,
     Ward,
     TaxArea,
+    LGAsupervisor,
+    Statesupervisor,
 )
 from .permissions import (
     IsSupervisor1, 
@@ -50,9 +59,23 @@ from .serializers import (
     LGASerializer,
     WardSerializer,
     TaxAreaSerializer,
+    StatesupervisorSerializer,
+    LGAsupervisorSerializer,
 
 )
 
+@extend_schema(
+    summary="Get details of Sign-in User instance",
+    description="Retrieve User instance of particular registered user. Note: \
+    it inlcude User instance of Tax payers as well, except for there business details. to get both user and business details try api/v1/tax-payer",
+
+    request=UserSerializer,
+   
+    responses={
+        201: "Created",
+        400: "Bad Request",
+    }
+    )
 class CurrentUserViewSet(viewsets.ViewSet):
     def list(self, request):
         if request.user.is_authenticated:
@@ -65,10 +88,30 @@ class CurrentUserViewSet(viewsets.ViewSet):
     serializer_class = UserSerializer
 
 
+
+
+@extend_schema(
+    summary="Create new staff with different roles",
+    description="Add new staff, ensure strong password, and two more than one name for full name",
+    request=CreateUserSerializer,
+
+    examples=[
+            OpenApiExample(
+                'Example payload',
+                value={
+                    "username": "VTZYwnYn-9fIcYcGORxSEkJGFx5RBYb550xdcn7oUpUTPrY",
+                    "email": "abdulsalamabubakar52@example.com",
+                    "password": "pass123..",
+                    "phone": "091",
+                    "user_role": "supervisor1",
+                    "full_name": "abdul abdul",
+                    "location": 0
+                }
+            )
+        ],
+
+    )
 class UserCreateView(APIView):
-    """
-    Permissions: isAuthenticated
-    """
     serializer_class = CreateUserSerializer
     permission_classes = [AllowAny]
 
@@ -80,6 +123,15 @@ class UserCreateView(APIView):
         return Response(serializer.data, status=HTTP_201_CREATED)
 
 
+
+
+
+@extend_schema(
+    summary="Apply on all User instance (list/update/delete)",
+    description="the Get request does not require any ID (i.e the URL path). the endpoint returns all users \
+        Since this endpoint on the current platform has ID, it wont run; but its tested to be working using postman",
+    request=UserSerializer,
+)
 class UserViewSet(GenericAPIView, ListModelMixin, UpdateModelMixin, DestroyModelMixin):
     """
     Permissions: isAuthenticated
@@ -87,12 +139,10 @@ class UserViewSet(GenericAPIView, ListModelMixin, UpdateModelMixin, DestroyModel
     permission_classes = [AllowAny]
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    
 
     def get(self, request):
-        """"
-        the Get request does not require any ID. the endpoint returns all users
         
-        """
         return self.list(request)
 
     def put(self, request, pk):
@@ -106,6 +156,15 @@ class UserViewSet(GenericAPIView, ListModelMixin, UpdateModelMixin, DestroyModel
         return self.destroy(request, pk)
 
 
+
+
+
+@extend_schema(
+    summary="Change password for current logged in User",
+    description="Accept current user password with new password, to change password",
+    request=ChangePasswordSerializer,
+    responses=ChangePasswordSerializer,
+    )
 class ChangePasswordView(APIView):
     """
     body: old_password, new_password1, new_password2
@@ -131,9 +190,45 @@ class ChangePasswordView(APIView):
         return Response({'message': 'Password changed successfully'}, status=HTTP_200_OK)
 
 
+
+
+@extend_schema_view(
+    summary="Manage Group for diffent User roles",
+    list=extend_schema(
+        description="Retrieve a list Groups",
+        summary="Users Groups",
+    ),
+    retrieve=extend_schema(
+        description="Retrieve a single user Group by ID",
+        summary="Retrieve a User Group",
+        
+    ),
+    create=extend_schema(
+        description="Create a new user Group",
+        summary="Create User Group",
+        request= GroupSerializer,
+        responses={200: GroupSerializer},
+    ),
+    update=extend_schema(
+        description="Update an existing Group",
+        summary="Update Group",
+        request=GroupSerializer,
+        responses={200: GroupSerializer}
+    ),
+    partial_update=extend_schema(
+        description="Partially update an existing Group",
+        summary="Partial Update Group",
+        request=GroupSerializer,
+        responses={200: GroupSerializer}
+    ),
+    destroy=extend_schema(
+        description="Delete a Group",
+        summary="Delete Group",
+        
+    ),
+    )
 class GroupViewSet(viewsets.ModelViewSet):
     """
-    Permissions: isAdminUser
     This API provides a comprehensive set of endpoints for managing groups within the system. "
                 "All endpoints require authentication with admin privileges. Here's a summary of the functionalities provided: "
                 "\n  - **GET ;Listing Groups:** Retrieve a list of all groups in the system. "
@@ -154,6 +249,14 @@ class GroupViewSet(viewsets.ModelViewSet):
     
 
 
+
+
+
+@extend_schema(
+    summary="Reset password for user (Temporary in-use)",
+    description="Handle case for forget password",
+    request=CustomEmailSerializer,
+    )
 class CustomResetPasswordRequestToken(GenericAPIView):
     """
     Permissions: AllowAny
@@ -189,25 +292,47 @@ class CustomResetPasswordRequestToken(GenericAPIView):
 
 
 
+
+
+
+
+
+@extend_schema_view(
+    summary="State vieset",
+    list=extend_schema(
+        description="Retrieve list State",
+        summary="expect a single state to exist; future implementation will ensure this",
+    ),
+    retrieve=extend_schema(
+        description="Retrieve a single user State by ID",
+        summary="Retrieve a State",
+        
+    ),
+    create=extend_schema(
+        description="Create a new user State",
+        summary="Create User State",
+        request= StateSerializer,
+        responses={200: StateSerializer},
+    ),
+    update=extend_schema(
+        description="Update an existing State",
+        summary="Update State",
+        request=StateSerializer,
+        responses={200: StateSerializer}
+    ),
+    partial_update=extend_schema(
+        description="Partially update an existing State",
+        summary="Partial Update State",
+        request=StateSerializer,
+        responses={200: StateSerializer}
+    ),
+    destroy=extend_schema(
+        description="Delete a State",
+        summary="Delete State",
+        
+    ),
+    )
 class StateViewSet(viewsets.ModelViewSet):
-    """
-    "\n **Permissions:** IsAuthenticated, IsAdminUser "
-    "\n **Allow filter by**: name(state object field; name), supervisor1(username) "
-    "\n"
-    "\n This API provides a comprehensive set of endpoints for managing State within the system. "
-                "All endpoints require authentication with admin privileges. Here's a summary of the functionalities provided: "
-                "\n  - **GET ;Listing States:** Retrieve a list of all states in the system. "
-                "\n  - **POST ;Creating State:** Create a new state. "
-                "\n  - **GET/ID ;Retrieving a State detail:** Get detailed information about a specific state by its ID. "
-                "\n  - **PUT ;Updating State:** Modify the name or other relevant attributes of an existing state. "
-                "\n  - **DEL ;Deleting State:** Permanently remove a state from the system. "
-                "\nCommon response codes include: "
-                "- 200: Successful operation."
-                "- 400: Bad request (e.g., validation errors, invalid data format)."
-                "- 401: Unauthorized access (missing authentication credentials or invalid credentials)."
-                "- 403: Permission denied (user lacks necessary privileges)."
-                "- 404: Not Found (resource with the provided ID does not exist)."
-    """
     queryset = State.objects.all()
     serializer_class = StateSerializer
     filter_fields = ('name',)  
@@ -219,25 +344,43 @@ class StateViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+
+
+
+@extend_schema_view(
+    summary="LGA viewset",
+    list=extend_schema(
+        description="Retrieve list LGA's",
+        summary="List of LGA's",
+    ),
+    retrieve=extend_schema(
+        description="Retrieve a single user LGA by ID",
+        summary="Retrieve a LGA",
+    ),
+    create=extend_schema(
+        description="Create a new user LGA",
+        summary="Create User LGA",
+        request= LGASerializer,
+        responses={200: LGASerializer},
+    ),
+    update=extend_schema(
+        description="Update an existing LGA",
+        summary="Update LGA",
+        request=LGASerializer,
+        responses={200: LGASerializer}
+    ),
+    partial_update=extend_schema(
+        description="Partially update an existing LGA",
+        summary="Partial Update LGA",
+        request=LGASerializer,
+        responses={200: LGASerializer}
+    ),
+    destroy=extend_schema(
+        description="Delete a LGA",
+        summary="Delete LGA",
+    ),
+    )
 class LGASViewSet(viewsets.ModelViewSet):
-    """
-    "\nPermissions: IsAdminUser, IsAuthenticated"
-    "\nAllow filter: name (LGA object field; name), code, state__name (ForeignKey to state object, field; name)"
-    "\n"
-    "\n This API provides a comprehensive set of endpoints for managing LGA within the system. "
-                "All endpoints require authentication with admin privileges. Here's a summary of the functionalities provided: "
-                "\n  - **GET ;Listing LGAs:** Retrieve a list of all LGA in the system. "
-                "\n  - **POST ;Creating new LGA:** Create a new LGA. "
-                "\n  - **GET/ID ;Retrieving a LGA detail:** Get detailed information about a specific LGA by its ID. "
-                "\n  - **PUT ;Updating LGA:** Modify the name or other relevant attributes of an existing LGA. "
-                "\n  - **DEL ;Deleting LGA:** Permanently remove a LGA from the system. "
-                "\nCommon response codes include: "
-                "- 200: Successful operation."
-                "- 400: Bad request (e.g., validation errors, invalid data format)."
-                "- 401: Unauthorized access (missing authentication credentials or invalid credentials)."
-                "- 403: Permission denied (user lacks necessary privileges)."
-                "- 404: Not Found (resource with the provided ID does not exist)."
-    """
     queryset = LGA.objects.select_related('state').all() 
     serializer_class = LGASerializer
     filter_fields = ('name', 'code', 'state__name')  
@@ -249,26 +392,124 @@ class LGASViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+
+
+
+
+@extend_schema_view(
+    list=extend_schema(
+        description="Retrieve a list of LGA supervisors",
+        summary="List LGA Supervisors",
+    ),
+    retrieve=extend_schema(
+        description="Retrieve a single LGA supervisor by ID",
+        summary="Retrieve LGA Supervisor",
+    ),
+    create=extend_schema(
+        description="Create a new LGA supervisor",
+        summary="Create LGA Supervisor",
+        request=LGAsupervisorSerializer
+    ),
+    update=extend_schema(
+        description="Update an existing LGA supervisor",
+        summary="Update LGA Supervisor",
+        request=LGAsupervisorSerializer
+    ),
+    partial_update=extend_schema(
+        description="Partially update an existing LGA supervisor",
+        summary="Partial Update LGA Supervisor",
+        request=LGAsupervisorSerializer
+    ),
+    destroy=extend_schema(
+        description="Delete an LGA supervisor",
+        summary="Delete LGA Supervisor",
+    ),
+)
+class LGAsupervisorViewSet(viewsets.ModelViewSet):
+    queryset = LGAsupervisor.objects.all()
+    serializer_class = LGAsupervisorSerializer
+    permission_classes = [AllowAny]
+
+
+
+
+
+
+
+@extend_schema_view(
+    list=extend_schema(
+        description="Retrieve a list of State supervisors",
+        summary="List State Supervisors",
+        
+    ),
+    retrieve=extend_schema(
+        description="Retrieve a single State supervisor by ID",
+        summary="Retrieve State Supervisor",
+    ),
+    create=extend_schema(
+        description="Create a new State supervisor",
+        summary="Create State Supervisor",
+        request=StatesupervisorSerializer
+    ),
+    update=extend_schema(
+        description="Update an existing State supervisor",
+        summary="Update State Supervisor",
+        request=StatesupervisorSerializer
+    ),
+    partial_update=extend_schema(
+        description="Partially update an existing State supervisor",
+        summary="Partial Update State Supervisor",
+        request=StatesupervisorSerializer
+    ),
+    destroy=extend_schema(
+        description="Delete a State supervisor",
+        summary="Delete State Supervisor",
+    ),
+)
+class StatesupervisorViewSet(viewsets.ModelViewSet):
+    queryset = Statesupervisor.objects.all()
+    serializer_class = StatesupervisorSerializer
+    permission_classes = [AllowAny]
+
+
+
+
+
+
+@extend_schema_view(
+    summary="WARD vieset",
+    list=extend_schema(
+        description="Retrieve list WARD's",
+        summary="List of WARD's",
+    ),
+    retrieve=extend_schema(
+        description="Retrieve a single user WARD by ID",
+        summary="Retrieve a WARD",
+    ),
+    create=extend_schema(
+        description="Create a new user WARD",
+        summary="Create User WARD",
+        request= WardSerializer,
+        responses={200: WardSerializer},
+    ),
+    update=extend_schema(
+        description="Update an existing WARD",
+        summary="Update WARD",
+        request=WardSerializer,
+        responses={200: WardSerializer}
+    ),
+    partial_update=extend_schema(
+        description="Partially update an existing WARD",
+        summary="Partial Update WARD",
+        request=WardSerializer,
+        responses={200: WardSerializer}
+    ),
+    destroy=extend_schema(
+        description="Delete a WARD",
+        summary="Delete WARD",
+    ),
+    )
 class WardViewSet(viewsets.ModelViewSet):
-    """
-    Permissions: IsAdminUser, IsAuthenticated
-    "\n"
-    "\n This API provides a comprehensive set of endpoints for managing LGA within the system. "
-                "All endpoints require authentication with admin privileges. Here's a summary of the functionalities provided: "
-                "\n  - **GET ;Listing LGAs:** Retrieve a list of all LGA in the system. "
-                "\n  - **POST ;Creating new LGA:** Create a new LGA. "
-                "\n  - **GET/ID ;Retrieving a LGA detail:** Get detailed information about a specific LGA by its ID. "
-                "\n  - **PUT ;Updating LGA:** Modify the name or other relevant attributes of an existing LGA. "
-                "\n  - **DEL ;Deleting LGA:** Permanently remove a LGA from the system. "
-                "\nCommon response codes include: "
-                "- 200: Successful operation."
-                "- 400: Bad request (e.g., validation errors, invalid data format)."
-                "- 401: Unauthorized access (missing authentication credentials or invalid credentials)."
-                "- 403: Permission denied (user lacks necessary privileges)."
-                "- 404: Not Found (resource with the provided ID does not exist)."
-
-    """
-
     queryset = Ward.objects.select_related('lga').all()
     serializer_class = WardSerializer
     permission_classes = [AllowAny]
@@ -280,6 +521,43 @@ class WardViewSet(viewsets.ModelViewSet):
 
 
 
+
+
+
+
+@extend_schema_view(
+    summary="TaxArea vieset",
+    list=extend_schema(
+        description="Retrieve list TaxArea's",
+        summary="List of TaxArea's",
+    ),
+    retrieve=extend_schema(
+        description="Retrieve a single user TaxArea by ID",
+        summary="Retrieve a TaxArea",
+    ),
+    create=extend_schema(
+        description="Create a new user TaxArea",
+        summary="Create User TaxArea",
+        request= TaxAreaSerializer,
+        responses={200: TaxAreaSerializer},
+    ),
+    update=extend_schema(
+        description="Update an existing TaxArea",
+        summary="Update TaxArea",
+        request=TaxAreaSerializer,
+        responses={200: TaxAreaSerializer}
+    ),
+    partial_update=extend_schema(
+        description="Partially update an existing TaxArea",
+        summary="Partial Update TaxArea",
+        request=TaxAreaSerializer,
+        responses={200: TaxAreaSerializer}
+    ),
+    destroy=extend_schema(
+        description="Delete a TaxArea",
+        summary="Delete TaxArea",
+    ),
+    )
 class TaxAreaViewSet(viewsets.ModelViewSet):
     """
     API endpoint for managing tax areas.
@@ -287,8 +565,3 @@ class TaxAreaViewSet(viewsets.ModelViewSet):
     queryset = TaxArea.objects.all().select_related('ward')  # Prefetch ward data
     serializer_class = TaxAreaSerializer
     permission_classes = [AllowAny]  
-
-    # def perform_create(self, serializer):
-    #     # You can add custom logic here before saving the TaxArea object,
-    #     # such as accessing data from the request or performing additional validations.
-    #     serializer.save()

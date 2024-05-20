@@ -19,7 +19,7 @@ from .models import (
 class Admin(admin.ModelAdmin):
     '''Admin View for '''
 
-    list_display = ('username','email','first_name','staff_role','pk')
+    list_display = ('username','email','first_name','user_role','pk')
     
 
 admin.site.register(LGA)

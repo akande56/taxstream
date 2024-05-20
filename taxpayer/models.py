@@ -1,7 +1,8 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+# from django.contrib.auth.models import AbstractUser
 from taxapp2.users.models import User
+
 class BusinessClassification(models.Model):
     """
     Model representing a business classification.
@@ -47,7 +48,7 @@ class BusinessUser(models.Model):
     """
     Model representing a business user (taxpayer).
     """
-    user = models.OneToOneField(User, related_name='business user', on_delete=models.SET_NULL)
+    user = models.OneToOneField(User, related_name='business_user', on_delete=models.SET_NULL, null=True)
     business_name = models.CharField(max_length=255)
     classification = models.ForeignKey(BusinessClassification, on_delete=models.CASCADE)
     withholding_tax_rate = models.ForeignKey(WithholdingTaxRate, on_delete=models.SET_NULL, null=True)

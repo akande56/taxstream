@@ -6,10 +6,23 @@ from django.contrib.auth.models import AbstractUser
 # from django.db.models.signals import post_save
 # from rest_framework.authtoken.models import Token
 
+# class LGA(models.Model):
+#     pass
+
+class State(models.Model):
+    name = models.CharField(max_length=50)
+
+class LGA(models.Model):
+    name = models.CharField(max_length=50)
+    code = models.CharField(max_length=20)
+    state = models.ForeignKey(State, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.name
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    STAFF_ROLES = (
+    USER_ROLES = (
         ('supervisor1', 'SUPERVISOR/DIRECTOR'),
         ('supervisor2', 'LGA SUPERVISOR/MONITOR'),
         ('ward_monitor', 'WARD SUPERVISOR/MONITOR'),
@@ -18,9 +31,10 @@ class User(AbstractUser):
         ('audit_officer', 'AUDIT OFFICER' ),
         ('tax_payer', 'TAX PAYER'),
     )
-    staff_role = models.CharField(max_length=20, choices=STAFF_ROLES)
-    staff_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4, null=True)
+    user_role = models.CharField(max_length=20, choices=USER_ROLES)
+    # staff_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4, null=True)
     phone = models.CharField(max_length=11)
+    location = models.ForeignKey(LGA, on_delete=models.SET_NULL, null=True,related_name='user_location')
     
     def __str__(self):
         return self.username
@@ -38,16 +52,13 @@ def validate_ward_monitor_role(value):
         raise ValidationError('User must be a ward_monitor to be assigned as ward monitor.')
 
 
-class State(models.Model):
-    name = models.CharField(max_length=50)
-    supervisor1 = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='state_supervisor1', validators=[validate_supervisor1_role])
+class LGAsupervisor(models.Model):
+    supervisor2 = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, related_name='lga_supervisor', validators=[validate_supervisor2_role])
+    lga = models.ForeignKey(LGA, on_delete=models.CASCADE)
 
-
-class LGA(models.Model):
-    name = models.CharField(max_length=50)
-    code = models.CharField(max_length=20)
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
-    supervisor2 = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='lga_supervisor2', validators=[validate_supervisor2_role])
+class Statesupervisor(models.Model):
+    supervisor1 = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, related_name='state_supervisor', validators=[validate_supervisor1_role])
+    lga = models.ForeignKey(LGA, on_delete=models.CASCADE)
 
 
 class Ward(models.Model):

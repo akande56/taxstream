@@ -21,16 +21,31 @@ from taxapp2.users.views import (
     LGASViewSet,
     WardViewSet,
     TaxAreaViewSet,
+    LGAsupervisorViewSet,
+    StatesupervisorViewSet,
 )
-from drf_spectacular.views import SpectacularAPIView
+from taxpayer.views import (
+    BusinessUserViewSet,
+    BusinessStatusViewSet,
+    WithholdingTaxRateViewSet,
+    BusinessClassificationViewSet,
+)
+
 
 router = DefaultRouter()
 router.register(r'user/me', CurrentUserViewSet)
 router.register('groups', GroupViewSet)
-router.register('states', StateViewSet)
-router.register('lgas', LGASViewSet)
-router.register('wards', WardViewSet)
-router.register('tax-areas', TaxAreaViewSet)
+router.register('policy_configuration/states', StateViewSet)
+router.register('policy_configuration/lga', LGASViewSet)
+router.register('policy_configuration/wards', WardViewSet)
+router.register('policy_configuration/tax-areas', TaxAreaViewSet)
+router.register('user/tax-payer', BusinessUserViewSet)
+router.register(r'policy_configuration/assigned/lga-supervisors', LGAsupervisorViewSet)
+router.register(r'policy_configuration/assigned/state-supervisors', StatesupervisorViewSet)
+router.register(r'policy_configuration/business-classifications', BusinessClassificationViewSet)
+router.register(r'policy_configuration/withholding-tax-rates', WithholdingTaxRateViewSet)
+router.register(r'policy_configuration/business-statuses', BusinessStatusViewSet)
+
 # router.register(r'users', UserViewSet)
 # router.register('user', UserCreateView, basename = 'new_user')
 
@@ -48,8 +63,8 @@ urlpatterns = [
 urlpatterns += [
     #custom endpoints
     path('api/v1/', include(router.urls)),
-    path('api/v1/user/new_user', UserCreateView.as_view(), name = 'new_user'),
-    re_path(r'^api/v1/users/(?P<pk>[^/]+)?$', UserViewSet.as_view(), name='user-detail'),
+    path('api/v1/user/staff', UserCreateView.as_view(), name = 'new_staff'),
+    re_path(r'^api/v1/all_users/(?P<pk>[^/]+)?$', UserViewSet.as_view(), name='user-detail'),
     path('api/v1/user/change_password/', ChangePasswordView.as_view(), name = 'change_password'),
     
     #Token

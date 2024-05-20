@@ -8,6 +8,8 @@ from .models import (
     LGA,
     Ward,
     TaxArea,
+    Statesupervisor,
+    LGAsupervisor,
 )
 
 
@@ -24,7 +26,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'phone', 'staff_role','full_name')
+        fields = ('username', 'email', 'password', 'phone', 'user_role','full_name', 'location')
 
     def create(self, validated_data):
         full_name = validated_data.pop('full_name')
@@ -32,7 +34,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
         validated_data['first_name'] = first_name
         validated_data['last_name'] = last_name
         # generate unique staff ID
-        validated_data['staff_id'] = str(uuid.uuid4())
+        # validated_data['staff_id'] = str(uuid.uuid4())
         user = User.objects.create_user(**validated_data)
         return user
 
@@ -66,25 +68,36 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class StateSerializer(serializers.ModelSerializer):
-    supervisor1 = serializers.SlugRelatedField(
-        slug_field='username', queryset=User.objects.filter(groups__name='supervisor1'), required=False, 
-        help_text = 'username for User Object'
-    )
-
+    # supervisor1 = serializers.SlugRelatedField(
+    #     slug_field='username', queryset=User.objects.filter(groups__name='supervisor1'), required=False, 
+    #     help_text = 'username for User Object'
+    # )
     class Meta:
         model = State
-        fields = ('id', 'name', 'supervisor1')
+        fields = ('id', 'name')
 
 
 class LGASerializer(serializers.ModelSerializer):
     # state = StateSerializer()
     state = serializers.PrimaryKeyRelatedField(queryset=State.objects.all()) 
-    supervisor2 = serializers.SlugRelatedField(
-        slug_field='username', queryset=User.objects.filter(groups__name='supervisor2'), required=False
-    )
+    # supervisor2 = serializers.SlugRelatedField(
+    #     slug_field='username', queryset=User.objects.filter(groups__name='supervisor2'), required=False
+    # )
     class Meta:
         model = LGA
-        fields = ('id', 'name', 'code', 'state', 'supervisor2')
+        fields = ('id', 'name', 'code', 'state')
+
+
+class LGAsupervisorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LGAsupervisor
+        fields = '__all__'
+
+class StatesupervisorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Statesupervisor
+        fields = '__all__'
+
 
 
 class WardSerializer(serializers.ModelSerializer):
