@@ -61,6 +61,7 @@ ward_monitor_group = Group.objects.get_or_create(name='ward_monitor')[0]
 tax_collector_group = Group.objects.get_or_create(name='tax_collector')[0]
 assessment_officer_group = Group.objects.get_or_create(name = 'assessment_officer'[0])
 audit_officer_group = Group.objects.get_or_create(name= 'audit_officer')[0]
+tax_payer_group = Group.objects.get_or_create(name= 'tax_payer')[0]
 
 @receiver(post_save, sender=User)
 def assign_user_to_group(sender, instance, created, **kwargs):
@@ -76,8 +77,10 @@ def assign_user_to_group(sender, instance, created, **kwargs):
             tax_collector_group.user_set.add(instance)
         elif instance.user_role == 'assessment_officer':
             assessment_officer_group.user_set.add(instance)
-        else:
+        elif instance.user_role == 'audit_officer':
             audit_officer_group.user_set.add(instance)
+        else:
+            tax_payer_group.user_set.add(instance)
     else:
         # Updated users
         user_groups = instance.groups.all()  
@@ -107,6 +110,11 @@ def assign_user_to_group(sender, instance, created, **kwargs):
             if not assessment_officer_group in user_groups:
                 assessment_officer_group.user_set.add(instance)
             for group in user_groups.exclude(name='assessment_officer'):
+                group.user_set.remove(instance)
+        elif instance.user_role == 'tax_payer':
+            if not tax_payer_group in user_groups:
+                tax_payer_group.user_set.add(instance)
+            for group in user_groups.exclude(name='tax_payer'):
                 group.user_set.remove(instance)
         else:
             user_groups.clear()  # Remove all groups

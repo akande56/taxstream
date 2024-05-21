@@ -66,8 +66,7 @@ from .serializers import (
 
 @extend_schema(
     summary="Get details of Sign-in User instance",
-    description="Retrieve User instance of particular registered user. Note: \
-    it inlcude User instance of Tax payers as well, except for there business details. to get both user and business details try api/v1/tax-payer",
+    description="Retrieve details of User instance of current user(i.e logged-in); needs acess token in header i.e Authorization Bearer <acess token>. Note: to get both User and business details try api/v1/user/tax-payer",
 
     request=UserSerializer,
    
@@ -105,7 +104,7 @@ class CurrentUserViewSet(viewsets.ViewSet):
                     "phone": "091",
                     "user_role": "supervisor1",
                     "full_name": "abdul abdul",
-                    "location": 0
+                    "location": 1
                 }
             )
         ],

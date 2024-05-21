@@ -12,4 +12,5 @@ class Command(BaseCommand):
         tax_collector_group, created = Group.objects.get_or_create(name='tax_collector')
         assessment_officer_group, created = Group.objects.get_or_create(name = 'assessment_officer')
         audit_officer_group, created = Group.objects.get_or_create(name = 'audit_officer')
+        tax_payer_group, created = Group.objects.get_or_create(name = 'tax_payer')
         self.stdout.write(self.style.SUCCESS('Successfully created user groups'))

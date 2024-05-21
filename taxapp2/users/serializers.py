@@ -17,7 +17,22 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = (
+            'id',
+            'username',
+            'email',
+            'phone',
+            'first_name',
+            'last_name',
+            'location',
+            'is_active',
+            'is_superuser',
+            'is_staff',
+            'user_role',
+            'date_joined',
+            'groups',
+            'user_permissions',
+            )
 
 
 
@@ -33,6 +48,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
         first_name, last_name = full_name.split()
         validated_data['first_name'] = first_name
         validated_data['last_name'] = last_name
+        validated_data['is_staff'] = True
         # generate unique staff ID
         # validated_data['staff_id'] = str(uuid.uuid4())
         user = User.objects.create_user(**validated_data)
