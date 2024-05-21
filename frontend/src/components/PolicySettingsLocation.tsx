@@ -1,3 +1,5 @@
+import lgaData from "./jigawa-lgas-and-wards.json";
+
 import { Toaster } from "@/components/ui/toaster";
 
 import {
@@ -24,14 +26,23 @@ import {
 
 import { toast } from "@/components/ui/use-toast";
 import { PlusIcon } from "lucide-react";
+import { useState } from "react";
 
 const AddLGASchema = z.object({
   lga: z.string({
     required_error: "Please select LGA to add.",
   }),
+  ward: z.string({
+    required_error: "Please select ward.",
+  }),
 });
 
 export function AddLGA() {
+  const [selectedLGA, setSelectedLGA] = useState("");
+
+  const handleLGAChange = (selectedLGA: string) => {
+    setSelectedLGA(selectedLGA);
+  };
   const form = useForm<z.infer<typeof AddLGASchema>>({
     resolver: zodResolver(AddLGASchema),
   });
@@ -48,44 +59,86 @@ export function AddLGA() {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
-        <div className="form__add__lga flex justify-between items-end">
-          <FormField
-            control={form.control}
-            name="lga"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Select LGA</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select LGA - Code" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Ringim - 03083">
-                      Ringim - 03083
-                    </SelectItem>
-                    <SelectItem value="Dutse - 4398">Dutse - 4398</SelectItem>
-                    <SelectItem value="Gumel - 3948">Gumel - 3948</SelectItem>
-                  </SelectContent>
-                </Select>
+    <div className="">
+      <p className="text-xl font-light border-b w-fit mb-4">
+        Create Pay Tax Location
+      </p>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-2/3 space-y-6"
+        >
+          <div className="form__add__lga flex justify-between items-end">
+            <FormField
+              control={form.control}
+              name="lga"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select LGA</FormLabel>
+                  <Select
+                    onValueChange={(newValue) => {
+                      field.onChange(newValue);
+                      handleLGAChange(newValue);
+                    }}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="min-w-40">
+                        <SelectValue placeholder="Select LGA - Code" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="min-w-32">
+                      {lgaData[0].lgas.map((lga) => (
+                        <SelectItem key={lga.lga} value={lga.lga}>
+                          {lga.lga}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button className="gap-2" type="submit">
-            {" "}
-            <PlusIcon /> Add LGA
-          </Button>
-        </div>
-      </form>
-    </Form>
+            {/* Ward Selection */}
+            <FormField
+              control={form.control}
+              name="ward"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {`Select Ward in ${selectedLGA || "LGA"}`}
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="min-w-40">
+                        <SelectValue placeholder="Select Ward" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="min-w-32">
+                      {lgaData[0].lgas
+                        .find((lga) => lga.lga === form.getValues("lga"))
+                        ?.wards.map((ward) => (
+                          <SelectItem key={ward} value={ward}>
+                            {ward}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button className="gap-2" type="submit">
+              <PlusIcon /> Add LGA
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 }
 

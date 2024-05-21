@@ -69,10 +69,7 @@ export function LoginPage() {
           position: "top-right",
         });
       } else {
-        toast.error("An error occurred", {
-          position: "top-right",
-          duration: 1500,
-        });
+        toast.error("An error occurred", { position: "top-right" });
       }
     } finally {
       setIsLoggingIn(false); // End login process

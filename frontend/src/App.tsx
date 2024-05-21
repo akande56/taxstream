@@ -14,12 +14,15 @@ import ResetPassword from "./pages/ResetPassword";
 
 import OTPVerification from "./pages/OTPVerification";
 import Signup from "./pages/Signup";
+import Home from "./pages/Home";
+import Functions from "./test/Functions";
 
 const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/test" element={<Functions />} />
 
         <Route path="/dashboard" element={<Dashboard />}>
           <Route path="policy-settings" element={<PolicySettings />}>

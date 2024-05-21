@@ -1,0 +1,429 @@
+[
+  {
+    "state": "jigawa",
+    "lgas": [
+      {
+        "lga": "auyo",
+        "wards": [
+          "auyakayi",
+          "auyo",
+          "ayama",
+          "ayan",
+          "gamafoi",
+          "gamsarka",
+          "gatafa",
+          "kafur",
+          "tsidir",
+          "unik"
+        ]
+      },
+      {
+        "lga": "babura",
+        "wards": [
+          "babura",
+          "batali",
+          "dorawa",
+          "garu",
+          "gasakoli",
+          "insharuwa",
+          "jigawa",
+          "kanya",
+          "kuzunzumi",
+          "kyambo",
+          "takwasa"
+        ]
+      },
+      {
+        "lga": "birnin-kudu",
+        "wards": [
+          "birnin-kudu",
+          "kangire",
+          "kantoga",
+          "kiyako",
+          "kwangwara",
+          "lafiya",
+          "sundimina",
+          "surko",
+          "unguwar-ya",
+          "wurno",
+          "yalwan-damai"
+        ]
+      },
+      {
+        "lga": "birniwa",
+        "wards": [
+          "batu",
+          "birniwa",
+          "dangwaleri",
+          "diginsa",
+          "fagi",
+          "kachallari",
+          "karanka",
+          "kazura",
+          "machinamari",
+          "matamu",
+          "nguwa"
+        ]
+      },
+      {
+        "lga": "buji",
+        "wards": [
+          "ahoto",
+          "buji",
+          "churbun",
+          "falageri",
+          "gantsa",
+          "k-lelen-kudu",
+          "kawaya",
+          "kukuma",
+          "madabe",
+          "y-tukur"
+        ]
+      },
+      {
+        "lga": "dutse",
+        "wards": [
+          "abaya",
+          "chamo",
+          "dundubus",
+          "duru",
+          "jigawar-tsada",
+          "kachi",
+          "karnaya",
+          "kudai",
+          "limawa",
+          "madobi",
+          "sakwaya"
+        ]
+      },
+      {
+        "lga": "gagarawa",
+        "wards": [
+          "gagarawa-gari",
+          "gagarawa-tasha",
+          "garin-chiroma",
+          "kore-balatu",
+          "madaka",
+          "maiaduwa",
+          "maikilili",
+          "medu",
+          "yalawa",
+          "zarada"
+        ]
+      },
+      {
+        "lga": "garki",
+        "wards": [
+          "buduru",
+          "doko",
+          "garki",
+          "gwarzon-garki",
+          "jirma",
+          "kanya",
+          "kargo",
+          "kore",
+          "muku",
+          "rafin-marke",
+          "siyori"
+        ]
+      },
+      {
+        "lga": "gumel",
+        "wards": [
+          "baikarya",
+          "danama",
+          "dantanoma",
+          "galagamma",
+          "garin-alhaji-barka",
+          "garin-gambo",
+          "gusau",
+          "hammado",
+          "kofar-arewa",
+          "kofar-yamma",
+          "zango"
+        ]
+      },
+      {
+        "lga": "guri",
+        "wards": [
+          "abunabo",
+          "adiyani",
+          "dawa",
+          "garbagal",
+          "guri",
+          "kadira",
+          "lafiya",
+          "margadu",
+          "matara-baba",
+          "musari"
+        ]
+      },
+      {
+        "lga": "gwaram",
+        "wards": [
+          "basirka",
+          "dingaya",
+          "fagam",
+          "farin-dutse",
+          "gwaram-tsohuwa",
+          "kila",
+          "kwandiko",
+          "maruta",
+          "sara",
+          "tsangarwa",
+          "zandan-nagogo"
+        ]
+      },
+      {
+        "lga": "gwiwa",
+        "wards": [
+          "buntusu",
+          "dabi",
+          "darina",
+          "f-yamma",
+          "guntai",
+          "gwiwa",
+          "korayel",
+          "rorau",
+          "shafe",
+          "yola",
+          "zaumar-sainawa"
+        ]
+      },
+      {
+        "lga": "hadejia",
+        "wards": [
+          "atafi",
+          "dubantu",
+          "gagulmari",
+          "kasuwar-kofa",
+          "kasuwar-kuda",
+          "majema",
+          "matsaro",
+          "rumfa",
+          "sabon-garu",
+          "yankoli",
+          "yayari"
+        ]
+      },
+      {
+        "lga": "jahun",
+        "wards": [
+          "aujara",
+          "gangawa",
+          "gauza-tazara",
+          "gunka",
+          "harbo-sabuwa",
+          "harbo-tsohuwa",
+          "idanuna",
+          "jabarna",
+          "jahun",
+          "kale",
+          "kanwa"
+        ]
+      },
+      {
+        "lga": "kafin-hausa",
+        "wards": [
+          "balangu",
+          "dumadumin-toka",
+          "gafaya",
+          "jabo",
+          "kafin-hausa",
+          "kazalewa",
+          "majawa",
+          "mezan",
+          "ruba",
+          "sarawa",
+          "zago"
+        ]
+      },
+      {
+        "lga": "kaugama",
+        "wards": [
+          "arbus",
+          "askandu",
+          "dabuwaran",
+          "dakaiyawa",
+          "hadin",
+          "ja-e",
+          "jarkasa",
+          "kaugama",
+          "marke",
+          "unguwar-jibrin",
+          "yalo"
+        ]
+      },
+      {
+        "lga": "kazaure",
+        "wards": [
+          "ba-auzini",
+          "daba",
+          "dabaza",
+          "dandi",
+          "gada",
+          "kanti",
+          "maradawa",
+          "sabaru",
+          "unguwar-arewa",
+          "unguwar-gabas",
+          "unguwar-yamma"
+        ]
+      },
+      {
+        "lga": "kirika-samma",
+        "wards": [
+          "baturiya",
+          "bulunchai",
+          "doleri",
+          "fandum",
+          "gayin",
+          "kirika-samma",
+          "madachi",
+          "marma",
+          "tarabu",
+          "tsheguwa"
+        ]
+      },
+      {
+        "lga": "kiyawa",
+        "wards": [
+          "abalago",
+          "andaza",
+          "fake",
+          "garko",
+          "guruduba",
+          "katanga",
+          "katuka",
+          "kiyawa",
+          "kwanda",
+          "maje",
+          "tsurma"
+        ]
+      },
+      {
+        "lga": "maigatari",
+        "wards": [
+          "balarabe",
+          "dankumbo",
+          "fulata",
+          "galadi",
+          "jajeri",
+          "kukayasku",
+          "madana",
+          "maigatari-arewa",
+          "maigatari-kudu",
+          "matoya",
+          "turbus"
+        ]
+      },
+      {
+        "lga": "malam-madori",
+        "wards": [
+          "arki",
+          "dunari",
+          "fateka-akurya",
+          "garin-gabas",
+          "maira-kumi-bara-musa",
+          "maka-ddari",
+          "malam-madori",
+          "shaiya",
+          "tagwaro",
+          "tashena",
+          "tonikutara"
+        ]
+      },
+      {
+        "lga": "miga",
+        "wards": [
+          "dangyatin",
+          "hantsu",
+          "harbo",
+          "koya",
+          "miga",
+          "sabon-gari-takanebu",
+          "sansani",
+          "tsakuwawa",
+          "yanduna",
+          "zareku"
+        ]
+      },
+      {
+        "lga": "ringim",
+        "wards": [
+          "chai-chai",
+          "dabi",
+          "kafin-babushe",
+          "karshi",
+          "kyarama",
+          "ringim",
+          "sankara",
+          "sintilmawa",
+          "tofa",
+          "yandutse"
+        ]
+      },
+      {
+        "lga": "roni",
+        "wards": [
+          "amaryawa",
+          "baragumi",
+          "dansure",
+          "fara",
+          "gora",
+          "kwaita",
+          "roni",
+          "sankau",
+          "tunas",
+          "yanzaki",
+          "zugai"
+        ]
+      },
+      {
+        "lga": "sule-tankarkar",
+        "wards": [
+          "albasu",
+          "amanga",
+          "dangwanki",
+          "danladi",
+          "danzomo",
+          "jeke",
+          "shabaru",
+          "sule-tankarkar",
+          "takatsaba",
+          "yandamo"
+        ]
+      },
+      {
+        "lga": "taura",
+        "wards": [
+          "ajaura",
+          "chakwaikwaiwa",
+          "chukuto",
+          "gujungu",
+          "kiri",
+          "kwalam",
+          "maje",
+          "majiya",
+          "s-garin-yaya",
+          "taura"
+        ]
+      },
+      {
+        "lga": "yankwashi",
+        "wards": [
+          "achilafiya",
+          "belas",
+          "dawan-gawo",
+          "gurjiya",
+          "gwarta",
+          "karkarna",
+          "kuda",
+          "ringim",
+          "yankwashi",
+          "zunbumba"
+        ]
+      }
+    ]
+  }
+]

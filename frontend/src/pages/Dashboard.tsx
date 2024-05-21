@@ -10,14 +10,15 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-import { Link, Outlet } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+import { Link, Outlet, useLocation } from "react-router-dom";
 import {
   Menu,
   Package2,
   Search,
   Users,
   Bell,
-  CircleUser,
   Home,
   LineChart,
   Package,
@@ -36,9 +37,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
+import DashboardView from "@/components/DashboardView";
+
 export function Dashboard() {
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const isDashboardRouteActive = location.pathname === "/dashboard";
   const handleLogout = () => {
     // Perform any necessary cleanup or backend requests
 
@@ -48,7 +52,7 @@ export function Dashboard() {
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">
-        <div className="flex h-full max-h-screen flex-col gap-2">
+        <div className="flex h-full max-h-screen sticky top-0 flex-col gap-2">
           <div className="flex h-14 items-center  border-b px-4 lg:h-[60px] lg:px-6">
             <Link to="/" className="flex items-center gap-2 font-semibold">
               <Package2 className="h-6 w-6" />
@@ -138,7 +142,7 @@ export function Dashboard() {
         </div>
       </div>
       <div className="flex flex-col">
-        <header className="flex sticky top-0 bg-white backdrop-blur-lg h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+        <header className="flex sticky z-20  top-0 bg-white backdrop-blur-lg h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
           <Sheet>
             <SheetTrigger asChild>
               <Button
@@ -219,7 +223,7 @@ export function Dashboard() {
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Search products..."
+                  placeholder="Search "
                   className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
                 />
               </div>
@@ -227,8 +231,19 @@ export function Dashboard() {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="rounded-full">
-                <CircleUser className="h-5 w-5" />
+              <Button
+                variant="secondary"
+                size="icon"
+                className="rounded-full z-20"
+              >
+                {/* <CircleUser className="h-5 w-5" /> */}
+                <Avatar className="z-20">
+                  <AvatarImage
+                    src="https://github.com/shadcn.png"
+                    alt="@user_avatar"
+                  />
+                  <AvatarFallback>UK</AvatarFallback>
+                </Avatar>
                 <span className="sr-only">Toggle user menu</span>
               </Button>
             </DropdownMenuTrigger>
@@ -243,6 +258,7 @@ export function Dashboard() {
           </DropdownMenu>
         </header>
         {/* Component Rendered based on Link clicked  */}
+        {isDashboardRouteActive && <DashboardView />}
         <Outlet />
       </div>
     </div>
