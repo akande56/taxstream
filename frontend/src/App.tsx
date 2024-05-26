@@ -15,7 +15,9 @@ import ResetPassword from "./pages/ResetPassword";
 import OTPVerification from "./pages/OTPVerification";
 import Signup from "./pages/Signup";
 
+
 const App = () => {
+  
   return (
     <Router>
       <Routes>
