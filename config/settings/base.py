@@ -328,7 +328,7 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=15),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,  # Rotate refresh tokens on refresh
-    'TOKEN_BACKEND': 'taxapp2.users.utils.HttpOnlyTokenCookieBackend',  # Custom backend class
+    # 'TOKEN_BACKEND': 'taxapp2.users.utils.HttpOnlyTokenCookieBackend',  # Custom backend class
     'BLACKLIST_AFTER_ROTATION': True,
 }
 
@@ -352,8 +352,8 @@ SPECTACULAR_SETTINGS = {
 CORS_URLS_REGEX = r"^/api/.*$"
 # Allow methods required for preflight requests
 CORS_ALLOWED_ORIGINS = [
-    "https://jirs.vercel.app",  # Add your React app's domain
-    "https://jigawa-tax.vercel.app",
+    "https://tax-stream.vercel.app",  # Add your React app's domain
+    # "https://tax-stream.vercel.app",
     # Add other allowed origins as needed
     "http://127.0.0.1:5173",
     "http://localhost:5173",

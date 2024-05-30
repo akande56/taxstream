@@ -38,9 +38,7 @@ from taxapp2.users.models import LGA
     retrieve=extend_schema(
         description="Retrieve a single business user by ID",
         summary="Retrieve Business User",
-        parameters=[
-            OpenApiParameter(name='id', description='ID of the business user to retrieve', required=True, type=OpenApiTypes.UUID),
-        ]
+        
     ),
     create=extend_schema(
         description="Create a new business user",
@@ -85,9 +83,7 @@ from taxapp2.users.models import LGA
     destroy=extend_schema(
         description="Delete a business user",
         summary="Delete Business User",
-        parameters=[
-            OpenApiParameter(name='id', description='ID of the business user to delete', required=True, type=OpenApiTypes.UUID),
-        ]
+        
     ),
 )
 class BusinessUserViewSet(viewsets.ModelViewSet):

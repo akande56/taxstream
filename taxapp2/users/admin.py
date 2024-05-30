@@ -7,7 +7,12 @@ from .models import (
     State,
     Ward, 
     WardAndMonitor,
-    BlacklistedToken,
+    TaxArea,
+    LGAsupervisor,
+    Statesupervisor,
+
+
+    # BlacklistedToken,
     )
 
 
@@ -33,7 +38,9 @@ admin.site.register(State)
 
 admin.site.register(WardAndMonitor)
 
-admin.site.register(BlacklistedToken)
+admin.site.register(TaxArea)
+admin.site.register(Statesupervisor)
+admin.site.register(LGAsupervisor)
 
 
 class GroupAdmin(admin.ModelAdmin):
