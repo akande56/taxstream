@@ -7,7 +7,7 @@ import StaffEnrollment from "./components/StaffEnrollment";
 import Audit from "./components/Audit";
 import Assessment from "./components/Assessment";
 import Profile from "./components/Profile";
-
+import DashboardContent from "./components/Dashboard";
 import PolicySettingsLocation from "./components/PolicySettingsLocation";
 import PolicySettingsBusiness from "./components/PolicySettingsBusiness";
 import ResetPassword from "./pages/ResetPassword";
@@ -15,16 +15,16 @@ import ResetPassword from "./pages/ResetPassword";
 import OTPVerification from "./pages/OTPVerification";
 import Signup from "./pages/Signup";
 
-
 const App = () => {
-  
   return (
     <Router>
       <Routes>
         <Route path="/" element={<LoginPage />} />
 
         <Route path="/dashboard" element={<Dashboard />}>
+          <Route index element={<DashboardContent />} />
           <Route path="policy-settings" element={<PolicySettings />}>
+            <Route index element={<PolicySettingsLocation />} />
             <Route path="location" element={<PolicySettingsLocation />} />
             <Route path="business" element={<PolicySettingsBusiness />} />
           </Route>

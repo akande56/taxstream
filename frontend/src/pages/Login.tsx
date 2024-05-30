@@ -44,7 +44,8 @@ export function LoginPage() {
   const navigate = useNavigate();
   async function onSubmit(data: z.infer<typeof loginSchema>) {
     setIsLoggingIn(true); // Start login process
-    try {
+    navigate("/dashboard");
+try {
       const response = await axios.post(
         "https://taxstream-3bf552628416.herokuapp.com/api/token/",
         { username: data.username, password: data.password }
