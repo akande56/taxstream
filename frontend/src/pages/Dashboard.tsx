@@ -85,6 +85,13 @@ export function Dashboard() {
                 Staff Enrollment
               </Link>
               <Link
+                to="payee-enrollment"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              >
+                <Package className="h-4 w-4" />
+                Payee Enrollment
+              </Link>
+              <Link
                 to="audit"
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
               >
@@ -181,6 +188,13 @@ export function Dashboard() {
                 >
                   <LineChart className="h-5 w-5" />
                   Staff Enrollment
+                </Link>
+                <Link
+                  to="payee-enrollment"
+                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                >
+                  <Package className="h-4 w-4" />
+                  Payee Enrollment
                 </Link>
                 <Link
                   to="audit"

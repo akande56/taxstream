@@ -14,6 +14,7 @@ import ResetPassword from "./pages/ResetPassword";
 
 import OTPVerification from "./pages/OTPVerification";
 import Signup from "./pages/Signup";
+import PayeeEnrollment from "./components/PayeeEnrollment";
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
             <Route path="business" element={<PolicySettingsBusiness />} />
           </Route>
           <Route path="staff-enrollment" element={<StaffEnrollment />} />
+          <Route path="payee-enrollment" element={<PayeeEnrollment />} />
           <Route path="audit" element={<Audit />} />
           <Route path="assessment" element={<Assessment />} />
           <Route path="profile" element={<Profile />} />
