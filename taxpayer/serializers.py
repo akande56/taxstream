@@ -40,11 +40,12 @@ class NewCreateUserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'location': {'queryset': LGA.objects.all()}}  
 
 class BusinessUserSerializer(serializers.ModelSerializer):
-    user = NewCreateUserSerializer(required=True)  
+    user = NewCreateUserSerializer(required=True)
+    
 
     class Meta:
         model = BusinessUser
-        fields = ('user', 'business_name', 'classification', 'withholding_tax_rate', 'business_status')
+        fields = ('user', 'business_name', 'classification', 'withholding_tax_rate', 'business_status', 'tax_area', 'anual_income')
 
     def create(self, validated_data):
         tax_id = str(uuid.uuid4())

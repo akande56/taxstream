@@ -1,7 +1,7 @@
 import uuid
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.status import (
     HTTP_201_CREATED,
     HTTP_400_BAD_REQUEST
@@ -38,6 +38,7 @@ from taxapp2.users.models import LGA
     retrieve=extend_schema(
         description="Retrieve a single business user by ID",
         summary="Retrieve Business User",
+        responses={201: BusinessUserSerializer},
         
     ),
     create=extend_schema(
@@ -63,6 +64,8 @@ from taxapp2.users.models import LGA
                     "classification": 1,
                     "withholding_tax_rate": 1,
                     "business_status": 1,
+                    "tax_area": 1,
+                    "anual_income" : 1,
                     
                 }
             )
@@ -179,7 +182,7 @@ class WithholdingTaxRateViewSet(viewsets.ModelViewSet):
 class BusinessStatusViewSet(viewsets.ModelViewSet):
     queryset = BusinessStatus.objects.all()
     serializer_class = BusinessStatusSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
 
     @extend_schema(
         description="Create a new business status",
