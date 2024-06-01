@@ -1,0 +1,41 @@
+import axios from "axios";
+
+// Create an Axios instance
+const api = axios.create({
+  baseURL: "https://taxstream-3bf552628416.herokuapp.com",
+  timeout: 10000,
+});
+
+// Add a request interceptor
+api.interceptors.request.use(
+  (config) => {
+    // Retrieve the token from local storage
+    const token = localStorage.getItem("authToken");
+
+    if (token) {
+      // If a token exists, add it to the headers
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Optional: Add a response interceptor
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    // Handle errors
+    if (error.response && error.response.status === 401) {
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default api;

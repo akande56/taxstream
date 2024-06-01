@@ -15,6 +15,7 @@ import { AppModal } from "./app/modal";
 import { AppSelect } from "./app/select";
 import { AppButton } from "./app/button";
 import axios from "axios";
+import api from "@/api";
 
 const addPayeeSchema = z.object({
   taxid: z.string({
@@ -97,43 +98,58 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
 
   useEffect(() => {
     const fetchInitData = async () => {
-      const fetchLga = await axios.get("/api/lga");
-      setLga(
-        fetchLga.data.map((item: string) => ({ value: item, label: item }))
-      );
+      try {
+        const fetchLga = await api.get("/api/v1/policy_configuration/lga/");
+        console.log(fetchLga);
+        setLga(
+          fetchLga.data.map((item: { id: number; name: string }) => ({
+            value: item.id.toString(),
+            label: item.name,
+          }))
+        );
+        // const fetchLga = await axios.get("/api/lga");
+        // setLga(
+        //   fetchLga.data.map((item: string) => ({ value: item, label: item }))
+        // );
 
-      const fetchWard = await axios.get("/api/ward");
-      setWard(
-        fetchWard.data.map((item: string) => ({ value: item, label: item }))
-      );
+        const fetchWard = await axios.get("/api/ward");
+        setWard(
+          fetchWard.data.map((item: string) => ({ value: item, label: item }))
+        );
 
-      const fetchTaxArea = await axios.get("/api/taxarea");
-      setTaxArea(
-        fetchTaxArea.data.map((item: string) => ({ value: item, label: item }))
-      );
+        const fetchTaxArea = await axios.get("/api/taxarea");
+        setTaxArea(
+          fetchTaxArea.data.map((item: string) => ({
+            value: item,
+            label: item,
+          }))
+        );
 
-      const fetchBusinessClassification = await axios.get(
-        "/api/businessclassification"
-      );
-      setBusinessClassification(
-        fetchBusinessClassification.data.map((item: string) => ({
-          value: item,
-          label: item,
-        }))
-      );
+        const fetchBusinessClassification = await axios.get(
+          "/api/businessclassification"
+        );
+        setBusinessClassification(
+          fetchBusinessClassification.data.map((item: string) => ({
+            value: item,
+            label: item,
+          }))
+        );
 
-      const fetchWithholdingTax = await axios.get("/api/withholdingtax");
-      setWithholdingTax(
-        fetchWithholdingTax.data.map((item: string) => ({
-          value: item,
-          label: item,
-        }))
-      );
+        const fetchWithholdingTax = await axios.get("/api/withholdingtax");
+        setWithholdingTax(
+          fetchWithholdingTax.data.map((item: string) => ({
+            value: item,
+            label: item,
+          }))
+        );
 
-      const fetchType = await axios.get("/api/type");
-      setType(
-        fetchType.data.map((item: string) => ({ value: item, label: item }))
-      );
+        const fetchType = await axios.get("/api/type");
+        setType(
+          fetchType.data.map((item: string) => ({ value: item, label: item }))
+        );
+      } catch (error) {
+        console.log(error);
+      }
     };
     fetchInitData();
   }, []);
