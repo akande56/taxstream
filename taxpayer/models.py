@@ -44,6 +44,12 @@ class BusinessStatus(models.Model):
         return self.status
 
 
+types = (
+        ('business', 'BUSINESS'),
+        ('individual', 'INDIVIDUAL'),
+        
+    )
+
 class BusinessUser(models.Model):
     """
     Model representing a business user (taxpayer).
@@ -56,6 +62,7 @@ class BusinessUser(models.Model):
     tax_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4)
     tax_area = models.OneToOneField(TaxArea, related_name='business_user_tax_area', on_delete=models.CASCADE, null=True)
     anual_income = models.FloatField()
+    type = models.CharField(max_length=20, choices=types)
 
     class Meta:
         ordering = ['business_name']

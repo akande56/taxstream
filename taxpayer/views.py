@@ -34,6 +34,7 @@ from taxapp2.users.models import LGA
     list=extend_schema(
         description="Retrieve a list of business users",
         summary="List Business Users",
+        responses={201: BusinessUserSerializer},
     ),
     retrieve=extend_schema(
         description="Retrieve a single business user by ID",
@@ -66,6 +67,7 @@ from taxapp2.users.models import LGA
                     "business_status": 1,
                     "tax_area": 1,
                     "anual_income" : 1,
+                    "type": "individual"
                     
                 }
             )

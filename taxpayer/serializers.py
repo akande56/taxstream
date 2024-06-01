@@ -45,7 +45,7 @@ class BusinessUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BusinessUser
-        fields = ('user', 'business_name', 'classification', 'withholding_tax_rate', 'business_status', 'tax_area', 'anual_income')
+        fields = ('user', 'business_name', 'classification', 'withholding_tax_rate', 'business_status', 'tax_area', 'anual_income', 'type')
 
     def create(self, validated_data):
         tax_id = str(uuid.uuid4())
