@@ -11,6 +11,9 @@ from .models import (
     Statesupervisor,
     LGAsupervisor,
 )
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -41,7 +44,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'phone', 'user_role','full_name', 'location')
+        fields = ('email', 'password', 'phone', 'user_role','full_name', 'location')
 
     def create(self, validated_data):
         full_name = validated_data.pop('full_name')
@@ -49,6 +52,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
         validated_data['first_name'] = first_name
         validated_data['last_name'] = last_name
         validated_data['is_staff'] = True
+        validated_data['username'] = validated_data['email']
         # generate unique staff ID
         # validated_data['staff_id'] = str(uuid.uuid4())
         user = User.objects.create_user(**validated_data)
@@ -139,3 +143,17 @@ class EmailSerializer(serializers.Serializer):
 
 class CustomEmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
+
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        refresh = self.get_token(self.user)
+        data['user'] = {
+            'id': self.user.pk,
+            'username': self.user.username,
+            'email': self.user.email,
+        }
+        data['refresh'] = str(refresh)
+        return data

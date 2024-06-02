@@ -61,6 +61,7 @@ from .serializers import (
     TaxAreaSerializer,
     StatesupervisorSerializer,
     LGAsupervisorSerializer,
+    CustomTokenObtainPairSerializer,
 
 )
 
@@ -91,14 +92,13 @@ class CurrentUserViewSet(viewsets.ViewSet):
 
 @extend_schema(
     summary="Create new staff with different roles",
-    description="Add new staff, ensure strong password, and two more than one name for full name",
+    description="Add new staff, ensure strong password, and two more than one name for full name. \n Username is automatically email",
     request=CreateUserSerializer,
 
     examples=[
             OpenApiExample(
                 'Example payload',
                 value={
-                    "username": "VTZYwnYn-9fIcYcGORxSEkJGFx5RBYb550xdcn7oUpUTPrY",
                     "email": "abdulsalamabubakar52@example.com",
                     "password": "pass123..",
                     "phone": "091",
@@ -154,6 +154,16 @@ class UserViewSet(GenericAPIView, ListModelMixin, UpdateModelMixin, DestroyModel
     def delete(self, request, pk):
         return self.destroy(request, pk)
 
+
+
+
+class StaffUserViewSet(viewsets.ViewSet):  
+    permission_classes = [AllowAny]
+
+    def list(self, request):
+        users = User.objects.exclude(user_role = 'tax_payer')
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
 
 
 
@@ -564,3 +574,17 @@ class TaxAreaViewSet(viewsets.ModelViewSet):
     queryset = TaxArea.objects.all().select_related('ward')  # Prefetch ward data
     serializer_class = TaxAreaSerializer
     permission_classes = [AllowAny]  
+
+
+
+#........ custom token...
+
+class CustomTokenObtainPairView(APIView):
+    serializer_class = CustomTokenObtainPairSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = CustomTokenObtainPairSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response(serializer.validated_data)
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)

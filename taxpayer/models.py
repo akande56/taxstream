@@ -60,7 +60,7 @@ class BusinessUser(models.Model):
     withholding_tax_rate = models.ForeignKey(WithholdingTaxRate, on_delete=models.SET_NULL, null=True)
     business_status = models.ForeignKey(BusinessStatus, on_delete=models.CASCADE)
     tax_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4)
-    tax_area = models.OneToOneField(TaxArea, related_name='business_user_tax_area', on_delete=models.CASCADE, null=True)
+    tax_area = models.ForeignKey(TaxArea, related_name='business_user_tax_area', on_delete=models.CASCADE, null=True)
     anual_income = models.FloatField()
     type = models.CharField(max_length=20, choices=types)
 

@@ -52,7 +52,6 @@ from taxapp2.users.models import LGA
                 'Example payload',
                 value={
                     "user": {
-                        "username": "abdul",
                         "password": "password123",
                         "email": "abdulsalamabubakar52@gmail.com",
                         "first_name" : "first_name",
