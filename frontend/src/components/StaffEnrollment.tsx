@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 import { Input } from "@/components/ui/input";
 import { PlusIcon } from "lucide-react";
 import { AppButton } from "./app/button";
@@ -23,15 +23,16 @@ import {
 import { AppModal } from "./app/modal";
 import StaffInfoModal from "./StaffInfo";
 import UpdateStaffModal from "./StaffUpdate";
+import api from "@/api";
 
 const StaffEnrollment = () => {
   const addStaffSchema = z.object({
     fullname: z.string({
       required_error: "Please enter Full Name",
     }),
-    staffId: z.string({
-      required_error: "Please enter Staff ID",
-    }),
+    // staffId: z.string({
+    //   required_error: "Please enter Staff ID",
+    // }),
     password: z.string({
       required_error: "Please create a Password",
     }),
@@ -52,11 +53,7 @@ const StaffEnrollment = () => {
       required_error: "Please enter LGA",
     }),
   });
-  // const [getFilterValue, setFilterValue] = useState<string>("");
-  // const [getSearch, setSearch] = useState<string>("");
-  // const [showStaffAddModal, setShowStaffAddModal] = useState<boolean>(false);
-  // const [getStaffRoleOptions, setStaffRoleOptions] = useState<IOption[]>([]);
-  // const [getStaffs, setStaffs] = useState<any[]>([]);
+
   const [getFilterValue, setFilterValue] = useState<string>("");
   const [getSearch, setSearch] = useState<string>("");
   const [showStaffAddModal, setShowStaffAddModal] = useState<boolean>(false);
@@ -66,6 +63,7 @@ const StaffEnrollment = () => {
   const [selectedStaff, setSelectedStaff] = useState<any>(null);
   const [getStaffRoleOptions, setStaffRoleOptions] = useState<IOption[]>([]);
   const [getStaffs, setStaffs] = useState<any[]>([]);
+  const [lga, setLga] = useState<{ value: string; label: string }[]>([]);
 
   const staffform = useForm<z.infer<typeof addStaffSchema>>({
     resolver: zodResolver(addStaffSchema),
@@ -74,14 +72,15 @@ const StaffEnrollment = () => {
 
   useEffect(() => {
     const options: IOption[] = [
-      { label: "Chairman", value: "Chairman" },
-      { label: "LGA SUPERVISOR", value: "LGA SUPERVISOR" },
-      { label: "WARD MONITOR", value: "WARD MONITOR" },
-      { label: "TAX COLLECTOR", value: "TAX COLLECTOR" },
-      { label: "ASSESMENT OFFICER", value: "ASSESMENT OFFICER" },
-      { label: "AUDIT OFFICER", value: "AUDIT OFFICER" },
-      { label: "ICT OFFICER", value: "ICT OFFICER" },
+      { label: "SUPERVISOR/DIRECTOR", value: "supervisor1" },
+      { label: "LGA SUPERVISOR/MONITOR", value: "supervisor2" },
+      { label: "WARD SUPERVISOR/MONITOR", value: "ward_monitor" },
+      { label: "TAX COLLECTOR", value: "tax_collector" },
+      { label: "ASSESSMENT OFFICER", value: "assessment_officer" },
+      { label: "AUDIT OFFICER", value: "audit_officer" },
+      { label: "TAX PAYER", value: "tax_payer" },
     ];
+
     setStaffRoleOptions(options);
     const staffData = [
       {
@@ -136,6 +135,23 @@ const StaffEnrollment = () => {
       },
     ];
     setStaffs(staffData);
+
+    const fetchInitData = async () => {
+      try {
+        const fetchLga = await api.get("/api/v1/policy_configuration/lga/");
+        const { data } = fetchLga;
+        console.log(data);
+        setLga(
+          data.map((item: { id: number; name: string }) => ({
+            value: item.id.toString(),
+            label: item.name,
+          }))
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchInitData();
   }, []);
 
   const handleUpdateStaff = (data: any) => {
@@ -173,19 +189,41 @@ const StaffEnrollment = () => {
     setShowStaffAddModal(true);
   };
 
+  const createStaff = async (staffData: any) => {
+    const staffCreatedata = {
+      email: staffData.email,
+      password: staffData.password,
+      phone: staffData.phoneNumber,
+      user_role: staffData.role,
+      full_name: staffData.fullname,
+      location: staffData.lga,
+    };
+    console.log(staffCreatedata);
+    try {
+      const req = await api.post("/api/v1/user/staff", staffCreatedata);
+      const { data } = req;
+      console.log(data);
+      toast.success(`Staff created successfully`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Error saving staff");
+    }
+  };
   const onAddStaffSubmit = (data: z.infer<typeof addStaffSchema>) => {
     console.log("data", data);
+    createStaff(data);
+
+    toast.success(`Staff Added successfully`);
+    setShowStaffAddModal(!showStaffAddModal);
     staffform.reset({
       fullname: "",
-      staffId: "",
+      // staffId: "",
       password: "",
       phoneNumber: "",
       email: "",
       role: "",
       lga: "",
     });
-    setTimeout(() => toast.success(`Staff Added successfully`), 5000);
-    setShowStaffAddModal(!showStaffAddModal);
     // Add your axios request here if needed
   };
 
@@ -193,7 +231,7 @@ const StaffEnrollment = () => {
     setShowStaffAddModal(false);
     staffform.reset({
       fullname: "",
-      staffId: "",
+      // staffId: "",
       password: "",
       phoneNumber: "",
       email: "",
@@ -264,6 +302,7 @@ const StaffEnrollment = () => {
 
   return (
     <div className="h-full p-10">
+      <Toaster richColors position="top-right" />
       <div className="w-full shadow-lg h-full border">
         <AppModal
           open={showStaffAddModal}
@@ -291,7 +330,7 @@ const StaffEnrollment = () => {
                 )}
               />
               <div className="flex flex-row gap-4">
-                <FormField
+                {/* <FormField
                   control={staffform.control}
                   name="staffId"
                   render={({ field }) => (
@@ -303,7 +342,7 @@ const StaffEnrollment = () => {
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
                 <FormField
                   control={staffform.control}
                   name="password"
@@ -380,7 +419,13 @@ const StaffEnrollment = () => {
                   <FormItem>
                     <FormLabel>LGA</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter LGA" {...field} />
+                      <AppSelect
+                        width="w-full"
+                        options={lga}
+                        placeholder="Select LGA"
+                        onChangeValue={field.onChange}
+                        selectValue={field.value}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -388,7 +433,12 @@ const StaffEnrollment = () => {
               />
               <div className="flex gap-3">
                 <AppButton type="submit" label="Save" />
-                <AppButton label="Cancel" onClick={closeModal} />
+                <button
+                  onClick={closeModal}
+                  className="bg-gray-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded-sm transition duration-200 ease-in-out w-full "
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </Form>

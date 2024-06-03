@@ -12,6 +12,7 @@ import { AppInput } from "./app/input";
 import { AppSelect, IOption } from "./app/select";
 import { AppTable } from "./app/table";
 import PayeeEnrollmentModal from "./PayeeEnrolmentModal";
+import api from "@/api";
 
 const PayeeEnrollment = () => {
   const [payees, setPayees] = useState<any[]>([]);
@@ -91,7 +92,42 @@ const PayeeEnrollment = () => {
         state: 1,
       },
     ];
-    setPayees(payeeData);
+    const getBusinesses = async () => {
+      try {
+        const response = await api.get("/api/v1/user/tax-payer/");
+        const { data } = response.data;
+        const taxArea = await api.get(
+          "/api/v1/policy_configuration/tax-areas/"
+        );
+        const taxAreaData = taxArea.data;
+
+        const payeeData = data.map((item: any, index: any) => {
+          const matchedTaxArea = taxAreaData.find(
+            (taxArea: any) => taxArea.id === item.tax_area
+          );
+          const taxAreaOffice = matchedTaxArea
+            ? matchedTaxArea.tax_area_office
+            : "N/A";
+
+          return {
+            key: String(index + 1),
+            fullname: `${item.user.first_name} ${item.user.last_name}`,
+            taxId: item.user.username,
+            classification:
+              item.classification === 0 ? "Company" : "Individual",
+            taxArea: taxAreaOffice,
+            email: item.user.email,
+            type: item.type,
+            state: item.business_status,
+          };
+        });
+
+        setPayees(payeeData);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getBusinesses();
   }, []);
   const columns = [
     {

@@ -172,7 +172,12 @@ const UpdateStaffModal: React.FC<UpdateStaffModalProps> = ({
 
           <div className="flex gap-3">
             <AppButton type="submit" label="Update" />
-            <AppButton label="Cancel" onClick={onClose} />
+            <button
+              onClick={onClose}
+              className="bg-gray-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded-sm transition duration-200 ease-in-out w-full "
+            >
+              Cancel
+            </button>
           </div>
         </form>
       </Form>

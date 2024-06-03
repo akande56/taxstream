@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -14,8 +16,8 @@ import { Input } from "@/components/ui/input";
 import { AppModal } from "./app/modal";
 import { AppSelect } from "./app/select";
 import { AppButton } from "./app/button";
-import axios from "axios";
 import api from "@/api";
+import { toast, Toaster } from "sonner";
 
 const addPayeeSchema = z.object({
   taxid: z.string({
@@ -27,6 +29,11 @@ const addPayeeSchema = z.object({
   lastname: z.string({
     required_error: "Please enter Last Name",
   }),
+  password: z
+    .string({
+      required_error: "Please enter Password",
+    })
+    .min(8, "Password must be at least 8 characters"),
   email: z
     .string({
       required_error: "Please enter Email",
@@ -76,76 +83,99 @@ interface AddPayeeeModalProps {
 const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
   open,
   onClose,
-  onUpdate,
 }) => {
+  // form initialization States
   const [lga, setLga] = useState<{ value: string; label: string }[]>([]);
-  const [ward, setWard] = useState<{ value: string; label: string }[]>([]);
-  const [taxArea, setTaxArea] = useState<{ value: string; label: string }[]>(
-    []
-  );
+  const [ward, setWard] = useState([]);
+  const [taxArea, setTaxArea] = useState<[]>([]);
   const [businessClassification, setBusinessClassification] = useState<
     { value: string; label: string }[]
   >([]);
   const [withholdingTax, setWithholdingTax] = useState<
     { value: string; label: string }[]
   >([]);
-  const [type, setType] = useState<{ value: string; label: string }[]>([]);
-
+  const [type, setType] = useState<{ value: string; label: string }[]>(() => {
+    return [
+      { value: "business", label: "BUSINESS" },
+      { value: "individual", label: "INDIVIDUAL" },
+    ];
+  });
+  const [formWard, setFormWard] = useState<{ value: any; label: string }[]>([]);
+  // const [formTaxArea, setFormTaxArea] = useState([]);
+  const [formTaxArea, setFormTaxArea] = useState<
+    { value: any; label: string }[]
+  >([]);
   const payeeform = useForm<z.infer<typeof addPayeeSchema>>({
     resolver: zodResolver(addPayeeSchema),
     defaultValues: {},
   });
 
+  // form Selected fields states
+  const [selectedLga, setSelectedLga] = useState<string>("");
+  const [selectedWard, setSelectedWard] = useState<string>("");
+  const [selectedTaxArea, setSelectedTaxArea] = useState<string>("");
+  // const [selectedBusinessClassification, setSelectedBusinessClassification] =
+  //   useState<string>("");
+  // const [selectedWithholdingTax, setSelectedWithholdingTax] =
+  //   useState<string>("");
+  // const [selectedType, setSelectedType] = useState("");
+
+  // form fields handlers
+  const handleLgaChange = (value: any) => {
+    setSelectedLga(value.target.value);
+    console.log("selectedLga", selectedLga);
+  };
+
+  const handleWardChange = (value: any) => {
+    setSelectedWard(value.target.value);
+  };
+
+  const handleTaxAreaChange = (value: string) => {
+    setSelectedTaxArea(value);
+  };
+  // form init useEffect
   useEffect(() => {
     const fetchInitData = async () => {
       try {
         const fetchLga = await api.get("/api/v1/policy_configuration/lga/");
-        console.log(fetchLga);
         setLga(
           fetchLga.data.map((item: { id: number; name: string }) => ({
             value: item.id.toString(),
             label: item.name,
           }))
         );
-        // const fetchLga = await axios.get("/api/lga");
-        // setLga(
-        //   fetchLga.data.map((item: string) => ({ value: item, label: item }))
+
+        // const fetchWard = await api.get("/api/v1/policy_configuration/wards/");
+
+        // setWard(fetchWard.data);
+
+        // const fetchTaxArea = await api.get(
+        //   "/api/v1/policy_configuration/tax-areas/"
         // );
+        // setTaxArea(fetchTaxArea.data);
 
-        const fetchWard = await axios.get("/api/ward");
-        setWard(
-          fetchWard.data.map((item: string) => ({ value: item, label: item }))
-        );
-
-        const fetchTaxArea = await axios.get("/api/taxarea");
-        setTaxArea(
-          fetchTaxArea.data.map((item: string) => ({
-            value: item,
-            label: item,
-          }))
-        );
-
-        const fetchBusinessClassification = await axios.get(
-          "/api/businessclassification"
+        const fetchBusinessClassification = await api.get(
+          "/api/v1/policy_configuration/business-classifications/"
         );
         setBusinessClassification(
-          fetchBusinessClassification.data.map((item: string) => ({
-            value: item,
-            label: item,
-          }))
+          fetchBusinessClassification.data.map(
+            (item: { id: number; name: string }) => ({
+              value: item.id,
+              label: item.name,
+            })
+          )
         );
 
-        const fetchWithholdingTax = await axios.get("/api/withholdingtax");
+        const fetchWithholdingTax = await api.get(
+          "/api/v1/policy_configuration/withholding-tax-rates/"
+        );
         setWithholdingTax(
-          fetchWithholdingTax.data.map((item: string) => ({
-            value: item,
-            label: item,
-          }))
-        );
-
-        const fetchType = await axios.get("/api/type");
-        setType(
-          fetchType.data.map((item: string) => ({ value: item, label: item }))
+          fetchWithholdingTax.data.map(
+            (item: { id: any; payment: any; rate: any }) => ({
+              value: item.id,
+              label: `${item.payment} - ${item.rate}`,
+            })
+          )
         );
       } catch (error) {
         console.log(error);
@@ -153,6 +183,105 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
     };
     fetchInitData();
   }, []);
+
+  useEffect(() => {
+    const fetchWard = async () => {
+      if (selectedLga) {
+        console.log("Fetchin wards");
+        const res = await api.get("/api/v1/policy_configuration/wards/");
+        const { data } = res;
+        console.log("ward", data);
+        const filteredAndMappedWard = data
+          .filter((item: { lga: string }) => item.lga == selectedLga)
+          .map(
+            (item: { id: number; area_name: string; area_code: string }) => ({
+              value: item.id,
+              label: `${item.area_name}-${item.area_code}`,
+            })
+          );
+        console.log(selectedLga);
+        console.log(
+          "filteredAndMappedWard",
+          data.filter((item: { lga: string }) => item.lga == selectedLga)
+        );
+        console.log(filteredAndMappedWard);
+        setFormWard(filteredAndMappedWard);
+      }
+    };
+    fetchWard();
+  }, [selectedLga]);
+
+  useEffect(() => {
+    const fetchTaxAreas = async () => {
+      if (selectedWard) {
+        const res = await api.get("/api/v1/policy_configuration/tax-areas/");
+        const { data } = res;
+        console.log(data);
+        const filteredAndMappedTaxArea = data
+          .filter((item: { ward: string }) => item.ward == selectedWard)
+          .map(
+            (item: {
+              id: number;
+              tax_area_office: string;
+              tax_area_code: string;
+            }) => ({
+              value: item.id,
+              label: `${item.tax_area_office} - ${item.tax_area_code}`,
+            })
+          );
+        console.log("selectedWard", selectedWard);
+        console.log(
+          "filteredtaxarea",
+          data.filter((item: { ward: string }) => item.ward === selectedWard)
+        );
+        console.log("filteredAndMappedTaxArea", filteredAndMappedTaxArea);
+        setFormTaxArea(filteredAndMappedTaxArea);
+      }
+    };
+    fetchTaxAreas();
+  }, [selectedWard]);
+
+  // submit form
+  const createPayee = async (payeeData: any) => {
+    toast.loading("Creating Payee", { position: "top-right", duration: 3000 });
+    try {
+      const response = await api.post("/api/v1/user/tax-payer/", payeeData);
+      console.log(response);
+      const { data } = response;
+      console.log(data);
+      toast.success(`Payee created successfully`);
+    } catch (error) {
+      toast.error("An error occurred", {
+        position: "top-right",
+        duration: 1500,
+      });
+      console.error(error);
+    }
+  };
+  const handleSubmit = (data: z.infer<typeof addPayeeSchema>) => {
+    console.log(data);
+    const payeeData = {
+      user: {
+        username: data.email,
+        password: data.password,
+        email: data.email,
+        first_name: data.firstname,
+        last_name: data.lastname,
+        user_role: "tax_payer",
+        phone: data.phoneNumber,
+        location: data.lga,
+      },
+      business_name: data.businessname,
+      business_status: 4,
+      classification: data.businessclassification,
+      withholding_tax_rate: data.witholdingtax,
+      tax_area: data.taxarea,
+      anual_income: data.annualincome,
+      type: data.type,
+    };
+    console.log(payeeData);
+    createPayee(payeeData);
+  };
 
   return (
     <AppModal
@@ -165,7 +294,7 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
       <Form {...payeeform}>
         <form
           className="w-full flex flex-col gap-3"
-          onSubmit={payeeform.handleSubmit(onUpdate)}
+          onSubmit={payeeform.handleSubmit(handleSubmit)}
         >
           <FormField
             control={payeeform.control}
@@ -174,7 +303,7 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
               <FormItem>
                 <FormLabel>TAX ID</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter Tax ID" {...field} />
+                  <Input type="text" placeholder="Enter Tax ID" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -188,7 +317,11 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
                 <FormItem>
                   <FormLabel>FIRST NAME</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter First Name" {...field} />
+                    <Input
+                      type="text"
+                      placeholder="Enter First Name"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -201,13 +334,35 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
                 <FormItem>
                   <FormLabel>LAST NAME</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter Last Name" {...field} />
+                    <Input
+                      type="text"
+                      placeholder="Enter Last Name"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
+          <FormField
+            control={payeeform.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="********"
+                    type="password"
+                    className="flex items-center"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <div className="flex flex-row gap-2">
             <FormField
@@ -230,7 +385,11 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
                 <FormItem>
                   <FormLabel>Phone Number</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter Phone Number" {...field} />
+                    <Input
+                      type="number"
+                      placeholder="Enter Phone Number"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -247,8 +406,12 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
                   <FormControl>
                     <AppSelect
                       options={lga}
+                      width="w-full"
                       placeholder="Select LGA"
-                      onChangeValue={field.onChange}
+                      onChangeValue={(value: any) => {
+                        field.onChange(value);
+                        handleLgaChange(value);
+                      }}
                       selectValue={field.value}
                     />
                   </FormControl>
@@ -264,9 +427,13 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
                   <FormLabel>Ward</FormLabel>
                   <FormControl>
                     <AppSelect
-                      options={ward}
+                      options={formWard}
+                      width="w-full"
                       placeholder="Select Ward"
-                      onChangeValue={field.onChange}
+                      onChangeValue={(value: any) => {
+                        field.onChange(value);
+                        handleWardChange(value);
+                      }}
                       selectValue={field.value}
                     />
                   </FormControl>
@@ -284,7 +451,7 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
                 <FormControl>
                   <AppSelect
                     width="w-full"
-                    options={taxArea}
+                    options={formTaxArea}
                     placeholder="Select Tax Area"
                     onChangeValue={field.onChange}
                     selectValue={field.value}
@@ -360,7 +527,11 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
                 <FormItem>
                   <FormLabel>Business Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter Business Name" {...field} />
+                    <Input
+                      type="text"
+                      placeholder="Enter Business Name"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -375,7 +546,11 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
               <FormItem>
                 <FormLabel>Annual Income</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter Annual Income" {...field} />
+                  <Input
+                    type="number"
+                    placeholder="Enter Annual Income"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -383,7 +558,12 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
           />
           <div className="flex gap-3">
             <AppButton type="submit" label="Save" />
-            <AppButton label="Cancel" onClick={onClose} />
+            <button
+              onClick={onClose}
+              className="bg-gray-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded-sm transition duration-200 ease-in-out w-full "
+            >
+              Cancel
+            </button>
           </div>
         </form>
       </Form>
