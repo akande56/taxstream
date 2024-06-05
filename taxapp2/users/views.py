@@ -170,7 +170,7 @@ class StaffUserViewSet(viewsets.ViewSet):
 
     def list(self, request):
         users = User.objects.exclude(user_role = 'tax_payer')
-        serializer = UserSerializer(users, many=True)
+        serializer = UserListSerializer(users, many=True)
         return Response(serializer.data)
 
 

@@ -4,7 +4,7 @@ from django.contrib.auth import password_validation
 from .models import BusinessUser, User, BusinessClassification, WithholdingTaxRate, BusinessStatus
 from taxapp2.users.serializers import CreateUserSerializer
 from taxapp2.users.models import LGA
-from taxapp2.users.serializers import LGASerializer
+from taxapp2.users.serializers import LGASerializer, TaxAreaSerializer
 
 
 
@@ -72,12 +72,32 @@ class BusinessUserRetrieveListSerializer(serializers.ModelSerializer):
     classification = BusinessClassificationSerializer()
     withholding_tax_rate = WithholdingTaxRateSerializer()
     business_status = BusinessStatusSerializer()
+    tax_area = TaxAreaSerializer()
     class Meta:
         model = BusinessUser
-        fields = ('id', 'user', 'business_name', 'classification', 'withholding_tax_rate', 'business_status')
+        fields = (
+            'id',
+            'tax_id',
+            'user',
+            'business_name', 
+            'classification', 
+            'withholding_tax_rate', 
+            'business_status',
+            'tax_area',
+            'anual_income',
+            'type',
+            )
 
 
 class BusinessUserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = BusinessUser
-        fields = ('business_name', 'classification', 'withholding_tax_rate', 'business_status')
+        fields = (
+            'business_name', 
+            'classification', 
+            'withholding_tax_rate',
+            'business_status',
+            'type',
+            'tax_area',
+            'anual_income',
+            )
