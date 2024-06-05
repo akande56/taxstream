@@ -67,7 +67,8 @@ urlpatterns += [
     path('api/v1/', include(router.urls)),
     path('api/v1/user/staff', UserCreateView.as_view(), name = 'new_staff'),
     path('api/v1/user/staff-list', StaffUserViewSet.as_view({'get': 'list'}), name = 'staff list'),
-    re_path(r'^api/v1/all_users/(?P<pk>[^/]+)?$', UserViewSet.as_view(), name='user-detail'),
+    re_path(r'^api/v1/all_users/$', UserViewSet.as_view({'get': 'list'}), name='user-list'),
+    re_path(r'^api/v1/all_users/(?P<pk>[^/]+)/$', UserViewSet.as_view({'put': 'put', 'delete': 'destroy'}), name='user-detail'),
     path('api/v1/user/change_password/', ChangePasswordView.as_view(), name = 'change_password'),
     
     #Token

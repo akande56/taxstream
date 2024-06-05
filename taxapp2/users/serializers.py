@@ -134,6 +134,30 @@ class TaxAreaSerializer(serializers.ModelSerializer):
         fields = ['id', 'ward', 'tax_area_office', 'tax_area_code']
 
 
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    location = LGASerializer()
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'username',
+            'email',
+            'phone',
+            'first_name',
+            'last_name',
+            'location',
+            'is_active',
+            'is_superuser',
+            'is_staff',
+            'user_role',
+            'date_joined',
+            'groups',
+            'user_permissions',
+            )
+
+
 class EmailSerializer(serializers.Serializer):
     subject = serializers.CharField(max_length=255)
     message = serializers.CharField()

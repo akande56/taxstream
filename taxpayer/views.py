@@ -17,8 +17,8 @@ from .models import (
 )
 from .serializers import (
     BusinessUserSerializer,
-    BusinessUserListSerializer,
-    BusinessUserRetrieveSerializer,
+    # BusinessUserListSerializer,
+    BusinessUserRetrieveListSerializer,
     BusinessUserUpdateSerializer,
     BusinessClassificationSerializer,
     WithholdingTaxRateSerializer,
@@ -34,12 +34,12 @@ from taxapp2.users.models import LGA
     list=extend_schema(
         description="Retrieve a list of business users",
         summary="List Business Users",
-        responses={201: BusinessUserSerializer},
+        responses={201: BusinessUserRetrieveListSerializer},
     ),
     retrieve=extend_schema(
         description="Retrieve a single business user by ID",
         summary="Retrieve Business User",
-        responses={201: BusinessUserSerializer},
+        responses={201: BusinessUserRetrieveListSerializer},
         
     ),
     create=extend_schema(
@@ -96,7 +96,7 @@ class BusinessUserViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
-            return BusinessUserListSerializer if self.action == 'list' else BusinessUserRetrieveSerializer
+            return BusinessUserRetrieveListSerializer
         return BusinessUserUpdateSerializer
 
     def create(self, request):

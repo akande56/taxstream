@@ -2,7 +2,7 @@ from django.contrib.auth import update_session_auth_hash, authenticate, get_user
 from django.contrib.auth.models import Group
 from django.utils.http import urlsafe_base64_encode
 from django.urls import reverse
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from drf_spectacular.utils import (
     extend_schema,
@@ -15,6 +15,7 @@ from rest_framework.status import (
     HTTP_201_CREATED, 
     HTTP_200_OK, 
     HTTP_400_BAD_REQUEST,
+    HTTP_204_NO_CONTENT,
 )
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import (
@@ -33,7 +34,7 @@ from django_rest_passwordreset.views import (
     clear_expired_tokens,
     generate_token_for_email, 
     HTTP_IP_ADDRESS_HEADER, 
-    HTTP_USER_AGENT_HEADER
+    HTTP_USER_AGENT_HEADER,
     )
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from .models import (
@@ -51,6 +52,7 @@ from .permissions import (
 )
 from .serializers import (
     UserSerializer, 
+    UserListSerializer,
     CreateUserSerializer,
     ChangePasswordSerializer,
     GroupSerializer,
@@ -69,7 +71,7 @@ from .serializers import (
     summary="Get details of Sign-in User instance",
     description="Retrieve details of User instance of current user(i.e logged-in); needs acess token in header i.e Authorization Bearer <acess token>. Note: to get both User and business details try api/v1/user/tax-payer",
 
-    request=UserSerializer,
+    request=UserListSerializer,
    
     responses={
         201: "Created",
@@ -79,7 +81,7 @@ from .serializers import (
 class CurrentUserViewSet(viewsets.ViewSet):
     def list(self, request):
         if request.user.is_authenticated:
-            serializeData = UserSerializer(request.user)
+            serializeData = UserListSerializer(request.user)
             return Response(serializeData.data)
         else:
             return Response({'error': 'You are not authenticated.'}, status=401)
@@ -127,32 +129,38 @@ class UserCreateView(APIView):
 
 @extend_schema(
     summary="Apply on all User instance (list/update/delete)",
-    description="the Get request does not require any ID (i.e the URL path). the endpoint returns all users \
-        Since this endpoint on the current platform has ID, it wont run; but its tested to be working using postman",
     request=UserSerializer,
 )
-class UserViewSet(GenericAPIView, ListModelMixin, UpdateModelMixin, DestroyModelMixin):
+class UserViewSet(viewsets.ViewSet, generics.ListAPIView, generics.UpdateAPIView, generics.DestroyAPIView):
     """
-    Permissions: isAuthenticated
-    """
-    permission_classes = [AllowAny]
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    
+    API endpoint for managing users.
 
-    def get(self, request):
-        
-        return self.list(request)
+    Permissions: By default, allows access to anyone (consider using IsAuthenticated).
+    """
+
+    permission_classes = [AllowAny] 
+
+    queryset = User.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return UserListSerializer
+        return UserSerializer
+
+    def list(self, request):
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+        return Response(serializer.data)
 
     def put(self, request, pk):
-        instance = self.get_object() 
-        serializer = self.get_serializer(instance, data=request.data, partial=True)  
-        serializer.is_valid(raise_exception=True)  
-        serializer.save()  
-        return self.partial_update(request, pk)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
     def delete(self, request, pk):
-        return self.destroy(request, pk)
+        self.perform_destroy(self.get_object())
+        return Response(status=HTTP_204_NO_CONTENT)
 
 
 
