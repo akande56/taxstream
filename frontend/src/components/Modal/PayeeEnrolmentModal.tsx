@@ -13,9 +13,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { AppModal } from "./app/modal";
-import { AppSelect } from "./app/select";
-import { AppButton } from "./app/button";
+import { AppModal } from "../app/modal";
+import { AppSelect } from "../app/select";
+import { AppButton } from "../app/button";
 import api from "@/api";
 import { toast, Toaster } from "sonner";
 

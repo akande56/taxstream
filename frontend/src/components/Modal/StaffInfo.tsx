@@ -1,5 +1,5 @@
 import React from "react";
-import { AppModal } from "./app/modal";
+import { AppModal } from "../app/modal";
 
 interface StaffInfoModalProps {
   open: boolean;

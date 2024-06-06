@@ -17,11 +17,13 @@ import Forbidden from "./components/errors/Forbidden";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 import { roles } from "./lib/roles";
+import { Toaster } from "sonner";
 
 const App = () => {
   return (
     <Router>
       <AuthProvider>
+        <Toaster richColors position="top-right" closeButton />
         <Routes>
           <Route
             path="/dashboard"

@@ -21,8 +21,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { AppModal } from "./app/modal";
-import StaffInfoModal from "./StaffInfo";
-import UpdateStaffModal from "./StaffUpdate";
+import StaffInfoModal from "./Modal/StaffInfo";
+import UpdateStaffModal from "./Modal/StaffUpdate";
 import api from "@/api";
 
 const StaffEnrollment = () => {
@@ -302,7 +302,6 @@ const StaffEnrollment = () => {
 
   return (
     <div className="h-full p-10">
-      <Toaster richColors position="top-right" />
       <div className="w-full shadow-lg h-full border">
         <AppModal
           open={showStaffAddModal}

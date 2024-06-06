@@ -47,7 +47,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element, roles }) => {
     return <Navigate to="/login" />;
   }
 
-  if (!roles.some((role) => user.role.includes(role))) {
+  // if (!roles.some((role) => user.role.includes(role))) {
+  //   return <Navigate to="/403" />;
+  // }
+  if (!user.role || !roles.some((role) => user.role.includes(role))) {
     return <Navigate to="/403" />;
   }
 

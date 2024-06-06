@@ -4,9 +4,9 @@ import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
-import { AppButton } from "./app/button";
-import { AppSelect, IOption } from "./app/select";
-import { AppModal } from "./app/modal";
+import { AppButton } from "../app/button";
+import { AppSelect, IOption } from "../app/select";
+import { AppModal } from "../app/modal";
 import {
   Form,
   FormControl,

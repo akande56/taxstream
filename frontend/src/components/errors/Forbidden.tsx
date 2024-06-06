@@ -10,16 +10,16 @@ const Forbidden = () => {
         className="w-96 h-96 mb-8"
       />
       <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">
-        404 Not Found
+        403 Not Found
       </h1>
       <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
         Oops! You do not have the permissons to access This page.
       </p>
       <Link
-        to="/"
+        to="/login"
         className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
       >
-        Back to Home
+        Back to Login
       </Link>
     </div>
   );
