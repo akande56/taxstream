@@ -130,11 +130,8 @@ class UpdateAssessment_AssessmentOfficerSerializer(serializers.ModelSerializer):
         assessment = instance
         assessment.to_be_paid = validated_data['to_be_paid']
         assessment.tax_due_time = validated_data['tax_due_time']
+        assessment.assessment_status = 'reviewed'
         assessment.save()
-
-        user = assessment.user
-        user.status = 'reviewed'
-        user.save()
         return assessment
 
 
@@ -146,9 +143,6 @@ class UpdateAssessment_AuditOfficerSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         assessment = instance
         assessment.query = validated_data['query']
+        assessment.assessment_status = 'query'
         assessment.save()
-
-        user = assessment.user
-        user.status = 'query'
-        user.save()
         return assessment

@@ -63,15 +63,7 @@ class BusinessUser(models.Model):
     tax_area = models.ForeignKey(TaxArea, related_name='business_user_tax_area', on_delete=models.CASCADE, null=True)
     anual_income = models.FloatField()
     type = models.CharField(max_length=20, choices=types)
-    status = models.CharField(max_length=20,
-    choices= (
-        ('pending review', 'Pending Review'),
-        ('reviewed', 'Reviewed'),
-        ('query', 'Query'),
-        ('approved', 'Approved'),
-        ),
-    default='pending review'
-    )
+    
 
     class Meta:
         ordering = ['business_name']
@@ -81,8 +73,30 @@ class BusinessUser(models.Model):
 
 
 
+def all_required_fields_filled(assessment):
+    # Get all model fields (excluding related fields)
+    model_fields = assessment._meta.get_fields(include_parents=False)
+    required_fields = [field for field in model_fields if not field.choices and field.blank is False]
+    
+    # Check if all required fields (except status) have values
+    for field in required_fields:
+        field_value = getattr(assessment, field.name)
+        if field_value is None:
+            return False
+    return True
+
+
 class Assessment(models.Model):
     user = models.OneToOneField(BusinessUser, related_name='tax_payer_assesment', on_delete=models.CASCADE)
+    assessment_status = models.CharField(max_length=20,
+    choices= (
+        ('pending review', 'Pending Review'),
+        ('reviewed', 'Reviewed'),
+        ('query', 'Query'),
+        ('approved', 'Approved'),
+        ),
+    default='pending review'
+    )
     to_be_paid = models.FloatField(null=True, blank=True)
     tax_due_time = models.CharField(max_length=20,
     choices= (
@@ -94,3 +108,10 @@ class Assessment(models.Model):
     blank= True,
     )
     query = models.CharField(max_length=150)
+    
+    def approve_assessment(self):
+        if all_required_fields_filled(self):  # Check if all required fields are filled
+            self.assessment_status = 'approved'
+            self.save()
+
+    

@@ -213,7 +213,7 @@ class BusinessStatusViewSet(viewsets.ModelViewSet):
 
 
 @extend_schema(
-    summary="Assessment, list of tax payer assessment form",
+    summary="Assessment form: list of tax payer assessment form",
     description="",
     request= AssessmentSerializer,
     responses= AssessmentSerializer
@@ -232,7 +232,9 @@ class AssessmentListView(ListAPIView):
 
 
 @extend_schema(
-    description="May not run directly due to options for assessment and audit officer; note diffrent post request change option",
+    summary="update tax payer assessment detail: assessment officer review|audit officer query detail",
+    description=
+    " Use Postman to Test: May not run directly due to options for assessment and audit officer; note the different post request change option(assessment\audit officer). Upon adding assessment submission; assessment_status for taxpayer will be update to <reviewed>, while upon audit submission will be <query>",
     request={
         'assessment_officer': {
             'type': 'object',
@@ -282,3 +284,24 @@ class UpdateAssessmentView(UpdateAPIView):
     def get_queryset(self):
         return Assessment.objects.all()
     
+
+
+@extend_schema(
+    summary= "Approve tax payer assessment form"
+)
+class ApproveAssessmentView(APIView):
+  def put(self, request, assessment_id):
+    try:
+      assessment = Assessment.objects.get(pk=assessment_id)
+      
+      # Manual validation (optional)
+    #   if not all_required_fields_filled(assessment):  # Check for required fields
+    #       return Response({'error': 'Missing required fields'}, status=400)
+
+      assessment.approve_assessment()  
+      assessment.save()
+      return Response({'message': 'Assessment updated successfully'})
+    except Assessment.DoesNotExist:
+      return Response({'error': 'Assessment not found'}, status=404)
+    except Exception as e:  
+      return Response({'error': str(e)}, status=500)
