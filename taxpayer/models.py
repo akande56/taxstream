@@ -63,9 +63,34 @@ class BusinessUser(models.Model):
     tax_area = models.ForeignKey(TaxArea, related_name='business_user_tax_area', on_delete=models.CASCADE, null=True)
     anual_income = models.FloatField()
     type = models.CharField(max_length=20, choices=types)
+    status = models.CharField(max_length=20,
+    choices= (
+        ('pending review', 'Pending Review'),
+        ('reviewed', 'Reviewed'),
+        ('query', 'Query'),
+        ('approved', 'Approved'),
+        ),
+    default='pending review'
+    )
 
     class Meta:
         ordering = ['business_name']
 
     def __str__(self):
         return self.business_name
+
+
+
+class Assessment(models.Model):
+    user = models.OneToOneField(BusinessUser, related_name='tax_payer_assesment', on_delete=models.CASCADE)
+    to_be_paid = models.FloatField(null=True, blank=True)
+    tax_due_time = models.CharField(max_length=20,
+    choices= (
+        ('annually', 'Annually'),
+        ('monthly', 'Monthly'),
+        ('daily', 'Daily'),
+    ),
+    null= True,
+    blank= True,
+    )
+    query = models.CharField(max_length=150)

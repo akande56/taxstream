@@ -31,6 +31,8 @@ from taxpayer.views import (
     BusinessStatusViewSet,
     WithholdingTaxRateViewSet,
     BusinessClassificationViewSet,
+    AssessmentListView,
+    UpdateAssessmentView,
 )
 
 
@@ -70,6 +72,8 @@ urlpatterns += [
     re_path(r'^api/v1/all_users/$', UserViewSet.as_view({'get': 'list'}), name='user-list'),
     re_path(r'^api/v1/all_users/(?P<pk>[^/]+)/$', UserViewSet.as_view({'put': 'put', 'delete': 'destroy'}), name='user-detail'),
     path('api/v1/user/change_password/', ChangePasswordView.as_view(), name = 'change_password'),
+    path('assessments/', AssessmentListView.as_view(), name='assessment-list'),
+    path('assessments/<int:pk>/', UpdateAssessmentView.as_view(), name='assessment-detail'),
     
     #Token
     # path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),

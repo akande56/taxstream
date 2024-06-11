@@ -1,7 +1,14 @@
 import uuid
 from rest_framework import serializers
 from django.contrib.auth import password_validation
-from .models import BusinessUser, User, BusinessClassification, WithholdingTaxRate, BusinessStatus
+from .models import (
+    BusinessUser, 
+    User, 
+    BusinessClassification, 
+    WithholdingTaxRate, 
+    BusinessStatus, 
+    Assessment,
+)
 from taxapp2.users.serializers import CreateUserSerializer
 from taxapp2.users.models import LGA
 from taxapp2.users.serializers import LGASerializer, TaxAreaSerializer
@@ -56,13 +63,11 @@ class BusinessUserSerializer(serializers.ModelSerializer):
         business_user = BusinessUser.objects.create(user=user,tax_id=tax_id ,**validated_data)
         return business_user
 
-    # def validate(self, attrs):
-    #     # Custom validation (optional)
-    #     # For example, ensure user with the same username doesn't exist
-    #     username = attrs['user']['username']
-    #     if User.objects.filter(username=username).exists():
-    #         raise serializers.ValidationError("Username already exists")
-    #     return attrs
+    def validate(self, attrs):
+        email = attrs['user']['email']
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError("Email already exists")
+        return attrs
    
 
 
@@ -101,3 +106,49 @@ class BusinessUserUpdateSerializer(serializers.ModelSerializer):
             'tax_area',
             'anual_income',
             )
+
+
+# Assesment and audit
+
+class AssessmentSerializer(serializers.ModelSerializer):
+    user = BusinessUserRetrieveListSerializer()
+    class Meta:
+        model = Assessment
+        fields = '__all__'  
+
+
+class UpdateAssessment_AssessmentOfficerSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Assessment
+        fields = ('to_be_paid', 'tax_due_time')
+    
+    def update(self, instance, validated_data):
+        """
+        Updates the assessment instance and updates BusinessUser status.
+        """
+        assessment = instance
+        assessment.to_be_paid = validated_data['to_be_paid']
+        assessment.tax_due_time = validated_data['tax_due_time']
+        assessment.save()
+
+        user = assessment.user
+        user.status = 'reviewed'
+        user.save()
+        return assessment
+
+
+class UpdateAssessment_AuditOfficerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assessment
+        fields = ['query']
+
+    def update(self, instance, validated_data):
+        assessment = instance
+        assessment.query = validated_data['query']
+        assessment.save()
+
+        user = assessment.user
+        user.status = 'query'
+        user.save()
+        return assessment

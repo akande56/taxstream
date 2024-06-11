@@ -1,12 +1,13 @@
 import uuid
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.status import (
     HTTP_201_CREATED,
     HTTP_400_BAD_REQUEST
 )
 from rest_framework import viewsets
+from rest_framework.generics import ListAPIView, UpdateAPIView
 from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiTypes, OpenApiExample
 from .models import (
@@ -14,6 +15,7 @@ from .models import (
     BusinessClassification,
     BusinessStatus,
     WithholdingTaxRate,
+    Assessment,
 )
 from .serializers import (
     BusinessUserSerializer,
@@ -24,6 +26,9 @@ from .serializers import (
     WithholdingTaxRateSerializer,
     BusinessStatusSerializer,
     NewCreateUserSerializer,
+    AssessmentSerializer,
+    UpdateAssessment_AssessmentOfficerSerializer,
+    UpdateAssessment_AuditOfficerSerializer,
 
 )
 from taxapp2.users.models import LGA
@@ -202,3 +207,66 @@ class BusinessStatusViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
+
+
+# assesment and audit
+
+
+@extend_schema(
+    summary="Assessment, list of tax payer assessment form",
+    description="",
+    request= AssessmentSerializer,
+    responses= AssessmentSerializer
+    )
+class AssessmentListView(ListAPIView):
+    
+    serializer_class = AssessmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Assessment.objects.all()
+        # user_area = self.request.user.location
+        # queryset = queryset.(user__location=user_area)
+        return queryset
+
+
+
+@extend_schema(
+    request={
+        'assessment_officer': {
+            'type': 'object',
+            'properties': {
+                'to_be_paid': {'type': 'number'},
+                'tax_due_time': {'type': 'string', 'format': 'date'},
+            },
+            'required': ['to_be_paid', 'tax_due_time']
+        },
+        'audit_officer': {
+            'type': 'object',
+            'properties': {
+                'query': {'type': 'string'},
+            },
+            'required': ['query']
+        }
+    },
+    responses={
+        200: UpdateAssessment_AssessmentOfficerSerializer,
+        403: '{"error": "Unauthorized to update this assessment"}'
+    }
+)
+class UpdateAssessmentView(UpdateAPIView):
+    
+    permission_classes = [IsAuthenticated]
+    serializer_class = UpdateAssessment_AssessmentOfficerSerializer
+    def get_serializer_class(self):
+
+        if (self.request.user.user_role == 'assessment_officer'):  # Assessment officer permission
+            return UpdateAssessment_AssessmentOfficerSerializer
+        elif (self.request.user.user_role == 'audit_officer'):  # Audit officer permission
+            return UpdateAssessment_AuditOfficerSerializer
+        else:
+            return Response({'error': 'Unauthorized to update this assessment'}, status=403)
+
+    def get_queryset(self):
+        return Assessment.objects.all()
+    

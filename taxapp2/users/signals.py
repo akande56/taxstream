@@ -59,7 +59,7 @@ supervisor1_group = Group.objects.get_or_create(name='supervisor1')[0]
 supervisor2_group = Group.objects.get_or_create(name='supervisor2')[0]
 ward_monitor_group = Group.objects.get_or_create(name='ward_monitor')[0]
 tax_collector_group = Group.objects.get_or_create(name='tax_collector')[0]
-assessment_officer_group = Group.objects.get_or_create(name = 'assessment_officer'[0])
+assessment_officer_group = Group.objects.get_or_create(name ='assessment_officer')[0]
 audit_officer_group = Group.objects.get_or_create(name= 'audit_officer')[0]
 tax_payer_group = Group.objects.get_or_create(name= 'tax_payer')[0]
 
