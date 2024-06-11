@@ -1,10 +1,10 @@
 // roles.ts
 export const roles = {
-  dashboard: ["admin", "assessment", "ict"],
-  policySettings: ["admin"],
-  staffEnrollment: ["admin", "ict"],
-  payeeEnrollment: ["admin", "ict"],
-  audit: ["admin", "assessment"],
-  assessment: ["admin"],
-  profile: ["admin", "assessment", "ict"],
+  dashboard: ["admin", "supervisor1", "assessment", "ict"],
+  policySettings: ["admin", "supervisor1"],
+  staffEnrollment: ["admin", "supervisor1", "ict"],
+  payeeEnrollment: ["admin", "supervisor1", "ict"],
+  audit: ["admin", "supervisor1", "assessment"],
+  assessment: ["admin", "supervisor1"],
+  profile: ["admin", "supervisor1", "assessment", "ict"],
 };

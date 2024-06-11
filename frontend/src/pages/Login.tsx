@@ -51,9 +51,9 @@ export function LoginPage() {
     // Start login process
     try {
       const { username, password } = data;
-      // login(username, password);
-      login("admin");
-      toast.success(`You are logged in successfully`);
+      login(username, password);
+
+      // toast.success(`You are logged in successfully`);
       setIsLoggingIn(false);
       setTimeout(() => {
         navigate("/dashboard");

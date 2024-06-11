@@ -204,7 +204,7 @@ export function AddLGA() {
       }
       setLGACode(lga);
     });
-  }, [getLGACode]);
+  }, []);
 
   useEffect(() => {
     axios(
@@ -219,12 +219,13 @@ export function AddLGA() {
       }
       setWardCode(ward);
     });
-  }, [getWardCode]);
+  }, []);
 
   useEffect(() => {
     axios(
       "https://taxstream-3bf552628416.herokuapp.com/api/v1/policy_configuration/lga/"
     ).then((res) => {
+      console.log(res.data);
       setTaxAreas(
         res.data?.map((item: any, i: any) => ({
           ...item,
@@ -232,7 +233,7 @@ export function AddLGA() {
         }))
       );
     });
-  }, [getTaxAreas]);
+  }, []);
 
   return (
     <>
@@ -420,14 +421,15 @@ export function AddLGA() {
           </Form>
         </AppModal>
       </div>
-
-      <div className="mt-10 bg-white border border-gray-200 shadow-sm rounded-xl p-4 md:p-5 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400">
-        <AppTable
-          columns={columns}
-          dataSource={getTaxAreas}
-          pagination={false}
-        />
-      </div>
+      {getWardSelectValue && (
+        <div className="mt-10 bg-white border border-gray-200 shadow-sm rounded-xl p-4 md:p-5 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400">
+          <AppTable
+            columns={columns}
+            dataSource={getTaxAreas}
+            pagination={false}
+          />
+        </div>
+      )}
       <AppModal />
     </>
   );

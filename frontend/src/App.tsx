@@ -28,10 +28,7 @@ const App = () => {
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute
-                element={<Dashboard />}
-                roles={["admin", "assessment", "ict"]}
-              />
+              <ProtectedRoute element={<Dashboard />} roles={roles.dashboard} />
             }
           >
             <Route index element={<DashboardContent />} />

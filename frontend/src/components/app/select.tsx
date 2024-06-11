@@ -80,7 +80,7 @@ export const AppSelect = (props: IProps) => {
   }, [props.options]);
 
   return (
-    <div className="max-w-sm">
+    <div className="w-full">
       {props.label && (
         <label className="block text-sm font-medium mb-2 text-gray-700">
           {props.label}
