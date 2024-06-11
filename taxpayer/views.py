@@ -232,19 +232,31 @@ class AssessmentListView(ListAPIView):
 
 
 @extend_schema(
+    description="May not run directly due to options for assessment and audit officer; note diffrent post request change option",
     request={
         'assessment_officer': {
             'type': 'object',
             'properties': {
-                'to_be_paid': {'type': 'number'},
-                'tax_due_time': {'type': 'string', 'format': 'date'},
+                'to_be_paid': {
+                    'type': 'number',
+                    'description': 'Amount of tax to be paid by the business user (assessment)',
+                },
+                'tax_due_time': {
+                    'type': 'string',
+                    'enum': ['annually', 'monthly', 'daily'],  # Using enum for predefined choices
+                    'format': 'date',
+                    'description': 'Frequency of tax payment (assessment)',
+                },
             },
             'required': ['to_be_paid', 'tax_due_time']
         },
         'audit_officer': {
             'type': 'object',
             'properties': {
-                'query': {'type': 'string'},
+                'query': {
+                    'type': 'string',
+                    'description': 'Audit officer query regarding the assessment',
+                },
             },
             'required': ['query']
         }
