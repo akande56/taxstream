@@ -121,14 +121,26 @@ class StatesupervisorSerializer(serializers.ModelSerializer):
 
 
 class WardSerializer(serializers.ModelSerializer):
-    # lga = LGASerializer(read_only=True)
     class Meta:
         model = Ward
         fields = ('id', 'area_name', 'area_code', 'lga', 'status')
 
-class TaxAreaSerializer(serializers.ModelSerializer):
-    # ward = WardSerializer(read_only=True)  # Nested serializer for ward information
 
+class TaxAreaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaxArea
+        fields = ['id', 'ward', 'tax_area_office', 'tax_area_code']
+
+
+class WardDetailSerializer(serializers.ModelSerializer):
+    lga = LGASerializer(read_only=True) 
+    wards_in_taxArea = TaxAreaSerializer(many=True, read_only=True)
+    class Meta:
+        model = Ward
+        fields = ('id', 'area_name', 'area_code', 'lga', 'status', 'wards_in_taxArea')
+
+class TaxAreaDetailSerializer(serializers.ModelSerializer):
+    ward = WardDetailSerializer(read_only=True) 
     class Meta:
         model = TaxArea
         fields = ['id', 'ward', 'tax_area_office', 'tax_area_code']

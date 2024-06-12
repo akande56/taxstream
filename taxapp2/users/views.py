@@ -60,7 +60,9 @@ from .serializers import (
     StateSerializer,
     LGASerializer,
     WardSerializer,
+    WardDetailSerializer,
     TaxAreaSerializer,
+    TaxAreaDetailSerializer,
     StatesupervisorSerializer,
     LGAsupervisorSerializer,
     CustomTokenObtainPairSerializer,
@@ -498,10 +500,12 @@ class StatesupervisorViewSet(viewsets.ModelViewSet):
     list=extend_schema(
         description="Retrieve list WARD's",
         summary="List of WARD's",
+        request=WardDetailSerializer
     ),
     retrieve=extend_schema(
         description="Retrieve a single user WARD by ID",
         summary="Retrieve a WARD",
+        request=WardDetailSerializer
     ),
     create=extend_schema(
         description="Create a new user WARD",
@@ -528,13 +532,17 @@ class StatesupervisorViewSet(viewsets.ModelViewSet):
     )
 class WardViewSet(viewsets.ModelViewSet):
     queryset = Ward.objects.select_related('lga').all()
-    serializer_class = WardSerializer
     permission_classes = [AllowAny]
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        
         return queryset
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return WardDetailSerializer 
+        else:
+            return WardSerializer
 
 
 
@@ -547,10 +555,12 @@ class WardViewSet(viewsets.ModelViewSet):
     list=extend_schema(
         description="Retrieve list TaxArea's",
         summary="List of TaxArea's",
+        request=TaxAreaDetailSerializer
     ),
     retrieve=extend_schema(
         description="Retrieve a single user TaxArea by ID",
         summary="Retrieve a TaxArea",
+        request=TaxAreaDetailSerializer
     ),
     create=extend_schema(
         description="Create a new user TaxArea",
@@ -580,8 +590,12 @@ class TaxAreaViewSet(viewsets.ModelViewSet):
     API endpoint for managing tax areas.
     """
     queryset = TaxArea.objects.all().select_related('ward')  # Prefetch ward data
-    serializer_class = TaxAreaSerializer
     permission_classes = [AllowAny]  
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TaxAreaDetailSerializer 
+        else:
+            return TaxAreaSerializer
 
 
 

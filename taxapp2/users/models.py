@@ -68,7 +68,7 @@ class Ward(models.Model):
     created_date = models.DateField(auto_now_add=True)
     status = models.CharField(max_length=50, choices=
     (
-        ("active", "activae"),
+        ("active", "active"),
         ("inactive", "inactive")
         )
     )
@@ -77,7 +77,7 @@ class TaxArea(models.Model):
     """
     Model representing a Tax Area within a jurisdiction.
     """
-    ward = models.ForeignKey(Ward, on_delete=models.CASCADE)
+    ward = models.ForeignKey(Ward, on_delete=models.CASCADE, related_name='wards_in_taxArea')
     tax_area_office = models.CharField(max_length=255)
     tax_area_code = models.CharField(max_length=20, unique=True)
     # map_location = models.PointField(blank=True, null=True, srid=4326)  # Latitude & Longitude
