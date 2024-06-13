@@ -56,7 +56,7 @@ class IsAuditOfficer(BasePermission):
     """
 
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.groups.filter(name='audit_officer').exists()
+        return request.user.groups.filter(name='audit_officer').exists() or request.user.is_superuser
 
 
 class IsAuditor_or_IsAssessor(BasePermission):
@@ -65,4 +65,4 @@ class IsAuditor_or_IsAssessor(BasePermission):
     """
 
     def has_permission(self, request, view):
-        return request.user.groups.filter(name='audit_officer').exists() or request.user.groups.filter(name='assessment_officer').exists()
+        return request.user.groups.filter(name='audit_officer').exists() or request.user.groups.filter(name='assessment_officer').exists() or request.user.is_superuser
