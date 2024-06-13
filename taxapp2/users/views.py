@@ -59,6 +59,7 @@ from .serializers import (
     CustomEmailSerializer,
     StateSerializer,
     LGASerializer,
+    LGADetailSerializer,
     WardSerializer,
     WardDetailSerializer,
     TaxAreaSerializer,
@@ -66,7 +67,7 @@ from .serializers import (
     StatesupervisorSerializer,
     LGAsupervisorSerializer,
     CustomTokenObtainPairSerializer,
-
+    
 )
 
 @extend_schema(
@@ -371,10 +372,12 @@ class StateViewSet(viewsets.ModelViewSet):
     list=extend_schema(
         description="Retrieve list LGA's",
         summary="List of LGA's",
+        request=LGADetailSerializer,
     ),
     retrieve=extend_schema(
         description="Retrieve a single user LGA by ID",
         summary="Retrieve a LGA",
+        request= LGADetailSerializer,
     ),
     create=extend_schema(
         description="Create a new user LGA",
@@ -401,14 +404,18 @@ class StateViewSet(viewsets.ModelViewSet):
     )
 class LGASViewSet(viewsets.ModelViewSet):
     queryset = LGA.objects.select_related('state').all() 
-    serializer_class = LGASerializer
     filter_fields = ('name', 'code', 'state__name')  
     permission_classes = [AllowAny]
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        
         return queryset
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return LGADetailSerializer
+        else:
+            return LGASerializer
 
 
 

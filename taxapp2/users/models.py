@@ -34,7 +34,7 @@ class User(AbstractUser):
     user_role = models.CharField(max_length=20, choices=USER_ROLES)
     # staff_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4, null=True)
     phone = models.CharField(max_length=11)
-    location = models.ForeignKey(LGA, on_delete=models.SET_NULL, null=True,related_name='user_location')
+    location = models.ForeignKey(LGA, on_delete=models.SET_NULL, null=True,related_name='user_in_location')
     
     def __str__(self):
         return self.username
@@ -64,7 +64,7 @@ class Statesupervisor(models.Model):
 class Ward(models.Model):
     area_name = models.CharField(max_length=50)
     area_code = models.CharField(max_length=20)
-    lga = models.ForeignKey(LGA, on_delete=models.CASCADE)
+    lga = models.ForeignKey(LGA, on_delete=models.CASCADE, related_name='lgas_in_ward')
     created_date = models.DateField(auto_now_add=True)
     status = models.CharField(max_length=50, choices=
     (

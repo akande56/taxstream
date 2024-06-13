@@ -108,6 +108,7 @@ class LGASerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'code', 'state')
 
 
+
 class LGAsupervisorSerializer(serializers.ModelSerializer):
     class Meta:
         model = LGAsupervisor
@@ -146,6 +147,12 @@ class TaxAreaDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'ward', 'tax_area_office', 'tax_area_code']
 
 
+class LGADetailSerializer(serializers.ModelSerializer):
+    state = serializers.PrimaryKeyRelatedField(queryset=State.objects.all())
+    lgas_in_ward = WardSerializer(many = True, read_only = True)
+    class Meta:
+        model = LGA
+        fields = ('id', 'name', 'code', 'state', 'lgas_in_ward')
 
 
 class UserListSerializer(serializers.ModelSerializer):
