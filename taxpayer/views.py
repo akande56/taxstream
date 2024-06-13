@@ -32,7 +32,7 @@ from .serializers import (
 
 )
 from taxapp2.users.models import LGA
-
+from taxapp2.users.permissions import IsAuditor_or_IsAssessor
 
 
 @extend_schema_view(
@@ -265,18 +265,23 @@ class AssessmentListView(ListAPIView):
     },
     responses={
         200: UpdateAssessment_AssessmentOfficerSerializer,
-        403: '{"error": "Unauthorized to update this assessment"}'
+        403: '{"error": "Unauthorized to update this assessment(needs Assessment or Audit officer user role"}'
     }
 )
 class UpdateAssessmentView(UpdateAPIView):
     
-    permission_classes = [IsAuthenticated]
-    serializer_class = UpdateAssessment_AssessmentOfficerSerializer
+    permission_classes = [IsAuthenticated, IsAuditor_or_IsAssessor]
+    
     def get_serializer_class(self):
+        print('get serializer......')
+        print(self.request.user.user_role)
 
-        if (self.request.user.user_role == 'assessment_officer'):  # Assessment officer permission
+        if (self.request.user.user_role == 'assessment_officer'):
+            print('ssssssssssss')
+            print('using assessment serializer')
             return UpdateAssessment_AssessmentOfficerSerializer
-        elif (self.request.user.user_role == 'audit_officer'):  # Audit officer permission
+        elif (self.request.user.user_role == 'audit_officer'):
+            print('usomg audit serializer....')
             return UpdateAssessment_AuditOfficerSerializer
         else:
             return Response({'error': 'Unauthorized to update this assessment'}, status=403)
