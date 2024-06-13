@@ -1,9 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppSelect } from "./app/select";
 import { AppButton } from "./app/button";
+import api from "@/api";
+import { toast } from "sonner";
+import { AppTable } from "./app/table";
 
 const PolicySettingsBusiness = () => {
+  const [getPreviousClassifications, setPreviousClassifications] = useState([]);
+  const [getPreviousWitholdingTax, setPreviousWitholdingTax] = useState([]);
   const [getPolicySetting, setPolicySetting] = useState("");
   const [classification, setClassification] = useState("");
   const [description, setDescription] = useState("");
@@ -23,6 +29,119 @@ const PolicySettingsBusiness = () => {
     },
   ];
 
+  const classifColumns: any[] = [
+    {
+      title: "#",
+      dataIndex: "key",
+      key: "key",
+    },
+    {
+      title: "Classifications",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+    },
+    {
+      title: "Status",
+      key: "state",
+      render: (val: any) => (
+        <div className="flex items-center gap-3 text-primary text-sm">
+          <button>Edit</button>
+          <button>Del</button>
+        </div>
+      ),
+    },
+  ];
+  const witholdingTaxColumns: any[] = [
+    {
+      title: "#",
+      dataIndex: "key",
+      key: "key",
+    },
+    {
+      title: "Payments",
+      dataIndex: "payment",
+      key: "payment",
+    },
+    {
+      title: "Tax Rate",
+      dataIndex: "rate",
+      key: "rate",
+    },
+    {
+      title: "Status",
+      key: "state",
+      render: (val: any) => (
+        <div className="flex items-center gap-3 text-primary text-sm">
+          <button>Edit</button>
+          <button>Del</button>
+        </div>
+      ),
+    },
+  ];
+
+  const fetchClassifications = async () => {
+    try {
+      const response = await api.get(
+        "/api/v1/policy_configuration/business-classifications/"
+      );
+
+      console.log(response.data);
+      setPreviousClassifications(
+        response.data.map((item: any, index: any) => ({
+          ...item,
+          key: index + 1,
+        }))
+      );
+    } catch (err: any) {
+      console.error(err);
+    }
+  };
+
+  const fetchWitholdinTax = async () => {
+    try {
+      const response = await api.get(
+        "/api/v1/policy_configuration/withholding-tax-rates/"
+      );
+      console.log(response.data);
+      setPreviousWitholdingTax(
+        response.data.map((item: any, index: any) => ({
+          ...item,
+          key: index + 1,
+        }))
+      );
+    } catch (err: any) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchClassifications();
+    fetchWitholdinTax();
+  }, []);
+
+  const handleAddWitholdingTax = () => {
+    api
+      .post("/api/v1/policy_configuration/withholding-tax-rates/", {
+        payment: payments,
+        rate: rate,
+      })
+      .then((res) => {
+        if (res.status === 201) {
+          toast.success("Business Classification added Sucessfully");
+        } else {
+          toast.error("Business Classification Not added successfully");
+        }
+      })
+      .catch((err: any) => {
+        toast.error(err.message);
+      });
+  };
+
   const reset = () => {
     setPolicySetting("");
     setClassification("");
@@ -33,7 +152,7 @@ const PolicySettingsBusiness = () => {
 
   return (
     <>
-      <div className="flex flex-col items-start gap-3 bg-white border border-gray-200 shadow-sm rounded-xl p-4 md:p-5 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400">
+      <div className="flex flex-col items-start gap-3 bg-white border mb-4 border-gray-200 shadow-sm rounded-xl p-4 md:p-5 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400">
         <p>Business Conditions</p>
         <div className="flex flex-col place-content-center w-full">
           <form>
@@ -130,11 +249,38 @@ const PolicySettingsBusiness = () => {
                   >
                     Cancel
                   </button>
-                  <AppButton type="submit" label="Update" />
+                  <AppButton
+                    onClick={() => handleAddWitholdingTax()}
+                    type="button"
+                    label="Save"
+                  />
                 </div>
               </>
             ) : null}
           </form>
+        </div>
+      </div>
+      <div className="flex flex-col items-start gap-3 bg-white border mt-4 border-gray-200 shadow-sm rounded-xl p-4 md:p-5 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400">
+        <div className="flex flex-col place-content-center w-full">
+          {getPolicySetting === "classification" ? (
+            <>
+              <h3>Classifications</h3>
+              <AppTable
+                columns={classifColumns}
+                dataSource={getPreviousClassifications}
+                pagination={false}
+              />
+            </>
+          ) : getPolicySetting === "witholding_tax" ? (
+            <>
+              <h3>Witholding Tax</h3>
+              <AppTable
+                columns={witholdingTaxColumns}
+                dataSource={getPreviousWitholdingTax}
+                pagination={false}
+              />
+            </>
+          ) : null}
         </div>
       </div>
     </>

@@ -186,25 +186,61 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
 
   useEffect(() => {
     const fetchWard = async () => {
+      // if (selectedLga) {
+      //   console.log("Fetchin wards");
+      //   const res = await api.get("/api/v1/policy_configuration/wards/");
+      //   const { data } = res;
+      //   console.log("ward", data);
+      //   const filteredAndMappedWard = data
+      //     .filter((item: { lga: string }) => item.lga == selectedLga)
+      //     .map(
+      //       (item: { id: number; area_name: string; area_code: string }) => ({
+      //         value: item.id,
+      //         label: `${item.area_name}-${item.area_code}`,
+      //       })
+      //     );
+      //   console.log(selectedLga);
+      //   console.log(
+      //     "filteredAndMappedWard",
+      //     data.filter((item: { lga: string }) => item.lga == selectedLga)
+      //   );
+      //   console.log(filteredAndMappedWard);
+      //   setFormWard(filteredAndMappedWard);
+      // }
       if (selectedLga) {
-        console.log("Fetchin wards");
+        console.log("Fetching wards");
         const res = await api.get("/api/v1/policy_configuration/wards/");
         const { data } = res;
         console.log("ward", data);
+
+        // Filter and map wards based on selectedLga
         const filteredAndMappedWard = data
-          .filter((item: { lga: string }) => item.lga == selectedLga)
-          .map(
-            (item: { id: number; area_name: string; area_code: string }) => ({
-              value: item.id,
-              label: `${item.area_name}-${item.area_code}`,
-            })
+          .filter((item: { lga: any }) => item.lga.id === selectedLga)
+          .flatMap(
+            (item: {
+              wards_in_taxArea: Array<{
+                id: number;
+                ward: number;
+                tax_area_office: string;
+                tax_area_code: string;
+              }>;
+              area_name: string;
+              area_code: string;
+            }) =>
+              item.wards_in_taxArea.map(
+                (ward: {
+                  id: number;
+                  tax_area_office: string;
+                  tax_area_code: string;
+                }) => ({
+                  value: ward.id,
+                  label: `${item.area_name} - ${ward.tax_area_office} - ${ward.tax_area_code}`,
+                })
+              )
           );
+
         console.log(selectedLga);
-        console.log(
-          "filteredAndMappedWard",
-          data.filter((item: { lga: string }) => item.lga == selectedLga)
-        );
-        console.log(filteredAndMappedWard);
+        console.log("filteredAndMappedWard", filteredAndMappedWard);
         setFormWard(filteredAndMappedWard);
       }
     };

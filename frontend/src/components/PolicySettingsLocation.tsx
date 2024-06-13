@@ -204,7 +204,7 @@ export function AddLGA() {
       }
       setLGACode(lga);
     });
-  }, []);
+  }, [getWardSelectValue]);
 
   useEffect(() => {
     axios(
@@ -222,18 +222,34 @@ export function AddLGA() {
   }, []);
 
   useEffect(() => {
-    axios(
-      "https://taxstream-3bf552628416.herokuapp.com/api/v1/policy_configuration/lga/"
-    ).then((res) => {
+    console.log(getWardSelectValue);
+    const getWardUrl = `https://taxstream-3bf552628416.herokuapp.com/api/v1/policy_configuration/wards/${getWardSelectValue}`;
+    console.log(getWardUrl);
+    axios(getWardUrl).then((res) => {
       console.log(res.data);
+      // setTaxAreas(
+      //   res.data?.map((item: any, i: any) => ({
+      //     ...item,
+      //     key: i + 1,
+      //   }))
+      // );
+      // setTaxAreas(res.data.wards_in_taxArea);
       setTaxAreas(
-        res.data?.map((item: any, i: any) => ({
-          ...item,
-          key: i + 1,
-        }))
+        res.data.wards_in_taxArea.map(
+          (
+            item: { tax_area_office: any; tax_area_code: any },
+            index: number
+          ) => ({
+            ...item,
+            key: index + 1,
+            name: item.tax_area_office,
+            code: item.tax_area_code,
+          })
+        )
       );
+      console.log(getTaxAreas);
     });
-  }, []);
+  }, [getWardSelectValue]);
 
   return (
     <>

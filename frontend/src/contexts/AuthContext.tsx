@@ -157,7 +157,7 @@ export const AuthProvider = ({ children }: Props) => {
       }
 
       const parsedAuthTokens = JSON.parse(localAuthTokens);
-      console.log(parsedAuthTokens);
+      console.log("parsedAuth", parsedAuthTokens);
       if (!parsedAuthTokens?.refresh) {
         console.log("No refresh token found, logging out");
         logout();
@@ -166,7 +166,7 @@ export const AuthProvider = ({ children }: Props) => {
 
       const response = await axios.post(
         `${BACKEND_URL}/api/token/refresh/`,
-        { refresh: parsedAuthTokens.refresh },
+        { refresh: JSON.stringify(parsedAuthTokens.refresh) },
         {
           headers: {
             "Content-Type": "application/json",
