@@ -32,7 +32,7 @@ from .serializers import (
 
 )
 from taxapp2.users.models import LGA
-from taxapp2.users.permissions import IsAuditor_or_IsAssessor
+from taxapp2.users.permissions import IsAuditor_or_IsAssessor, IsAuditOfficer
 
 
 @extend_schema_view(
@@ -273,15 +273,11 @@ class UpdateAssessmentView(UpdateAPIView):
     permission_classes = [IsAuthenticated, IsAuditor_or_IsAssessor]
     
     def get_serializer_class(self):
-        print('get serializer......')
-        print(self.request.user.user_role)
-
+        
         if (self.request.user.user_role == 'assessment_officer'):
-            print('ssssssssssss')
-            print('using assessment serializer')
+            
             return UpdateAssessment_AssessmentOfficerSerializer
         elif (self.request.user.user_role == 'audit_officer'):
-            print('usomg audit serializer....')
             return UpdateAssessment_AuditOfficerSerializer
         else:
             return Response({'error': 'Unauthorized to update this assessment'}, status=403)
@@ -295,6 +291,7 @@ class UpdateAssessmentView(UpdateAPIView):
     summary= "Approve tax payer assessment form"
 )
 class ApproveAssessmentView(APIView):
+  permission_classes = [IsAuditOfficer]
   def put(self, request, assessment_id):
     try:
       assessment = Assessment.objects.get(pk=assessment_id)

@@ -50,6 +50,14 @@ class IsTaxCollector(BasePermission):
         return request.user.is_authenticated and request.user.groups.filter(name='tax_collector').exists()
 
 
+class IsAuditOfficer(BasePermission):
+    """
+    Custom permission class to check if a user belongs to the "audit_officer" group.
+    """
+
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.groups.filter(name='audit_officer').exists()
+
 
 class IsAuditor_or_IsAssessor(BasePermission):
     """
