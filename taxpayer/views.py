@@ -221,7 +221,7 @@ class BusinessStatusViewSet(viewsets.ModelViewSet):
 class AssessmentListView(ListAPIView):
     
     serializer_class = AssessmentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
 
     def get_queryset(self):
         queryset = Assessment.objects.all()
@@ -232,58 +232,76 @@ class AssessmentListView(ListAPIView):
 
 
 @extend_schema(
-    summary="update tax payer assessment detail: assessment officer review|audit officer query detail",
-    description=
-    " Use Postman to Test: May not run directly due to options for assessment and audit officer; note the different post request change option(assessment\audit officer). Upon adding assessment submission; assessment_status for taxpayer will be update to <reviewed>, while upon audit submission will be <query>",
-    request={
-        'assessment_officer': {
-            'type': 'object',
-            'properties': {
-                'to_be_paid': {
-                    'type': 'number',
-                    'description': 'Amount of tax to be paid by the business user (assessment)',
-                },
-                'tax_due_time': {
-                    'type': 'string',
-                    'enum': ['annually', 'monthly', 'daily'],  # Using enum for predefined choices
-                    'format': 'date',
-                    'description': 'Frequency of tax payment (assessment)',
-                },
-            },
-            'required': ['to_be_paid', 'tax_due_time']
-        },
-        'audit_officer': {
-            'type': 'object',
-            'properties': {
-                'query': {
-                    'type': 'string',
-                    'description': 'Audit officer query regarding the assessment',
-                },
-            },
-            'required': ['query']
-        }
-    },
+    summary="update tax payer assessment detail: assessment officer endpoint",
+    # description=
+    # " Use Postman to Test: May not run directly due to options for assessment and audit officer; note the different post request change option(assessment\audit officer). Upon adding assessment submission; assessment_status for taxpayer will be update to <reviewed>, while upon audit submission will be <query>",
+    request= UpdateAssessment_AssessmentOfficerSerializer
+    # {
+    #     'assessment_officer': {
+    #         'type': 'object',
+    #         'properties': {
+    #             'to_be_paid': {
+    #                 'type': 'number',
+    #                 'description': 'Amount of tax to be paid by the business user (assessment)',
+    #             },
+    #             'tax_due_time': {
+    #                 'type': 'string',
+    #                 'enum': ['annually', 'monthly', 'daily'],  # Using enum for predefined choices
+    #                 'format': 'date',
+    #                 'description': 'Frequency of tax payment (assessment)',
+    #             },
+    #         },
+    #         'required': ['to_be_paid', 'tax_due_time']
+    #     },
+    #     'audit_officer': {
+    #         'type': 'object',
+    #         'properties': {
+    #             'query': {
+    #                 'type': 'string',
+    #                 'description': 'Audit officer query regarding the assessment',
+    #             },
+    #         },
+    #         'required': ['query']
+    #     }
+    # }
+    ,
     responses={
         200: UpdateAssessment_AssessmentOfficerSerializer,
-        403: '{"error": "Unauthorized to update this assessment(needs Assessment or Audit officer user role"}'
+        # 403: '{"error": "Unauthorized to update this assessment(needs Assessment or Audit officer user role"}'
     }
 )
-class UpdateAssessmentView(UpdateAPIView):
+class UpdateAssessmentView_AssessmentOfficer(UpdateAPIView):
     
-    permission_classes = [IsAuthenticated, IsAuditor_or_IsAssessor]
-    
-    def get_serializer_class(self):
-        
-        if (self.request.user.user_role == 'assessment_officer'):
-            
-            return UpdateAssessment_AssessmentOfficerSerializer
-        elif (self.request.user.user_role == 'audit_officer'):
-            return UpdateAssessment_AuditOfficerSerializer
-        else:
-            return Response({'error': 'Unauthorized to update this assessment'}, status=403)
+    permission_classes = [IsAdminUser]
+    serializer_class = UpdateAssessment_AssessmentOfficerSerializer
 
-    def get_queryset(self):
-        return Assessment.objects.all()
+
+
+@extend_schema(
+    summary="update tax payer assessment detail: Audit officer endpoint",
+    request= UpdateAssessment_AuditOfficerSerializer,
+    responses={
+        200: UpdateAssessment_AuditOfficerSerializer,
+    }
+)
+class UpdateAssessmentView_AuditOfficer(UpdateAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = UpdateAssessment_AuditOfficerSerializer
+
+  # def get_serializer_class(self):
+        
+    #     if (self.request.user.user_role == 'assessment_officer'):
+            
+    #         return UpdateAssessment_AssessmentOfficerSerializer
+    #     elif (self.request.user.user_role == 'audit_officer'):
+    #         return UpdateAssessment_AuditOfficerSerializer
+    #     else:
+    #         return Response({'error': 'Unauthorized to update this assessment'}, status=403)
+
+    # def get_queryset(self):
+    #     return Assessment.objects.all()
+    
+    
     
 
 
@@ -291,7 +309,7 @@ class UpdateAssessmentView(UpdateAPIView):
     summary= "Approve tax payer assessment form"
 )
 class ApproveAssessmentView(APIView):
-  permission_classes = [IsAuditOfficer]
+  permission_classes = [IsAuthenticated]
   def put(self, request, assessment_id):
     try:
       assessment = Assessment.objects.get(pk=assessment_id)
