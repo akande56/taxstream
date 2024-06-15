@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -32,6 +33,8 @@ import axios from "axios";
 import { AppModal } from "./app/modal";
 import { toast, Toaster } from "sonner";
 import { AppTable } from "./app/table";
+import api from "@/api";
+import { get } from "http";
 
 const taxPaySchema = z.object({
   tax_area_office: z.string({
@@ -90,6 +93,59 @@ export function AddLGA() {
   const [showAddLGAModal, setShowAddLGAModal] = useState<boolean>(false);
   const [showAddWardModal, setShowAddWardModal] = useState<boolean>(false);
 
+  // fetching and refreshing data
+  const fetchLga = async () => {
+    const response = await api.get(
+      "https://taxstream-3bf552628416.herokuapp.com/api/v1/policy_configuration/lga/"
+    );
+    const { data } = response;
+    console.log(data);
+    let lga: any[] = [];
+    for (let lgaData of data) {
+      lga.push({
+        label: `${lgaData.name} - ${lgaData.code}`,
+        value: lgaData.id,
+      });
+    }
+    setLGACode(lga);
+  };
+
+  const fetchWard = async () => {
+    const response = await api.get(
+      `https://taxstream-3bf552628416.herokuapp.com/api/v1/policy_configuration/lga/${getLGASelectValue}`
+    );
+    const { data } = response;
+    let ward: any[] = [];
+    for (let wardData of data.lgas_in_ward) {
+      ward.push({
+        label: `${wardData.area_name} - ${wardData.area_code}`,
+        value: wardData.id,
+      });
+
+      setWardCode(ward);
+    }
+  };
+
+  const fetchTaxAreas = async () => {
+    const getWardUrl = `https://taxstream-3bf552628416.herokuapp.com/api/v1/policy_configuration/wards/${getWardSelectValue}`;
+    console.log(getWardUrl);
+    const response = await api.get(getWardUrl);
+    const { data } = response;
+    setTaxAreas(
+      data.wards_in_taxArea.map(
+        (
+          item: { tax_area_office: any; tax_area_code: any },
+          index: number
+        ) => ({
+          ...item,
+          key: index + 1,
+          name: item.tax_area_office,
+          code: item.tax_area_code,
+        })
+      )
+    );
+  };
+
   const columns: any[] = [
     {
       title: "#",
@@ -144,6 +200,7 @@ export function AddLGA() {
         toast.error("Error");
         console.log(err);
       });
+    fetchTaxAreas();
   }
 
   function onAddLGASubmit(data: z.infer<typeof addLGASchema>) {
@@ -166,6 +223,7 @@ export function AddLGA() {
       .finally(() => {
         setShowAddLGAModal(!showAddLGAModal);
       });
+    fetchLga();
   }
 
   function onAddWardSubmit(data: z.infer<typeof addWardSchema>) {
@@ -189,66 +247,19 @@ export function AddLGA() {
       .finally(() => {
         setShowAddWardModal(!showAddWardModal);
       });
+    fetchWard();
   }
 
   useEffect(() => {
-    axios(
-      "https://taxstream-3bf552628416.herokuapp.com/api/v1/policy_configuration/lga/"
-    ).then((res) => {
-      let lga: any[] = [];
-      for (let data of res.data) {
-        lga.push({
-          label: data.code,
-          value: data.id,
-        });
-      }
-      setLGACode(lga);
-    });
-  }, [getWardSelectValue]);
-
-  useEffect(() => {
-    axios(
-      "https://taxstream-3bf552628416.herokuapp.com/api/v1/policy_configuration/wards/"
-    ).then((res) => {
-      let ward: any[] = [];
-      for (let data of res.data) {
-        ward.push({
-          label: `${data.area_name} - ${data.area_code}`,
-          value: data.id,
-        });
-      }
-      setWardCode(ward);
-    });
+    fetchLga();
   }, []);
 
   useEffect(() => {
-    console.log(getWardSelectValue);
-    const getWardUrl = `https://taxstream-3bf552628416.herokuapp.com/api/v1/policy_configuration/wards/${getWardSelectValue}`;
-    console.log(getWardUrl);
-    axios(getWardUrl).then((res) => {
-      console.log(res.data);
-      // setTaxAreas(
-      //   res.data?.map((item: any, i: any) => ({
-      //     ...item,
-      //     key: i + 1,
-      //   }))
-      // );
-      // setTaxAreas(res.data.wards_in_taxArea);
-      setTaxAreas(
-        res.data.wards_in_taxArea.map(
-          (
-            item: { tax_area_office: any; tax_area_code: any },
-            index: number
-          ) => ({
-            ...item,
-            key: index + 1,
-            name: item.tax_area_office,
-            code: item.tax_area_code,
-          })
-        )
-      );
-      console.log(getTaxAreas);
-    });
+    fetchWard();
+  }, [getLGASelectValue]);
+
+  useEffect(() => {
+    fetchTaxAreas();
   }, [getWardSelectValue]);
 
   return (

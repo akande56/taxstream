@@ -129,7 +129,15 @@ export const AuthProvider = ({ children }: Props) => {
         setAuthTokens(data);
         await getUser(data);
         localStorage.setItem("authTokens", JSON.stringify(data));
-        navigate("/dashboard");
+        // Check if there is a stored location to redirect to
+        const redirectPath = localStorage.getItem("redirectAfterLogin");
+        if (redirectPath) {
+          // Redirect to the stored location
+          localStorage.removeItem("redirectAfterLogin");
+          navigate(redirectPath);
+        } else {
+          navigate("/dashboard");
+        }
       } else {
         toast.error("Login Failed");
       }
@@ -140,6 +148,7 @@ export const AuthProvider = ({ children }: Props) => {
   };
 
   const logout = () => {
+    localStorage.setItem("redirectAfterLogin", location.pathname);
     localStorage.removeItem("authTokens");
     setAuthTokens(null);
     setUser(null);

@@ -90,7 +90,6 @@ const PolicySettingsBusiness = () => {
         "/api/v1/policy_configuration/business-classifications/"
       );
 
-      console.log(response.data);
       setPreviousClassifications(
         response.data.map((item: any, index: any) => ({
           ...item,
@@ -107,7 +106,6 @@ const PolicySettingsBusiness = () => {
       const response = await api.get(
         "/api/v1/policy_configuration/withholding-tax-rates/"
       );
-      console.log(response.data);
       setPreviousWitholdingTax(
         response.data.map((item: any, index: any) => ({
           ...item,
@@ -133,6 +131,27 @@ const PolicySettingsBusiness = () => {
       .then((res) => {
         if (res.status === 201) {
           toast.success("Business Classification added Sucessfully");
+          fetchWitholdinTax();
+        } else {
+          toast.error("Business Classification Not added successfully");
+        }
+      })
+      .catch((err: any) => {
+        console.error(err);
+        toast.error(err.message);
+      });
+  };
+
+  const handleAddBusinessClassification = () => {
+    api
+      .post("/api/v1/policy_configuration/business-classifications/", {
+        name: classification,
+        description,
+      })
+      .then((res) => {
+        if (res.status === 201) {
+          toast.success("Business Classification added Sucessfully");
+          fetchClassifications();
         } else {
           toast.error("Business Classification Not added successfully");
         }
@@ -207,7 +226,11 @@ const PolicySettingsBusiness = () => {
                   >
                     Cancel
                   </button>
-                  <AppButton type="submit" label="Update" />
+                  <AppButton
+                    onClick={() => handleAddBusinessClassification()}
+                    type="button"
+                    label="Save"
+                  />
                 </div>
               </>
             ) : getPolicySetting === "witholding_tax" ? (
@@ -220,7 +243,7 @@ const PolicySettingsBusiness = () => {
                     <input
                       className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
                       type="text"
-                      placeholder="Payments"
+                      placeholder="Payment Tax"
                       value={payments}
                       onChange={(e) => setPayments(e.target.value)}
                     />
@@ -237,7 +260,15 @@ const PolicySettingsBusiness = () => {
                       type="text"
                       placeholder="Rate"
                       value={rate}
-                      onChange={(e) => setRate(e.target.value)}
+                      // onChange={(e) => setRate(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Regular expression to match numbers and decimal points
+                        const regex = /^[0-9]*\.?[0-9]*$/;
+                        if (regex.test(value) || value === "") {
+                          setRate(value);
+                        }
+                      }}
                     />
                   </label>
                 </div>

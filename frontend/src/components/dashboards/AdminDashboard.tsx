@@ -1,5 +1,4 @@
-import React from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { Menu, Bell, Home, Users, Search, User } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -23,14 +22,15 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from "../ui/alert-dialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
     // Perform any necessary cleanup or backend requests
     // Redirect to the login page
-    navigate("/login");
+    logout();
   };
 
   return (
@@ -204,7 +204,28 @@ const AdminDashboard = () => {
                   className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                 >
                   <Home className="h-5 w-5" />
-                  Logout
+                  <AlertDialog>
+                    <AlertDialogTrigger className="">Logout</AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you sure you want to log out?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          By logging out, you'll be signed out of your account
+                          and will need to log in again.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction>
+                          <Button type="button" onClick={handleLogout}>
+                            Logout
+                          </Button>
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </Link>
               </nav>
             </SheetContent>
