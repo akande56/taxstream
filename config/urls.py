@@ -39,7 +39,7 @@ from taxpayer.views import (
 
 
 router = DefaultRouter()
-router.register(r'user/me', CurrentUserViewSet)
+router.register(r'user/me', CurrentUserViewSet, basename='current-user')
 router.register('groups', GroupViewSet)
 router.register('policy_configuration/states', StateViewSet)
 router.register('policy_configuration/lga', LGASViewSet)
