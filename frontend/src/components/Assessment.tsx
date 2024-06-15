@@ -37,7 +37,7 @@ const Assesment = () => {
   useEffect(() => {
     const getBusinesses = async () => {
       try {
-        const response = await api.get("/api/v1/user/tax-payer/");
+        const response = await api.get("/assessments/");
         const { data } = response;
         console.log(data, "Data");
         const taxArea = await api.get(
