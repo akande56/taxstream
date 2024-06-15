@@ -309,7 +309,7 @@ class UpdateAssessmentView_AuditOfficer(UpdateAPIView):
     summary= "Approve tax payer assessment form"
 )
 class ApproveAssessmentView(APIView):
-  permission_classes = [IsAuthenticated]
+  permission_classes = [IsAdminUser]
   def put(self, request, assessment_id):
     try:
       assessment = Assessment.objects.get(pk=assessment_id)

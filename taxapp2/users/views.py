@@ -74,23 +74,18 @@ from .serializers import (
     summary="Get details of Sign-in User instance",
     description="Retrieve details of User instance of current user(i.e logged-in); needs acess token in header i.e Authorization Bearer <acess token>. Note: to get both User and business details try api/v1/user/tax-payer",
 
-    request=UserListSerializer,
-   
+    
     responses={
-        201: "Created",
+        200: UserListSerializer,
         400: "Bad Request",
     }
-    )
+)
 class CurrentUserViewSet(viewsets.ViewSet):
-    def list(self, request):
-        if request.user.is_authenticated:
-            serializeData = UserListSerializer(request.user)
-            return Response(serializeData.data)
-        else:
-            return Response({'error': 'You are not authenticated.'}, status=401)
+    permission_classes = [IsAuthenticated]
 
-    queryset = User.objects.none()
-    serializer_class = UserSerializer
+    def list(self, request):
+        serializer = UserListSerializer(request.user)
+        return Response(serializer.data)
 
 
 
