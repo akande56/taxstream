@@ -38,18 +38,18 @@ from taxapp2.users.permissions import IsAuditor_or_IsAssessor, IsAuditOfficer
 @extend_schema_view(
     list=extend_schema(
         description="Retrieve a list of business users",
-        summary="List Business Users",
+        # summary="List Business Users",
         responses={201: BusinessUserRetrieveListSerializer},
     ),
     retrieve=extend_schema(
         description="Retrieve a single business user by ID",
-        summary="Retrieve Business User",
+        # summary="Retrieve Business User",
         responses={201: BusinessUserRetrieveListSerializer},
         
     ),
     create=extend_schema(
         description="Create a new business user",
-        summary="Create Business User",
+        # summary="Create Business User",
         request=BusinessUserSerializer,
         responses={201: BusinessUserSerializer},
         examples=[
@@ -79,19 +79,19 @@ from taxapp2.users.permissions import IsAuditor_or_IsAssessor, IsAuditOfficer
     ),
     update=extend_schema(
         description="Update an existing business user",
-        summary="Update Business User",
+        # summary="Update Business User",
         request=BusinessUserSerializer,
         responses={200: BusinessUserSerializer}
     ),
     partial_update=extend_schema(
         description="Partially update an existing business user",
-        summary="Partial Update Business User",
+        # summary="Partial Update Business User",
         request=BusinessUserSerializer,
         responses={200: BusinessUserSerializer}
     ),
     destroy=extend_schema(
         description="Delete a business user",
-        summary="Delete Business User",
+        # summary="Delete Business User",
         
     ),
 )
@@ -116,8 +116,8 @@ class BusinessUserViewSet(viewsets.ModelViewSet):
 
 
 @extend_schema(
-    summary="Configure policy; business classifications",
-    description="",
+    description="Configure policy; business classifications",
+    # description="",
     request= BusinessClassificationSerializer,
     responses= BusinessClassificationSerializer
     )
@@ -128,7 +128,7 @@ class BusinessClassificationViewSet(viewsets.ModelViewSet):
 
     @extend_schema(
         description="Create a new business classification",
-        summary="Create Business Classification",
+        # summary="Create Business Classification",
         request=BusinessClassificationSerializer,
         responses={201: BusinessClassificationSerializer},
         examples=[
@@ -148,8 +148,8 @@ class BusinessClassificationViewSet(viewsets.ModelViewSet):
 
 
 @extend_schema(
-    summary="Configure policy; withoholding tax",
-    description="",
+    description="Configure policy; withoholding tax",
+    # description="",
     request= WithholdingTaxRateSerializer,
     responses= WithholdingTaxRateSerializer
     )
@@ -160,7 +160,7 @@ class WithholdingTaxRateViewSet(viewsets.ModelViewSet):
 
     @extend_schema(
         description="Create a new withholding tax rate",
-        summary="Create Withholding Tax Rate",
+        # summary="Create Withholding Tax Rate",
         request=WithholdingTaxRateSerializer,
         responses={201: WithholdingTaxRateSerializer},
         examples=[
@@ -180,8 +180,8 @@ class WithholdingTaxRateViewSet(viewsets.ModelViewSet):
 
 
 @extend_schema(
-    summary="Configure policy; tax-payer business status",
-    description="",
+    description="Configure policy; tax-payer business status",
+    # description="",
     request= BusinessStatusSerializer,
     responses= BusinessStatusSerializer
     )
@@ -192,7 +192,7 @@ class BusinessStatusViewSet(viewsets.ModelViewSet):
 
     @extend_schema(
         description="Create a new business status",
-        summary="Create Business Status",
+        # summary="Create Business Status",
         request=BusinessStatusSerializer,
         responses={201: BusinessStatusSerializer},
         examples=[
@@ -213,8 +213,8 @@ class BusinessStatusViewSet(viewsets.ModelViewSet):
 
 
 @extend_schema(
-    summary="Assessment form: list of tax payer assessment form",
-    description="",
+    description="Assessment form: list of tax payer assessment form",
+    # description="",
     request= AssessmentSerializer,
     responses= AssessmentSerializer
     )
@@ -232,7 +232,7 @@ class AssessmentListView(ListAPIView):
 
 
 @extend_schema(
-    summary="update tax payer assessment detail: assessment officer endpoint",
+    description="update tax payer assessment detail: assessment officer endpoint",
     # description=
     # " Use Postman to Test: May not run directly due to options for assessment and audit officer; note the different post request change option(assessment\audit officer). Upon adding assessment submission; assessment_status for taxpayer will be update to <reviewed>, while upon audit submission will be <query>",
     request= UpdateAssessment_AssessmentOfficerSerializer
@@ -278,7 +278,7 @@ class UpdateAssessmentView_AssessmentOfficer(UpdateAPIView):
 
 
 @extend_schema(
-    summary="update tax payer assessment detail: Audit officer endpoint",
+    description="update tax payer assessment detail: Audit officer endpoint",
     request= UpdateAssessment_AuditOfficerSerializer,
     responses={
         200: UpdateAssessment_AuditOfficerSerializer,
@@ -306,7 +306,7 @@ class UpdateAssessmentView_AuditOfficer(UpdateAPIView):
 
 
 @extend_schema(
-    summary= "Approve tax payer assessment form"
+    description= "Approve tax payer assessment form"
 )
 class ApproveAssessmentView(APIView):
   permission_classes = [IsAdminUser]
