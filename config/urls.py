@@ -76,11 +76,11 @@ urlpatterns += [
     re_path(r'^api/v1/all_users/$', UserViewSet.as_view({'get': 'list'}), name='user-list'),
     re_path(r'^api/v1/all_users/(?P<pk>[^/]+)/$', UserViewSet.as_view({'put': 'put', 'delete': 'destroy'}), name='user-detail'),
     path('api/v1/user/change_password/', ChangePasswordView.as_view(), name = 'change_password'),
-    path('wardandmonitors/', WardAndMonitorListView.as_view(), name='wardandmonitor-list'),
-    path('assessments/', AssessmentListView.as_view(), name='assessment-list'),
-    path('assessments/assessment_officer/update/<int:pk>/', UpdateAssessmentView_AssessmentOfficer.as_view(), name='assessment-officer'),
-    path('assessments/audit_officer/query_update/<int:pk>/', UpdateAssessmentView_AuditOfficer.as_view(), name='audit-officer'),
-    path('assessments/audit_officer/approve/<int:assessment_id>/', ApproveAssessmentView.as_view(), name='update-assessment'),
+    path('api/v1/wardandmonitors/', WardAndMonitorListView.as_view(), name='wardandmonitor-list'),
+    path('api/v1/assessments/', AssessmentListView.as_view(), name='assessment-list'),
+    path('api/v1/assessments/assessment_officer/update/<int:pk>/', UpdateAssessmentView_AssessmentOfficer.as_view(), name='assessment-officer'),
+    path('api/v1/assessments/audit_officer/query_update/<int:pk>/', UpdateAssessmentView_AuditOfficer.as_view(), name='audit-officer'),
+    path('api/v1/assessments/audit_officer/approve/<int:assessment_id>/', ApproveAssessmentView.as_view(), name='update-assessment'),
     
     #Token
     # path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
