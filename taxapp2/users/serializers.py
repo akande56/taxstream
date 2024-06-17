@@ -7,6 +7,7 @@ from .models import (
     State,
     LGA,
     Ward,
+    WardAndMonitor,
     TaxArea,
     Statesupervisor,
     LGAsupervisor,
@@ -39,12 +40,13 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 
-class CreateUserSerializer(serializers.ModelSerializer):
+class CreateStaffSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(max_length=255, required=True)
+    ward = serializers.PrimaryKeyRelatedField(queryset=Ward.objects.all(), required=False)
 
     class Meta:
         model = User
-        fields = ('email', 'password', 'phone', 'user_role','full_name', 'location')
+        fields = ('email', 'password', 'phone', 'user_role','full_name', 'location', 'ward')
 
     def create(self, validated_data):
         full_name = validated_data.pop('full_name')
@@ -55,7 +57,12 @@ class CreateUserSerializer(serializers.ModelSerializer):
         validated_data['username'] = validated_data['email']
         # generate unique staff ID
         # validated_data['staff_id'] = str(uuid.uuid4())
+        ward = validated_data.pop('ward', None)
         user = User.objects.create_user(**validated_data)
+
+        if ward and validated_data['user_role'] == 'ward_monitor':
+            ward_monitor_user, _ = WardAndMonitor.objects.get_or_create(ward=ward, ward_monitor=user)
+            validated_data['ward_monitor'] = ward_monitor_user
         return user
 
 
@@ -155,8 +162,20 @@ class LGADetailSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'code', 'state', 'lgas_in_ward')
 
 
+
+
+class WardAndMonitorSerializer(serializers.ModelSerializer):
+    ward = serializers.SlugRelatedField(slug_field='area_name', read_only=True)
+    ward_monitor = serializers.SlugRelatedField(slug_field='username', read_only=True)
+
+    class Meta:
+        model = WardAndMonitor
+        fields = ('pk', 'ward', 'ward_monitor')
+
+
 class UserListSerializer(serializers.ModelSerializer):
     location = LGASerializer()
+    ward_monitor = WardAndMonitorSerializer(read_only=True, source='ward_monitor.first')  # Access via related set
     class Meta:
         model = User
         fields = (
@@ -167,6 +186,7 @@ class UserListSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'location',
+            'ward_monitor',
             'is_active',
             'is_superuser',
             'is_staff',
@@ -200,3 +220,4 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         }
         data['refresh'] = str(refresh)
         return data
+

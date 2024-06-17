@@ -12,7 +12,7 @@ from rest_framework_simplejwt import views as jwt_views
 from rest_framework.routers import DefaultRouter
 from taxapp2.users.views import (
     CurrentUserViewSet, 
-    UserCreateView, 
+    UserStaffCreateView,
     UserViewSet, 
     ChangePasswordView,
     GroupViewSet,
@@ -20,6 +20,7 @@ from taxapp2.users.views import (
     StateViewSet,
     LGASViewSet,
     WardViewSet,
+    WardAndMonitorListView,
     TaxAreaViewSet,
     LGAsupervisorViewSet,
     StatesupervisorViewSet,
@@ -44,6 +45,7 @@ router.register('groups', GroupViewSet)
 router.register('policy_configuration/states', StateViewSet)
 router.register('policy_configuration/lga', LGASViewSet)
 router.register('policy_configuration/wards', WardViewSet)
+# router.register('policy_configuration/wards_and_monitors', WardAndMonitorListView)
 router.register('policy_configuration/tax-areas', TaxAreaViewSet)
 router.register('user/tax-payer', BusinessUserViewSet)
 router.register(r'policy_configuration/assigned/lga-supervisors', LGAsupervisorViewSet)
@@ -69,11 +71,12 @@ urlpatterns = [
 urlpatterns += [
     #custom endpoints
     path('api/v1/', include(router.urls)),
-    path('api/v1/user/staff', UserCreateView.as_view(), name = 'new_staff'),
+    path('api/v1/user/staff', UserStaffCreateView.as_view(), name = 'new_staff'),
     path('api/v1/user/staff-list', StaffUserViewSet.as_view({'get': 'list'}), name = 'staff list'),
     re_path(r'^api/v1/all_users/$', UserViewSet.as_view({'get': 'list'}), name='user-list'),
     re_path(r'^api/v1/all_users/(?P<pk>[^/]+)/$', UserViewSet.as_view({'put': 'put', 'delete': 'destroy'}), name='user-detail'),
     path('api/v1/user/change_password/', ChangePasswordView.as_view(), name = 'change_password'),
+    path('wardandmonitors/', WardAndMonitorListView.as_view(), name='wardandmonitor-list'),
     path('assessments/', AssessmentListView.as_view(), name='assessment-list'),
     path('assessments/assessment_officer/update/<int:pk>/', UpdateAssessmentView_AssessmentOfficer.as_view(), name='assessment-officer'),
     path('assessments/audit_officer/query_update/<int:pk>/', UpdateAssessmentView_AuditOfficer.as_view(), name='audit-officer'),

@@ -37,6 +37,7 @@ from django_rest_passwordreset.views import (
     HTTP_USER_AGENT_HEADER,
     )
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+
 from .models import (
     User,
     State,
@@ -45,6 +46,7 @@ from .models import (
     TaxArea,
     LGAsupervisor,
     Statesupervisor,
+    WardAndMonitor,
 )
 from .permissions import (
     IsSupervisor1, 
@@ -53,7 +55,7 @@ from .permissions import (
 from .serializers import (
     UserSerializer, 
     UserListSerializer,
-    CreateUserSerializer,
+    CreateStaffSerializer,
     ChangePasswordSerializer,
     GroupSerializer,
     CustomEmailSerializer,
@@ -61,6 +63,7 @@ from .serializers import (
     LGASerializer,
     LGADetailSerializer,
     WardSerializer,
+    WardAndMonitorSerializer,
     WardDetailSerializer,
     TaxAreaSerializer,
     TaxAreaDetailSerializer,
@@ -71,17 +74,18 @@ from .serializers import (
 )
 
 @extend_schema(
-    summary="Get details of Sign-in User instance",
+    # summary="Get details of Sign-in User instance",
     description="Retrieve details of User instance of current user(i.e logged-in); needs acess token in header i.e Authorization Bearer <acess token>. Note: to get both User and business details try api/v1/user/tax-payer",
 
     
     responses={
         200: UserListSerializer,
-        400: "Bad Request",
+        400: UserListSerializer,
     }
 )
 class CurrentUserViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
+    serializer_class = UserListSerializer
 
     def list(self, request):
         serializer = UserListSerializer(request.user)
@@ -91,31 +95,41 @@ class CurrentUserViewSet(viewsets.ViewSet):
 
 
 @extend_schema(
-    summary="Create new staff with different roles",
-    description="Add new staff, ensure strong password, and two more than one name for full name. \n Username is automatically email",
-    request=CreateUserSerializer,
-
+    # summary="Create new staff with different roles",
+    description="Add new staff, ensure strong password, and two names for full name. \n Username is automatically set to email.",
+    request=CreateStaffSerializer,
     examples=[
-            OpenApiExample(
-                'Example payload',
-                value={
-                    "email": "abdulsalamabubakar52@example.com",
-                    "password": "pass123..",
-                    "phone": "091",
-                    "user_role": "supervisor1",
-                    "full_name": "abdul abdul",
-                    "location": 1
-                }
-            )
-        ],
-
-    )
-class UserCreateView(APIView):
-    serializer_class = CreateUserSerializer
+        OpenApiExample(
+            'Example payload for supervisor role',
+            value={
+                "email": "abdulsalamabubakar52@example.com",
+                "password": "pass123..",
+                "phone": "091",
+                "user_role": "supervisor1",
+                "full_name": "abdul abdul",
+                "location": 1
+            }
+        ),
+        OpenApiExample(
+            'Example payload for ward monitor role with ward assigned (optional)',
+            value={
+                "email": "wardmonitor@example.com",
+                "password": "pass123..",
+                "phone": "091",
+                "user_role": "ward_monitor",
+                "full_name": "ward monitor",
+                "location": 1,
+                "ward": 2  # Ward ID (optional, only for ward_monitor role)
+            }
+        ),
+    ],
+)
+class UserStaffCreateView(APIView):
+    serializer_class = CreateStaffSerializer
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = CreateUserSerializer(data=request.data)
+        serializer = CreateStaffSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         serializer = UserSerializer(user)
@@ -126,7 +140,7 @@ class UserCreateView(APIView):
 
 
 @extend_schema(
-    summary="Apply on all User instance (list/update/delete)",
+    description="Apply on all User instance (list/update/delete)",
     request=UserSerializer,
 )
 class UserViewSet(viewsets.ViewSet, generics.ListAPIView, generics.UpdateAPIView, generics.DestroyAPIView):
@@ -165,7 +179,7 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView, generics.UpdateAPIView
 
 class StaffUserViewSet(viewsets.ViewSet):  
     permission_classes = [AllowAny]
-
+    serializer_class = UserListSerializer
     def list(self, request):
         users = User.objects.exclude(user_role = 'tax_payer')
         serializer = UserListSerializer(users, many=True)
@@ -175,7 +189,7 @@ class StaffUserViewSet(viewsets.ViewSet):
 
 
 @extend_schema(
-    summary="Change password for current logged in User",
+    # summary="Change password for current logged in User",
     description="Accept current user password with new password, to change password",
     request=ChangePasswordSerializer,
     responses=ChangePasswordSerializer,
@@ -208,37 +222,37 @@ class ChangePasswordView(APIView):
 
 
 @extend_schema_view(
-    summary="Manage Group for diffent User roles",
+    description="Manage Group for diffent User roles",
     list=extend_schema(
-        description="Retrieve a list Groups",
-        summary="Users Groups",
+        description="Retrieve a list User Groups",
+        # summary="Users Groups",
     ),
     retrieve=extend_schema(
         description="Retrieve a single user Group by ID",
-        summary="Retrieve a User Group",
+        # summary="Retrieve a User Group",
         
     ),
     create=extend_schema(
         description="Create a new user Group",
-        summary="Create User Group",
+        # summary="Create User Group",
         request= GroupSerializer,
         responses={200: GroupSerializer},
     ),
     update=extend_schema(
         description="Update an existing Group",
-        summary="Update Group",
+        # summary="Update Group",
         request=GroupSerializer,
         responses={200: GroupSerializer}
     ),
     partial_update=extend_schema(
         description="Partially update an existing Group",
-        summary="Partial Update Group",
+        # summary="Partial Update Group",
         request=GroupSerializer,
         responses={200: GroupSerializer}
     ),
     destroy=extend_schema(
         description="Delete a Group",
-        summary="Delete Group",
+        # summary="Delete Group",
         
     ),
     )
@@ -268,8 +282,8 @@ class GroupViewSet(viewsets.ModelViewSet):
 
 
 @extend_schema(
-    summary="Reset password for user (Temporary in-use)",
-    description="Handle case for forget password",
+    description="case forget password: Reset password for user (Temporary in-use)",
+    # description="Handle case for forget password",
     request=CustomEmailSerializer,
     )
 class CustomResetPasswordRequestToken(GenericAPIView):
@@ -313,37 +327,37 @@ class CustomResetPasswordRequestToken(GenericAPIView):
 
 
 @extend_schema_view(
-    summary="State vieset",
+    description="State vieset",
     list=extend_schema(
         description="Retrieve list State",
-        summary="expect a single state to exist; future implementation will ensure this",
+        # description="expect a single state to exist; future implementation will ensure this",
     ),
     retrieve=extend_schema(
         description="Retrieve a single user State by ID",
-        summary="Retrieve a State",
+        # summary="Retrieve a State",
         
     ),
     create=extend_schema(
         description="Create a new user State",
-        summary="Create User State",
+        # summary="Create User State",
         request= StateSerializer,
         responses={200: StateSerializer},
     ),
     update=extend_schema(
         description="Update an existing State",
-        summary="Update State",
+        # summary="Update State",
         request=StateSerializer,
         responses={200: StateSerializer}
     ),
     partial_update=extend_schema(
         description="Partially update an existing State",
-        summary="Partial Update State",
+        # summary="Partial Update State",
         request=StateSerializer,
         responses={200: StateSerializer}
     ),
     destroy=extend_schema(
         description="Delete a State",
-        summary="Delete State",
+        # summary="Delete State",
         
     ),
     )
@@ -363,38 +377,38 @@ class StateViewSet(viewsets.ModelViewSet):
 
 
 @extend_schema_view(
-    summary="LGA viewset",
+    description="LGA viewset",
     list=extend_schema(
         description="Retrieve list LGA's",
-        summary="List of LGA's",
+        # summary="List of LGA's",
         request=LGADetailSerializer,
     ),
     retrieve=extend_schema(
         description="Retrieve a single user LGA by ID",
-        summary="Retrieve a LGA",
+        # summary="Retrieve a LGA",
         request= LGADetailSerializer,
     ),
     create=extend_schema(
         description="Create a new user LGA",
-        summary="Create User LGA",
+        # summary="Create User LGA",
         request= LGASerializer,
         responses={200: LGASerializer},
     ),
     update=extend_schema(
         description="Update an existing LGA",
-        summary="Update LGA",
+        # summary="Update LGA",
         request=LGASerializer,
         responses={200: LGASerializer}
     ),
     partial_update=extend_schema(
         description="Partially update an existing LGA",
-        summary="Partial Update LGA",
+        # summary="Partial Update LGA",
         request=LGASerializer,
         responses={200: LGASerializer}
     ),
     destroy=extend_schema(
         description="Delete a LGA",
-        summary="Delete LGA",
+        # summary="Delete LGA",
     ),
     )
 class LGASViewSet(viewsets.ModelViewSet):
@@ -420,30 +434,30 @@ class LGASViewSet(viewsets.ModelViewSet):
 @extend_schema_view(
     list=extend_schema(
         description="Retrieve a list of LGA supervisors",
-        summary="List LGA Supervisors",
+        # summary="List LGA Supervisors",
     ),
     retrieve=extend_schema(
         description="Retrieve a single LGA supervisor by ID",
-        summary="Retrieve LGA Supervisor",
+        # summary="Retrieve LGA Supervisor",
     ),
     create=extend_schema(
         description="Create a new LGA supervisor",
-        summary="Create LGA Supervisor",
+        # summary="Create LGA Supervisor",
         request=LGAsupervisorSerializer
     ),
     update=extend_schema(
         description="Update an existing LGA supervisor",
-        summary="Update LGA Supervisor",
+        # summary="Update LGA Supervisor",
         request=LGAsupervisorSerializer
     ),
     partial_update=extend_schema(
         description="Partially update an existing LGA supervisor",
-        summary="Partial Update LGA Supervisor",
+        # summary="Partial Update LGA Supervisor",
         request=LGAsupervisorSerializer
     ),
     destroy=extend_schema(
         description="Delete an LGA supervisor",
-        summary="Delete LGA Supervisor",
+        # summary="Delete LGA Supervisor",
     ),
 )
 class LGAsupervisorViewSet(viewsets.ModelViewSet):
@@ -460,31 +474,31 @@ class LGAsupervisorViewSet(viewsets.ModelViewSet):
 @extend_schema_view(
     list=extend_schema(
         description="Retrieve a list of State supervisors",
-        summary="List State Supervisors",
+        # summary="List State Supervisors",
         
     ),
     retrieve=extend_schema(
         description="Retrieve a single State supervisor by ID",
-        summary="Retrieve State Supervisor",
+        # summary="Retrieve State Supervisor",
     ),
     create=extend_schema(
         description="Create a new State supervisor",
-        summary="Create State Supervisor",
+        # summary="Create State Supervisor",
         request=StatesupervisorSerializer
     ),
     update=extend_schema(
         description="Update an existing State supervisor",
-        summary="Update State Supervisor",
+        # summary="Update State Supervisor",
         request=StatesupervisorSerializer
     ),
     partial_update=extend_schema(
         description="Partially update an existing State supervisor",
-        summary="Partial Update State Supervisor",
+        # summary="Partial Update State Supervisor",
         request=StatesupervisorSerializer
     ),
     destroy=extend_schema(
         description="Delete a State supervisor",
-        summary="Delete State Supervisor",
+        # summary="Delete State Supervisor",
     ),
 )
 class StatesupervisorViewSet(viewsets.ModelViewSet):
@@ -500,36 +514,36 @@ class StatesupervisorViewSet(viewsets.ModelViewSet):
 @extend_schema_view(
     summary="WARD vieset",
     list=extend_schema(
-        description="Retrieve list WARD's",
-        summary="List of WARD's",
+        description="Retrieve WARD's list",
+        # summary="List of WARD's",
         request=WardDetailSerializer
     ),
     retrieve=extend_schema(
-        description="Retrieve a single user WARD by ID",
-        summary="Retrieve a WARD",
+        description="Retrieve a single WARD by ID",
+        # summary="Retrieve a WARD",
         request=WardDetailSerializer
     ),
     create=extend_schema(
-        description="Create a new user WARD",
-        summary="Create User WARD",
+        description="Create a new WARD",
+        # summary="Create User WARD",
         request= WardSerializer,
         responses={200: WardSerializer},
     ),
     update=extend_schema(
         description="Update an existing WARD",
-        summary="Update WARD",
+        # summary="Update WARD",
         request=WardSerializer,
         responses={200: WardSerializer}
     ),
     partial_update=extend_schema(
         description="Partially update an existing WARD",
-        summary="Partial Update WARD",
+        # summary="Partial Update WARD",
         request=WardSerializer,
         responses={200: WardSerializer}
     ),
     destroy=extend_schema(
         description="Delete a WARD",
-        summary="Delete WARD",
+        # summary="Delete WARD",
     ),
     )
 class WardViewSet(viewsets.ModelViewSet):
@@ -548,43 +562,50 @@ class WardViewSet(viewsets.ModelViewSet):
 
 
 
-
+@extend_schema(
+    description="ward and monitor list view",
+    responses=WardAndMonitorSerializer
+)
+class WardAndMonitorListView(generics.ListAPIView):
+    permission_classes = [AllowAny]
+    queryset = WardAndMonitor.objects.all()
+    serializer_class = WardAndMonitorSerializer
 
 
 
 @extend_schema_view(
-    summary="TaxArea vieset",
+    description="TaxArea vieset",
     list=extend_schema(
-        description="Retrieve list TaxArea's",
-        summary="List of TaxArea's",
+        description="Retrieve TaxArea's List",
+        # summary="List of TaxArea's",
         request=TaxAreaDetailSerializer
     ),
     retrieve=extend_schema(
         description="Retrieve a single user TaxArea by ID",
-        summary="Retrieve a TaxArea",
+        # summary="Retrieve a TaxArea",
         request=TaxAreaDetailSerializer
     ),
     create=extend_schema(
-        description="Create a new user TaxArea",
-        summary="Create User TaxArea",
+        description="Create a new TaxArea",
+        # summary="Create User TaxArea",
         request= TaxAreaSerializer,
         responses={200: TaxAreaSerializer},
     ),
     update=extend_schema(
         description="Update an existing TaxArea",
-        summary="Update TaxArea",
+        # summary="Update TaxArea",
         request=TaxAreaSerializer,
         responses={200: TaxAreaSerializer}
     ),
     partial_update=extend_schema(
         description="Partially update an existing TaxArea",
-        summary="Partial Update TaxArea",
+        # summary="Partial Update TaxArea",
         request=TaxAreaSerializer,
         responses={200: TaxAreaSerializer}
     ),
     destroy=extend_schema(
         description="Delete a TaxArea",
-        summary="Delete TaxArea",
+        # summary="Delete TaxArea",
     ),
     )
 class TaxAreaViewSet(viewsets.ModelViewSet):

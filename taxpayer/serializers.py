@@ -9,7 +9,7 @@ from .models import (
     BusinessStatus, 
     Assessment,
 )
-from taxapp2.users.serializers import CreateUserSerializer
+
 from taxapp2.users.models import LGA
 from taxapp2.users.serializers import LGASerializer, TaxAreaSerializer
 

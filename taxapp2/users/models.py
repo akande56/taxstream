@@ -20,6 +20,7 @@ class LGA(models.Model):
     def __str__(self):
         return self.name
 
+
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     USER_ROLES = (
@@ -34,7 +35,7 @@ class User(AbstractUser):
     user_role = models.CharField(max_length=20, choices=USER_ROLES)
     # staff_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4, null=True)
     phone = models.CharField(max_length=11)
-    location = models.ForeignKey(LGA, on_delete=models.SET_NULL, null=True,related_name='user_in_location')
+    location = models.ForeignKey(LGA, on_delete=models.SET_NULL, null=True, blank= True, related_name='user_in_location')
     
     def __str__(self):
         return self.username
@@ -90,8 +91,8 @@ class TaxArea(models.Model):
 
 
 class WardAndMonitor(models.Model):
-    ward = models.OneToOneField(Ward, on_delete=models.CASCADE, primary_key=True)
-    ward_monitor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='ward_monitor', validators=[validate_ward_monitor_role])
+    ward = models.ForeignKey(Ward, primary_key=True ,on_delete=models.CASCADE)
+    ward_monitor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank= True ,related_name='ward_monitor', validators=[validate_ward_monitor_role])
 
 
 class BlacklistedToken(models.Model):
