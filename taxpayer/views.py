@@ -71,7 +71,8 @@ from taxapp2.users.permissions import IsAuditor_or_IsAssessor, IsAuditOfficer
                     "business_status": 1,
                     "tax_area": 1,
                     "anual_income" : 1,
-                    "type": "individual"
+                    "type": "individual",
+                    "ward": 1,
                     
                 }
             )
@@ -271,7 +272,7 @@ class AssessmentListView(ListAPIView):
     }
 )
 class UpdateAssessmentView_AssessmentOfficer(UpdateAPIView):
-    
+    queryset = Assessment.objects.all()
     permission_classes = [IsAdminUser]
     serializer_class = UpdateAssessment_AssessmentOfficerSerializer
 
@@ -285,6 +286,7 @@ class UpdateAssessmentView_AssessmentOfficer(UpdateAPIView):
     }
 )
 class UpdateAssessmentView_AuditOfficer(UpdateAPIView):
+    queryset = Assessment.objects.all()
     permission_classes = [IsAdminUser]
     serializer_class = UpdateAssessment_AuditOfficerSerializer
 

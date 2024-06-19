@@ -11,7 +11,11 @@ from .models import (
 )
 
 from taxapp2.users.models import LGA
-from taxapp2.users.serializers import LGASerializer, TaxAreaSerializer
+from taxapp2.users.serializers import (
+    LGASerializer, 
+    TaxAreaSerializer, 
+    WardDetailSerializer
+)
 
 
 
@@ -49,11 +53,20 @@ class NewCreateUserSerializer(serializers.ModelSerializer):
 
 class BusinessUserSerializer(serializers.ModelSerializer):
     user = NewCreateUserSerializer(required=True)
-    
 
     class Meta:
         model = BusinessUser
-        fields = ('user', 'business_name', 'classification', 'withholding_tax_rate', 'business_status', 'tax_area', 'anual_income', 'type')
+        fields = (
+            'user', 
+            'business_name', 
+            'classification', 
+            'withholding_tax_rate', 
+            'business_status', 
+            'tax_area', 
+            'anual_income', 
+            'type', 
+            'ward',
+            )
 
     def create(self, validated_data):
         tax_id = str(uuid.uuid4())
@@ -78,6 +91,7 @@ class BusinessUserRetrieveListSerializer(serializers.ModelSerializer):
     withholding_tax_rate = WithholdingTaxRateSerializer()
     business_status = BusinessStatusSerializer()
     tax_area = TaxAreaSerializer()
+    ward = WardDetailSerializer()
     class Meta:
         model = BusinessUser
         fields = (
@@ -91,6 +105,7 @@ class BusinessUserRetrieveListSerializer(serializers.ModelSerializer):
             'tax_area',
             'anual_income',
             'type',
+            'ward',
             )
 
 
@@ -105,6 +120,7 @@ class BusinessUserUpdateSerializer(serializers.ModelSerializer):
             'type',
             'tax_area',
             'anual_income',
+            'ward',
             )
 
 

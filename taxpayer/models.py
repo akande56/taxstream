@@ -1,7 +1,7 @@
 import uuid
 from django.db import models
 # from django.contrib.auth.models import AbstractUser
-from taxapp2.users.models import User, TaxArea
+from taxapp2.users.models import User, TaxArea, Ward
 
 class BusinessClassification(models.Model):
     """
@@ -59,6 +59,7 @@ class BusinessUser(models.Model):
     classification = models.ForeignKey(BusinessClassification, on_delete=models.CASCADE)
     withholding_tax_rate = models.ForeignKey(WithholdingTaxRate, on_delete=models.SET_NULL, null=True)
     business_status = models.ForeignKey(BusinessStatus, on_delete=models.CASCADE)
+    ward = models.ForeignKey(Ward, on_delete=models.SET_NULL, null=True,related_name='taxpayer_ward', default=1)
     tax_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4)
     tax_area = models.ForeignKey(TaxArea, related_name='business_user_tax_area', on_delete=models.CASCADE, null=True)
     anual_income = models.FloatField()
@@ -73,7 +74,7 @@ class BusinessUser(models.Model):
 
 
 
-def all_required_fields_filled(assessment):
+def all_required_fields_filled(assessment): 
     # Get all model fields (excluding related fields)
     model_fields = assessment._meta.get_fields(include_parents=False)
     required_fields = [field for field in model_fields if not field.choices and field.blank is False]
