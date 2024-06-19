@@ -1,38 +1,60 @@
-import React from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState } from "react";
 import { AppModal } from "../app/modal";
 import { AppButton } from "../app/button";
+import api from "@/api";
+import { toast } from "sonner";
 
 interface BusinessInfoModalProps {
   open: boolean;
   onClose: () => void;
-  //   staff: {
-  //     fullname: string;
-  //     staffId: string;
-  //     role: string;
-  //     lga: string;
-  //     email: string;
-  //     phoneNumber: string;
-  //     state: number;
-  //   };
+  business: any;
 }
 
 const AssesmentReviewModal: React.FC<BusinessInfoModalProps> = ({
   open,
   onClose,
+  business,
 }) => {
-  //   if (!staff) {
-  //     return (
-  //       <AppModal
-  //         open={open}
-  //         onCancel={onClose}
-  //         okButtonProps={{ hidden: true }}
-  //         cancelButtonProps={{ hidden: true }}
-  //       >
-  //         <h1 className="text-2xl font-bold">Staff Information</h1>
-  //         <p className="text-center">No staff information available</p>
-  //       </AppModal>
-  //     );
-  //   }
+  const [toBePaid, setToBePaid] = useState(0); // Step 2
+  const [taxDueTime, setTaxDueTime] = useState("annually"); // Step 2
+
+  // Step 3: Function to update the state
+  const handleDataUpdate = (e: any) => {
+    const { name, value } = e.target;
+    if (name === "to_be_paid") {
+      setToBePaid(value);
+    } else if (name === "tax_due_time") {
+      setTaxDueTime(value);
+    }
+  };
+  const updateBusiness = async () => {
+    const response = await api.put(
+      `/api/v1/assessments/assessment_officer/update/${business.id}/`,
+      {
+        to_be_paid: toBePaid,
+        tax_due_time: taxDueTime,
+      }
+    );
+    const { data } = response;
+    console.log(data, "Data");
+    toast.success("Business updated successfully");
+    onClose();
+  };
+
+  if (!business) {
+    return (
+      <AppModal
+        open={open}
+        onCancel={onClose}
+        okButtonProps={{ hidden: true }}
+        cancelButtonProps={{ hidden: true }}
+      >
+        <h1 className="text-2xl font-bold">Staff Information</h1>
+        <p className="text-center">No staff information available</p>
+      </AppModal>
+    );
+  }
 
   return (
     <AppModal
@@ -51,32 +73,34 @@ const AssesmentReviewModal: React.FC<BusinessInfoModalProps> = ({
                 Holder Name Full Name:
               </label>
               <div className="bg-gray-100 rounded-md p-2">
-                [Holder Name Full Name]
+                {business.fullname}
               </div>
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700">
                 Tax ID:
               </label>
-              <div className="bg-gray-100 rounded-md p-2">[Tax ID]</div>
+              <div className="bg-gray-100 rounded-md p-2">{business.taxId}</div>
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700">
                 Email:
               </label>
-              <div className="bg-gray-100 rounded-md p-2">[Email]</div>
+              <div className="bg-gray-100 rounded-md p-2">{business.email}</div>
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700">
                 Phone Number:
               </label>
-              <div className="bg-gray-100 rounded-md p-2">[Phone Number]</div>
+              <div className="bg-gray-100 rounded-md p-2">
+                {business.phoneNumber}
+              </div>
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700">
                 LGA:
               </label>
-              <div className="bg-gray-100 rounded-md p-2">[LGA]</div>
+              <div className="bg-gray-100 rounded-md p-2">{business.lga}</div>
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700">
@@ -88,39 +112,47 @@ const AssesmentReviewModal: React.FC<BusinessInfoModalProps> = ({
               <label className="block text-sm font-medium text-gray-700">
                 TAX AREA:
               </label>
-              <div className="bg-gray-100 rounded-md p-2">[TAX AREA]</div>
+              <div className="bg-gray-100 rounded-md p-2">
+                {business.taxArea}
+              </div>
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700">
                 Business Name:
               </label>
-              <div className="bg-gray-100 rounded-md p-2">[Business Name]</div>
+              <div className="bg-gray-100 rounded-md p-2">
+                {business.businessName}
+              </div>
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700">
                 CONDITION:
               </label>
-              <div className="bg-gray-100 rounded-md p-2">[CONDITION]</div>
+              <div className="bg-gray-100 rounded-md p-2">
+                {business.businesstatus}
+              </div>
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700">
                 Withholding Tax:
               </label>
               <div className="bg-gray-100 rounded-md p-2">
-                [Withholding Tax]
+                {business.withholdingTaxRate}
               </div>
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700">
                 Type:
               </label>
-              <div className="bg-gray-100 rounded-md p-2">[Type]</div>
+              <div className="bg-gray-100 rounded-md p-2">{business.type}</div>
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700">
                 Annual Income:
               </label>
-              <div className="bg-gray-100 rounded-md p-2">[Annual Income]</div>
+              <div className="bg-gray-100 rounded-md p-2">
+                {business.annualIncome}
+              </div>
             </div>
             <div className="col-span-2 flex items-center justify-between mt-4">
               <label className="block text-sm font-medium text-gray-700">
@@ -128,22 +160,30 @@ const AssesmentReviewModal: React.FC<BusinessInfoModalProps> = ({
               </label>
               <input
                 type="number"
+                name="to_be_paid"
                 className="appearance-none rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-700 bg-white"
                 placeholder="Enter Amount"
+                value={toBePaid}
+                onChange={handleDataUpdate}
               />
             </div>
             <div className="col-span-2 flex items-center justify-between mt-4">
               <label className="block text-sm font-medium text-gray-700">
                 Tax Due Time:
               </label>
-              <select className="appearance-none rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-700 bg-white">
-                <option>Annually</option>
-                <option>Monthly</option>
-                <option>Quarterly</option>
+              <select
+                name="tax_due_time"
+                className="appearance-none rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-700 bg-white"
+                value={taxDueTime}
+                onChange={handleDataUpdate}
+              >
+                <option value="annually">Annually</option>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
               </select>
             </div>
             <div className="flex gap-3">
-              <AppButton type="submit" label="Save" />
+              <AppButton type="submit" onClick={updateBusiness} label="Save" />
               <button
                 onClick={onClose}
                 className="bg-gray-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded-sm transition duration-200 ease-in-out w-full "

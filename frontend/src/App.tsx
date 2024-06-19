@@ -85,7 +85,7 @@ const App = () => {
                 element={
                   <ProtectedRoute
                     element={<TicketsMail />}
-                    roles={roles.policySettings}
+                    roles={roles.ticket}
                   />
                 }
               >
@@ -95,7 +95,7 @@ const App = () => {
               <Route
                 path="invoice"
                 element={
-                  <ProtectedRoute element={<Invoice />} roles={roles.audit} />
+                  <ProtectedRoute element={<Invoice />} roles={roles.invoice} />
                 }
               />
               <Route
@@ -103,7 +103,7 @@ const App = () => {
                 element={
                   <ProtectedRoute
                     element={<Certificate />}
-                    roles={roles.audit}
+                    roles={roles.certificate}
                   />
                 }
               />

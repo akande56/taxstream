@@ -52,59 +52,6 @@ const PayeeEnrollment = () => {
         );
         const taxAreaData = taxArea.data;
 
-        // const payeeData = data.map((item: any, index: any) => {
-        //   const matchedTaxArea = taxAreaData.find(
-        //     (taxArea: any) => taxArea.id === item.tax_area
-        //   );
-        //   const taxAreaOffice = matchedTaxArea
-        //     ? matchedTaxArea.tax_area_office
-        //     : "N/A";
-
-        //   return {
-        //     key: String(index + 1),
-        //     fullname: `${item.user.first_name} ${item.user.last_name}`,
-        //     taxId: item.user.username,
-        //     classification:
-        //       item.classification === 0 ? "Company" : "Individual",
-        //     taxArea: taxAreaOffice,
-        //     email: item.user.email,
-        //     type: item.type,
-        //     state: item.business_status,
-        //   };
-        // });
-        const x = {
-          id: 4,
-          user: {
-            username: "nfd@sd.hh",
-            email: "nfd@sd.hh",
-            first_name: "test",
-            last_name: "test",
-            phone: "77777",
-            location: {
-              id: 1,
-              name: "Keffi",
-              code: "Keffi-234",
-              state: 2,
-            },
-            is_staff: false,
-            is_active: true,
-          },
-          business_name: "biz test",
-          classification: {
-            id: 2,
-            name: "Business Tech",
-            description: "Business Tech companies",
-          },
-          withholding_tax_rate: {
-            id: 1,
-            payment: "Service Tax",
-            rate: "5.00",
-          },
-          business_status: {
-            id: 4,
-            status: "0",
-          },
-        };
         const payeeData = data.map((item: any, index: any) => {
           return {
             key: String(index + 1),

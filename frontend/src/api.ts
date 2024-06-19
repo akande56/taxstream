@@ -13,14 +13,8 @@ const api = axios.create({
   baseURL: "https://taxstream-3bf552628416.herokuapp.com",
   timeout: 15000, // Increased timeout to 15 seconds
 
-  // If a token exists, add it to the headers
-  // headers: {
-  //   "Content-Type": "application/json",
-  // },
   headers: {
     "Content-Type": "application/json",
-    Accept: "application/json",
-    Access: storedToken,
     Authorization: `Bearer ${storedToken}`,
   },
 });

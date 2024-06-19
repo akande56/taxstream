@@ -50,7 +50,7 @@ export function Dashboard() {
     // Redirect to the login page
     return navigate("https://google.us");
   };
-  if (user?.role === "supervisor1 tax_payer") {
+  if (user?.role === "supervisor1") {
     // return <AdminDashboard />;
     return (
       <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -275,8 +275,7 @@ export function Dashboard() {
       </div>
     );
   }
-
-  if (user?.role === "supervisor1") {
+  if (user?.role === "tax_payer") {
     return <TaxPayerDashboard />;
   }
 

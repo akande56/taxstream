@@ -7,9 +7,9 @@ const DashboardContent: React.FC = () => {
   //   const [getTaxPaymentActivity, setTaxPaymentActivity] = useState([]);
 
   const { user } = useAuth();
-  if (user?.role === "supervisor2") {
+  if (user?.role === "supervisor1") {
     return <AdminDashboardContent />;
-  } else if (user?.role === "supervisor1") {
+  } else if (user?.role === "tax_payer") {
     return <UserDashboardContent />;
   }
 };
