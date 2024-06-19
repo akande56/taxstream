@@ -1,17 +1,6 @@
-import React from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
-import {
-  Menu,
-  Bell,
-  Home,
-  FileText,
-  CreditCard,
-  Ticket,
-  User,
-  LogOut,
-  Search,
-} from "lucide-react";
-import { Button } from "../ui/button";
+import { Link, Outlet } from "react-router-dom";
+import { Menu, Bell, Home, Users, Search, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,9 +8,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Input } from "../ui/input";
-import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -32,13 +21,16 @@ import {
   AlertDialogFooter,
   AlertDialogAction,
   AlertDialogCancel,
-} from "../ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
+import { useAuth } from "@/contexts/AuthContext";
 
-const TaxPayerDashboard = () => {
-  const navigate = useNavigate();
+const AdminDashboard = () => {
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    navigate("/login");
+    // Perform any necessary cleanup or backend requests
+    // Redirect to the login page
+    logout();
   };
 
   return (
@@ -47,7 +39,7 @@ const TaxPayerDashboard = () => {
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] fixed lg:px-6">
             <Link to="/" className="flex items-center gap-2 font-semibold">
-              <span>TaxPayer Dashboard</span>
+              <span>Admin Dashboard</span>
             </Link>
             <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
               <Bell className="h-4 w-4" />
@@ -64,52 +56,52 @@ const TaxPayerDashboard = () => {
                 Dashboard
               </Link>
               <Link
-                to="invoice"
+                to="policy-settings"
                 className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
               >
-                <FileText className="h-4 w-4" />
-                Invoice
-              </Link>
-              <Link
-                to="payment-history"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <CreditCard className="h-4 w-4" />
-                Payment History
-              </Link>
-              <Link
-                to="ticket"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <Ticket className="h-4 w-4" />
-                Ticket
-              </Link>
-              <Link
-                to="notification"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <Bell className="h-4 w-4" />
-                Notification
-              </Link>
-              <Link
-                to="certificate"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
                 <Home className="h-4 w-4" />
-                Certificate
+                Policy Settings
+              </Link>
+              <Link
+                to="staff-enrollment"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              >
+                <Users className="h-4 w-4" />
+                Staff Enrollment
+              </Link>
+              <Link
+                to="payee-enrollment"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              >
+                <Users className="h-4 w-4" />
+                Payee Enrollment
+              </Link>
+              <Link
+                to="audit"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              >
+                <Users className="h-4 w-4" />
+                Audit
+              </Link>
+              <Link
+                to="assessment"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              >
+                <Users className="h-4 w-4" />
+                Assessment
               </Link>
               <Link
                 to="profile"
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
               >
-                <User className="h-4 w-4" />
+                <Users className="h-4 w-4" />
                 Profile
               </Link>
               <Link
                 to="#"
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
               >
-                <LogOut className="h-4 w-4" />
+                <Users className="h-4 w-4" />
                 <AlertDialog>
                   <AlertDialogTrigger className="">Logout</AlertDialogTrigger>
                   <AlertDialogContent>
@@ -166,53 +158,74 @@ const TaxPayerDashboard = () => {
                   Dashboard
                 </Link>
                 <Link
-                  to="invoice"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                >
-                  <FileText className="h-5 w-5" />
-                  Invoice
-                </Link>
-                <Link
-                  to="payment-history"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                >
-                  <CreditCard className="h-5 w-5" />
-                  Payment History
-                </Link>
-                <Link
-                  to="ticket"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                >
-                  <Ticket className="h-5 w-5" />
-                  Ticket
-                </Link>
-                <Link
-                  to="notification"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                >
-                  <Bell className="h-5 w-5" />
-                  Notification
-                </Link>
-                <Link
-                  to="certificate"
+                  to="policy-settings"
                   className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                 >
                   <Home className="h-5 w-5" />
-                  Certificate
+                  Policy Settings
                 </Link>
                 <Link
-                  to="profile"
+                  to="staff-enrollment"
                   className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                 >
-                  <User className="h-5 w-5" />
+                  <Home className="h-5 w-5" />
+                  Staff Enrollment
+                </Link>
+                <Link
+                  to="payee-enrollment"
+                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                >
+                  <Users className="h-4 w-4" />
+                  Payee Enrollment
+                </Link>
+                <Link
+                  to="audit"
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                >
+                  <Home className="h-5 w-5" />
+                  Audit
+                </Link>
+                <Link
+                  to="assessment"
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                >
+                  <Home className="h-5 w-5" />
+                  Assessment
+                </Link>
+                <Link
+                  to="#"
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                >
+                  <Home className="h-5 w-5" />
                   Profile
                 </Link>
                 <Link
                   to="#"
                   className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                 >
-                  <LogOut className="h-5 w-5" />
-                  Logout
+                  <Home className="h-5 w-5" />
+                  <AlertDialog>
+                    <AlertDialogTrigger className="">Logout</AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you sure you want to log out?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          By logging out, you'll be signed out of your account
+                          and will need to log in again.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction>
+                          <Button type="button" onClick={handleLogout}>
+                            Logout
+                          </Button>
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </Link>
               </nav>
             </SheetContent>
@@ -252,4 +265,4 @@ const TaxPayerDashboard = () => {
   );
 };
 
-export default TaxPayerDashboard;
+export default AdminDashboard;

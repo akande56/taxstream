@@ -38,8 +38,8 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import AdminDashboard from "@/components/dashboards/AdminDashboard";
-import TaxPayerDashboard from "@/components/dashboards/TaxPayerDashboard";
+import AdminDashboard from "@/components/dashboards/admin/AdminDashboard";
+import TaxPayerDashboard from "@/components/dashboards/user/TaxPayerDashboard";
 export function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -50,7 +50,7 @@ export function Dashboard() {
     // Redirect to the login page
     return navigate("https://google.us");
   };
-  if (user?.role === "supervisor1") {
+  if (user?.role === "supervisor1 tax_payer") {
     // return <AdminDashboard />;
     return (
       <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -276,7 +276,7 @@ export function Dashboard() {
     );
   }
 
-  if (user?.role === "tax_payer") {
+  if (user?.role === "supervisor1") {
     return <TaxPayerDashboard />;
   }
 

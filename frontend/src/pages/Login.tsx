@@ -47,24 +47,26 @@ export function LoginPage() {
 
   const navigate = useNavigate();
   async function onSubmit(data: z.infer<typeof loginSchema>) {
-    setIsLoggingIn(true);
-    // Start login process
-    try {
-      const { username, password } = data;
-      login(username, password);
+    const { username, password } = data;
 
-      // toast.success(`You are logged in successfully`);
-      setIsLoggingIn(false);
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 2500);
-    } catch (error) {
-      toast.error("An error occurred", {
-        position: "top-right",
-        duration: 1500,
-      });
-      setIsLoggingIn(false);
-    }
+    login(data);
+
+    // setIsLoggingIn(true);
+    // // Start login process
+    // try {
+
+    //   // toast.success(`You are logged in successfully`);
+    //   // setIsLoggingIn(false);
+    //   // setTimeout(() => {
+    //   //   navigate("/dashboard");
+    //   // }, 2500);
+    // } catch (error) {
+    //   toast.error("An error occurred", {
+    //     position: "top-right",
+    //     duration: 1500,
+    //   });
+    //   setIsLoggingIn(false);
+    // }
   }
 
   // try {
