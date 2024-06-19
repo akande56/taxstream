@@ -4,6 +4,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.urls import reverse
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from rest_framework_simplejwt.views import TokenRefreshView
 from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
@@ -22,7 +23,7 @@ from rest_framework.mixins import (
     ListModelMixin, 
     DestroyModelMixin, 
     UpdateModelMixin,
-)
+)   
 # from rest_framework import serializers
 # from rest_framework.request import Request
 # from rest_framework.exceptions import PermissionDenied
@@ -633,3 +634,13 @@ class CustomTokenObtainPairView(APIView):
         if serializer.is_valid():
             return Response(serializer.validated_data)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+#>..............
+class MyTokenRefreshView(TokenRefreshView):
+  def post(self, request, *args, **kwargs):
+    
+    print('running...')
+    
+    response = super().post(request, *args, **kwargs)
+    return response

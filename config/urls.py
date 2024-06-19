@@ -26,6 +26,7 @@ from taxapp2.users.views import (
     StatesupervisorViewSet,
     StaffUserViewSet,
     CustomTokenObtainPairView,
+    MyTokenRefreshView,
 )
 from taxpayer.views import (
     BusinessUserViewSet,
@@ -86,7 +87,7 @@ urlpatterns += [
     # path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
-    
+    path('api/token/custom/refresh/', MyTokenRefreshView.as_view(), name='custom_token_refresh'),
     #Password Reset
     path(r'api/password_reset/', include('django_rest_passwordreset.urls', namespace = 'password_reset')),
     path('api/password_reset/custom/', CustomResetPasswordRequestToken.as_view(), name = 'custom_password_reset'),

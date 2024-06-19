@@ -370,6 +370,7 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+    'access',
 ]
 
 CORS_EXPOSE_HEADERS = [
