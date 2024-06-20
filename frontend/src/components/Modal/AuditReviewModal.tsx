@@ -20,34 +20,23 @@ const AuditReviewModal: React.FC<BusinessInfoModalProps> = ({
 
   const handleDataUpdate = (e: any) => {
     const { name, value } = e.target;
-  if (name === "assesment_detail") {
+    if (name === "assesment_detail") {
       setAssesmentDetail(value);
+      console.log(value)
     }
   };
 
   const updateBusiness = async () => {
-    try {
-      const response = await fetch(
-        `/api/v1/assessments/audit_officer/query_update/${business.id}/`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ query: assesmentDetail }),
-        }
-      );
-
-      if (response.ok) {
-        toast.success("Business updated successfully");
-        onClose();
-      } else {
-        const errorData = await response.json();
-        toast.error(`Error updating business: ${errorData.error}`);
+    const response = await api.put(
+      `/api/v1/assessments/audit_officer/query_update/${business.id}/`,
+      {
+        query: assesmentDetail,
       }
-    } catch (error) {
-      toast.error(`Error updating business: ${error}`);
-    }
+    );
+    const { data } = response;
+    console.log(data, "Data");
+    toast.success("Business updated successfully");
+    onClose();
   };
 
   if (!business) {
