@@ -24,8 +24,8 @@ const Audit = () => {
 
   const handleSearchChange = () => {};
   const handleView = (value: any) => {
-    console.log(value);
     setShowBusinessInfoModal(!showBusinessInfoModal);
+    setSelectedBusiness(value);
   };
 
   const handleEdit = (value: any) => {
@@ -37,24 +37,27 @@ const Audit = () => {
   useEffect(() => {
     const getBusinesses = async () => {
       try {
-        const response = await api.get("/api/v1/user/tax-payer/");
+        const response = await api.get("/api/v1/assessments/");
         const { data } = response;
         console.log(data, "Data");
-        const taxArea = await api.get(
-          "/api/v1/policy_configuration/tax-areas/"
-        );
 
         const businessData = data.map((item: any, index: any) => {
           return {
             key: String(index + 1),
-            fullname: `${item.user.first_name} ${item.user.last_name}`,
-            businessName: item.business_name,
-            email: item.user.email,
-            classification: item.classification.name,
+            id: item.id,
+            fullname: `${item.user.user.first_name} ${item.user.user.last_name}`,
+            businessName: item.user.business_name,
+            email: item.user.user.email,
+            classification: item.user.classification.name,
+            taxArea: `${item.user.tax_area?.tax_area_office}-${item.user.tax_area?.tax_area_code}`,
             businesstatus:
-              item.business_status.status === 1 ? "Active" : "Inactive",
-            withholdingTaxRate: item.withholding_tax_rate.rate,
-            userId: item.user.email,
+              item.user.business_status.status === 1 ? "Active" : "Inactive",
+            withholdingTaxRate: item.user.withholding_tax_rate.rate,
+            taxId: item.user.tax_id,
+            type: item.user.type,
+            annualIncome: item.user.anual_income,
+            phoneNumber: item.user.user.phone,
+            lga: item.user.user.location?.name,
           };
         });
         setBusiness(businessData);
@@ -108,7 +111,7 @@ const Audit = () => {
       render: (val: any, record: any) => (
         <div className="flex items-center gap-3 text-primary text-sm">
           <button className={`${val.state === 0 ? "text-red-500" : ""}`}>
-            {val.state === 0 ? "Inactive" : "Active"}
+            {val.state === "Active" ? "Active" : "Inactive"}
           </button>
           <button
             className=" border rounded-sm py-2 px-4"
@@ -129,6 +132,7 @@ const Audit = () => {
         <AuditReviewModal
           open={showBusinessInfoModal}
           onClose={() => setShowBusinessInfoModal(false)}
+          business={selectedBusiness}
         />
         <div className="flex flex-row px-5 py-3 border-b justify-start gap-1">
           <AppSelect
