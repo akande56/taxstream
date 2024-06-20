@@ -439,19 +439,15 @@ const AuthProvider = ({ children }: Props) => {
   // };
 
   const handleLogin = async (params: LoginParams) => {
-    console.log(params);
     try {
-      console.log("logging in");
       const { username, password } = params;
       setLoading(true);
       const res = await axios.post(`${BACKEND_URL}/api/token/`, {
         username,
         password,
       });
-      console.log("data", res.data);
 
       const { access, refresh } = res.data;
-      console.log("i got here");
 
       sessionStorage.setItem("token", access);
       sessionStorage.setItem("refresh", refresh);
@@ -467,7 +463,6 @@ const AuthProvider = ({ children }: Props) => {
       navigate("/dashboard");
     } catch (error: any) {
       toast.error(error.message);
-      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -488,7 +483,7 @@ const AuthProvider = ({ children }: Props) => {
 
       toast.error("logout successfully");
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -499,14 +494,13 @@ const AuthProvider = ({ children }: Props) => {
       const res = await axios.delete(
         `${process.env.VITE_SERVER_HOST}/endpoint/${id}`
       );
-      console.log("profile delete success");
       setUser(null);
       setIsInitialized(false);
       console.log(res.data);
 
       // other logics comes here
     } catch (error) {
-      console.log("error deleting profile", error);
+      console.error("error deleting profile", error);
     } finally {
       setLoading(false);
     }
@@ -528,7 +522,7 @@ const AuthProvider = ({ children }: Props) => {
 
       sessionStorage.setItem("userData", JSON.stringify(res.data));
     } catch (error) {
-      console.log("Error occur editing user", error);
+      console.error("Error occur editing user", error);
     } finally {
       setLoading(false);
     }
@@ -557,7 +551,7 @@ const AuthProvider = ({ children }: Props) => {
 
       // Other Logics come here
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setLoading(false);
     }

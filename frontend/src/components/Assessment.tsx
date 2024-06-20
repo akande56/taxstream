@@ -28,11 +28,7 @@ const Assesment = () => {
     setSelectedBusiness(value);
   };
 
-  const handleEdit = (value: any) => {
-    // console.log(staff);
-    // setSelectedStaff(staff);
-    // setShowUpdateStaffModal(!showUpdateStaffModal);
-  };
+  const handleEdit = (value: any) => {};
 
   useEffect(() => {
     const getBusinesses = async () => {
@@ -40,7 +36,6 @@ const Assesment = () => {
         const response = await api.get("/api/v1/assessments/");
         // const response = await api.get("api/v1/user/tax-payer/");
         const { data } = response;
-        console.log(data, "Data");
 
         const businessData = data.map((item: any, index: any) => {
           return {
@@ -67,7 +62,6 @@ const Assesment = () => {
       }
     };
     getBusinesses();
-    console.log("business", business);
   }, []);
   // Table Columns
   const columns = [
