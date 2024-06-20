@@ -1,4 +1,5 @@
 import uuid
+import datetime as dt
 from rest_framework import serializers
 from django.contrib.auth import password_validation
 from .models import (
@@ -74,6 +75,15 @@ class BusinessUserSerializer(serializers.ModelSerializer):
         user_data['username'] = user_data['email']
         user = User.objects.create_user(**user_data)
         business_user = BusinessUser.objects.create(user=user,tax_id=tax_id ,**validated_data)
+        today = dt.datetime.today().strftime("%Y%m%d")
+        user_id = str(business_user.id)
+        new_user_id = user_id[-4:] if len(user_id) >= 4 else user_id.zfill(4)
+        business_user.tax_id = f"JG{today}{new_user_id}"
+        print('sssssssssss')
+        print(business_user.tax_id)
+        business_user.save()
+        print('aaaaaaaaaa')
+        print(business_user.tax_id)
         return business_user
 
     def validate(self, attrs):
