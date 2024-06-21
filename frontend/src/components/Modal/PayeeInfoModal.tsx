@@ -2,24 +2,6 @@
 import React from "react";
 import { AppModal } from "../app/modal";
 
-// interface TaxPayeeDetailsProps {
-//   fullname: string;
-//   taxId: string;
-//   email: string;
-//   phoneNumber: string;
-//   lga: string;
-//   ward: string;
-//   taxArea: string;
-//   businessName: string;
-//   condition: string;
-//   withholdingTax: string;
-//   type: string;
-//   annualIncome: string;
-//   auditReviewStatus: string;
-//   paymentStatus: string;
-//   taxDueTime: string;
-// }
-
 interface PayeeInfoModalProps {
   open: boolean;
   onClose: () => void;

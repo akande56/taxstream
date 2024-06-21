@@ -17,7 +17,7 @@ import { AppModal } from "../app/modal";
 import { AppSelect } from "../app/select";
 import { AppButton } from "../app/button";
 import api from "@/api";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 
 const addPayeeSchema = z.object({
   taxid: z.string({
@@ -211,36 +211,17 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
         console.log("Fetching wards");
         const res = await api.get("/api/v1/policy_configuration/wards/");
         const { data } = res;
-        console.log("ward", data);
 
+        console.log("ward", data);
         // Filter and map wards based on selectedLga
         const filteredAndMappedWard = data
-          .filter((item: { lga: any }) => item.lga.id === selectedLga)
-          .flatMap(
-            (item: {
-              wards_in_taxArea: Array<{
-                id: number;
-                ward: number;
-                tax_area_office: string;
-                tax_area_code: string;
-              }>;
-              area_name: string;
-              area_code: string;
-            }) =>
-              item.wards_in_taxArea.map(
-                (ward: {
-                  id: number;
-                  tax_area_office: string;
-                  tax_area_code: string;
-                }) => ({
-                  value: ward.id,
-                  label: `${item.area_name} - ${ward.tax_area_office} - ${ward.tax_area_code}`,
-                })
-              )
+          .filter((item: { lga: any }) => item.lga.id == selectedLga)
+          .map(
+            (ward: { id: number; area_name: string; area_code: string }) => ({
+              value: ward.id,
+              label: `${ward.area_name} - ${ward.area_code}`,
+            })
           );
-
-        console.log(selectedLga);
-        console.log("filteredAndMappedWard", filteredAndMappedWard);
         setFormWard(filteredAndMappedWard);
       }
     };
@@ -254,7 +235,9 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
         const { data } = res;
         console.log(data);
         const filteredAndMappedTaxArea = data
-          .filter((item: { ward: string }) => item.ward == selectedWard)
+          .filter(
+            (item: { ward: { id: string } }) => item.ward.id == selectedWard
+          )
           .map(
             (item: {
               id: number;
@@ -268,29 +251,24 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
         console.log("selectedWard", selectedWard);
         console.log(
           "filteredtaxarea",
-          data.filter((item: { ward: string }) => item.ward === selectedWard)
+          data.filter((item: { ward: string }) => item.ward == selectedWard)
         );
         console.log("filteredAndMappedTaxArea", filteredAndMappedTaxArea);
         setFormTaxArea(filteredAndMappedTaxArea);
       }
     };
     fetchTaxAreas();
-  }, [selectedWard]);
+  }, [selectedWard, selectedLga]);
 
   // submit form
   const createPayee = async (payeeData: any) => {
-    toast.loading("Creating Payee", { position: "top-right", duration: 3000 });
     try {
       const response = await api.post("/api/v1/user/tax-payer/", payeeData);
-      console.log(response);
       const { data } = response;
-      console.log(data);
       toast.success(`Payee created successfully`);
-    } catch (error) {
-      toast.error("An error occurred", {
-        position: "top-right",
-        duration: 1500,
-      });
+    } catch (error: any) {
+      toast.error(error.response.data || "An error occurred");
+      console.error("Failed to fetch user data:", error.response.data);
       console.error(error);
     }
   };
@@ -315,8 +293,8 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
       anual_income: data.annualincome,
       type: data.type,
     };
-    console.log(payeeData);
     createPayee(payeeData);
+    onClose();
   };
 
   return (

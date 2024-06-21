@@ -43,6 +43,19 @@ const TaxPayerDashboard = () => {
     toast.info("Logging out...");
     logout();
   };
+  const linkClass = (path: string) => {
+    const isActive = location.pathname.endsWith(path);
+    return `flex items-center gap-3 rounded-lg px-3 py-2 ${
+      isActive ? "text-primary bg-muted" : "text-muted-foreground"
+    } transition-all hover:text-primary`;
+  };
+
+  const mobileLinkClass = (path: string) => {
+    const isActive = location.pathname.endsWith(path);
+    return `mx-[-0.65rem] flex items-center gap-3 rounded-lg px-3 py-2 ${
+      isActive ? "text-primary bg-muted" : "text-muted-foreground"
+    } transition-all hover:text-primary`;
+  };
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -59,17 +72,11 @@ const TaxPayerDashboard = () => {
           </div>
           <div className="flex-1">
             <nav className="grid top-20 fixed items-start px-2 font-medium lg:px-4">
-              <Link
-                to="/dashboard"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
+              <Link to="/dashboard" className={linkClass("dashboard")}>
                 <Home className="h-4 w-4" />
                 Dashboard
               </Link>
-              <Link
-                to="invoice"
-                className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
-              >
+              <Link to="invoice" className={linkClass("invoice")}>
                 <FileText className="h-4 w-4" />
                 Invoice
               </Link>
@@ -80,38 +87,23 @@ const TaxPayerDashboard = () => {
                 <CreditCard className="h-4 w-4" />
                 Payment History
               </Link>
-              <Link
-                to="ticket"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
+              <Link to="ticket" className={linkClass("ticket")}>
                 <Ticket className="h-4 w-4" />
                 Ticket
               </Link>
-              <Link
-                to="notification"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
+              <Link to="notification" className={linkClass("notification")}>
                 <Bell className="h-4 w-4" />
                 Notification
               </Link>
-              <Link
-                to="certificate"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
+              <Link to="certificate" className={linkClass("certificate")}>
                 <Home className="h-4 w-4" />
                 Certificate
               </Link>
-              <Link
-                to="profile"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
+              <Link to="profile" className={linkClass("profile")}>
                 <User className="h-4 w-4" />
                 Profile
               </Link>
-              <Link
-                to="#"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
+              <Link to="#" className={linkClass("logout")}>
                 <LogOut className="h-4 w-4" />
                 <AlertDialog>
                   <AlertDialogTrigger className="">Logout</AlertDialogTrigger>
@@ -156,66 +148,72 @@ const TaxPayerDashboard = () => {
             <SheetContent side="left" className="flex flex-col">
               <nav className="grid gap-2 text-lg font-medium">
                 <Link
-                  to="/"
+                  to="/dashboard"
                   className="flex items-center gap-2 text-lg font-semibold"
                 >
                   <span className="sr-only">Tax Stream</span>
                 </Link>
-                <Link
-                  to="/dashboard"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                >
+                <Link to="/dashboard" className={mobileLinkClass("dashboard")}>
                   <Home className="h-5 w-5" />
                   Dashboard
                 </Link>
-                <Link
-                  to="invoice"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                >
+                <Link to="invoice" className={mobileLinkClass("invoice")}>
                   <FileText className="h-5 w-5" />
                   Invoice
                 </Link>
                 <Link
                   to="payment-history"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                  className={mobileLinkClass("payment-history")}
                 >
                   <CreditCard className="h-5 w-5" />
                   Payment History
                 </Link>
-                <Link
-                  to="ticket"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                >
+                <Link to="ticket" className={mobileLinkClass("ticket")}>
                   <Ticket className="h-5 w-5" />
                   Ticket
                 </Link>
                 <Link
                   to="notification"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                  className={mobileLinkClass("notification")}
                 >
                   <Bell className="h-5 w-5" />
                   Notification
                 </Link>
                 <Link
                   to="certificate"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                  className={mobileLinkClass("certificate")}
                 >
                   <Home className="h-5 w-5" />
                   Certificate
                 </Link>
-                <Link
-                  to="profile"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                >
+                <Link to="profile" className={mobileLinkClass("profile")}>
                   <User className="h-5 w-5" />
                   Profile
                 </Link>
-                <Link
-                  to="#"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                >
-                  <LogOut className="h-5 w-5" />
-                  Logout
+                <Link to="#" className={linkClass("logout")}>
+                  <LogOut className="h-4 w-4" />
+                  <AlertDialog>
+                    <AlertDialogTrigger className="">Logout</AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you sure you want to log out?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          By logging out, you'll be signed out of your account
+                          and will need to log in again.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction>
+                          <Button type="button" onClick={handleLogout}>
+                            Logout
+                          </Button>
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </Link>
               </nav>
             </SheetContent>

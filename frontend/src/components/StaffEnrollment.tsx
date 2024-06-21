@@ -56,8 +56,11 @@ const StaffEnrollment = () => {
   //   }),
   // });
   const baseSchema = z.object({
-    fullname: z.string({
-      required_error: "Please enter Full Name",
+    firstName: z.string({
+      required_error: "Please enter First Name",
+    }),
+    lastName: z.string({
+      required_error: "Please enter Last Name",
     }),
     password: z.string({
       required_error: "Please create a Password",
@@ -170,90 +173,6 @@ const StaffEnrollment = () => {
     }
   };
 
-  useEffect(() => {
-    const options: IOption[] = [
-      { label: "SUPERVISOR/DIRECTOR", value: "supervisor1" },
-      { label: "LGA SUPERVISOR/MONITOR", value: "supervisor2" },
-      { label: "WARD SUPERVISOR/MONITOR", value: "ward_monitor" },
-      { label: "TAX COLLECTOR", value: "tax_collector" },
-      { label: "ASSESSMENT OFFICER", value: "assessment_officer" },
-      { label: "AUDIT OFFICER", value: "audit_officer" },
-    ];
-
-    setStaffRoleOptions(options);
-    // const staffData = [
-    //   {
-    //     key: "1",
-    //     fullname: "John Doe",
-    //     staffId: "JD01",
-    //     role: "Manager",
-    //     lga: "Location 1",
-    //     email: "johndoe@example.com",
-    //     phoneNumber: "123-456-7890",
-    //     state: 1,
-    //   },
-    //   {
-    //     key: "2",
-    //     fullname: "Jane Smith",
-    //     staffId: "JS02",
-    //     role: "Assistant",
-    //     lga: "Location 2",
-    //     email: "janesmith@example.com",
-    //     phoneNumber: "098-765-4321",
-    //     state: 0,
-    //   },
-    //   {
-    //     key: "3",
-    //     fullname: "Bob Johnson",
-    //     staffId: "BJ03",
-    //     role: "Supervisor",
-    //     lga: "Location 3",
-    //     email: "bobjohnson@example.com",
-    //     phoneNumber: "111-222-3333",
-    //     state: 1,
-    //   },
-    //   {
-    //     key: "4",
-    //     fullname: "Alice Williams",
-    //     staffId: "AW04",
-    //     role: "Employee",
-    //     lga: "Location 4",
-    //     email: "alicewilliams@example.com",
-    //     phoneNumber: "444-555-6666",
-    //     state: 0,
-    //   },
-    //   {
-    //     key: "5",
-    //     fullname: "Charlie Brown",
-    //     staffId: "CB05",
-    //     role: "Manager",
-    //     lga: "Location 5",
-    //     email: "charliebrown@example.com",
-    //     phoneNumber: "777-888-9999",
-    //     state: 1,
-    //   },
-    // ];
-    // setStaffs(staffData);
-
-    fetchStaff();
-
-    const fetchInitData = async () => {
-      try {
-        const fetchLga = await api.get("/api/v1/policy_configuration/lga/");
-        const { data } = fetchLga;
-        setLga(
-          data.map((item: { id: number; name: string; code: string }) => ({
-            value: item.id.toString(),
-            label: `${item.name} - ${item.code}`,
-          }))
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchInitData();
-  }, []);
-
   const handleUpdateStaff = (data: any) => {
     // Simulate API call
     setTimeout(() => toast.success(`Staff Updated successfully`), 5000);
@@ -293,7 +212,7 @@ const StaffEnrollment = () => {
       password: staffData.password,
       phone: staffData.phoneNumber,
       user_role: staffData.role,
-      full_name: staffData.fullname,
+      full_name: `${staffData.firstName} ${staffData.LastName}`,
       location: staffData?.lga,
       ward: staffData?.ward,
     };
@@ -301,21 +220,21 @@ const StaffEnrollment = () => {
     try {
       const req = await api.post("/api/v1/user/staff", staffCreatedata);
       const { data } = req;
-      console.log(data);
-      toast.success(`Staff created successfully`);
+      if (req.status === 201) {
+        fetchStaff();
+        toast.success(`Staff created successfully`);
+      }
     } catch (err) {
       console.error(err);
       toast.error("Error saving staff");
     }
   };
   const onAddStaffSubmit = (data: z.infer<typeof addStaffSchema>) => {
-    console.log("data", data);
     createStaff(data);
-
-    toast.success(`Staff Added successfully`);
     setShowStaffAddModal(!showStaffAddModal);
     staffform.reset({
-      fullname: "",
+      firstName: "",
+      lastName: "",
       // staffId: "",
       password: "",
       phoneNumber: "",
@@ -329,13 +248,15 @@ const StaffEnrollment = () => {
   const closeModal = () => {
     setShowStaffAddModal(false);
     staffform.reset({
-      fullname: "",
+      firstName: "",
+      lastName: "",
       // staffId: "",
       password: "",
       phoneNumber: "",
       email: "",
       role: "",
       lga: "",
+      ward: "",
     });
   };
   const columns = [
@@ -399,6 +320,37 @@ const StaffEnrollment = () => {
     },
   ];
 
+  useEffect(() => {
+    const options: IOption[] = [
+      { label: "SUPERVISOR/DIRECTOR", value: "supervisor1" },
+      { label: "LGA SUPERVISOR/MONITOR", value: "supervisor2" },
+      { label: "WARD SUPERVISOR/MONITOR", value: "ward_monitor" },
+      { label: "TAX COLLECTOR", value: "tax_collector" },
+      { label: "ASSESSMENT OFFICER", value: "assessment_officer" },
+      { label: "AUDIT OFFICER", value: "audit_officer" },
+    ];
+
+    setStaffRoleOptions(options);
+
+    fetchStaff();
+
+    const fetchInitData = async () => {
+      try {
+        const fetchLga = await api.get("/api/v1/policy_configuration/lga/");
+        const { data } = fetchLga;
+        setLga(
+          data.map((item: { id: number; name: string; code: string }) => ({
+            value: item.id.toString(),
+            label: `${item.name} - ${item.code}`,
+          }))
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchInitData();
+  }, []);
+
   return (
     <div className="h-full p-10">
       <div className="w-full shadow-lg h-full border">
@@ -414,21 +366,39 @@ const StaffEnrollment = () => {
               className="w-full flex flex-col gap-3"
               onSubmit={staffform.handleSubmit(onAddStaffSubmit)}
             >
-              <FormField
-                control={staffform.control}
-                name="fullname"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>FULL NAME</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter Staff Name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <div className="flex flex-row gap-4">
-                {/* <FormField
+                <FormField
+                  control={staffform.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>FULL NAME</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter Staff First Name"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={staffform.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>FULL NAME</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter Staff Last Name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              {/* <div className="flex flex-row gap-4"> */}
+              {/* <FormField
                   control={staffform.control}
                   name="staffId"
                   render={({ field }) => (
@@ -441,25 +411,25 @@ const StaffEnrollment = () => {
                     </FormItem>
                   )}
                 /> */}
-                <FormField
-                  control={staffform.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="Enter Password"
-                          autoComplete="off"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={staffform.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="Enter Password"
+                        autoComplete="off"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {/* </div> */}
               <div className="flex flex-row gap-4">
                 <FormField
                   control={staffform.control}

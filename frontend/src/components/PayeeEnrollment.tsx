@@ -71,7 +71,7 @@ const PayeeEnrollment = () => {
     };
     getBusinesses();
     console.log("Payees", payees);
-  }, []);
+  }, [showAddPayeeModal]);
   const columns = [
     {
       title: "#",
@@ -133,7 +133,7 @@ const PayeeEnrollment = () => {
     },
   ];
   return (
-    <div>
+    <div className="p-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-primary">
           Payee Enrollment

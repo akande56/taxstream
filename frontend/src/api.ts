@@ -1,21 +1,6 @@
-// import axios from "axios";
-
-// const storedToken = sessionStorage.getItem("token");
-// console.log(storedToken, "Stored Token");
-// // Create an Axios instance
-// const api = axios.create({
-//   baseURL: "https://taxstream-3bf552628416.herokuapp.com",
-//   timeout: 15000, // Increased timeout to 15 seconds
-
-//   headers: {
-//     "Content-Type": "application/json",
-//     Authorization: `Bearer ${storedToken}`,
-//   },
-// });
-
-// export default api;
-
 import axios from "axios";
+import { isTokenExpired } from "./utils/isTokenExpired";
+import { toast } from "sonner";
 
 // Create an Axios instance
 const api = axios.create({
@@ -30,6 +15,11 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const storedToken = sessionStorage.getItem("token");
+    const isExpired = isTokenExpired(storedToken || "");
+    if (isExpired) {
+      sessionStorage.removeItem("token");
+      toast.error("Session expired. Please login again.");
+    }
     if (storedToken) {
       config.headers.Authorization = `Bearer ${storedToken}`;
     }

@@ -387,6 +387,7 @@ const AuthProvider = ({ children }: Props) => {
         setUser(userData);
         updateAppContext({ user: userData });
       } else {
+        toast.info("User session Expired");
         handleLogout();
       }
     } catch (error) {
