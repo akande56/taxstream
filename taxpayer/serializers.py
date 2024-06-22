@@ -15,7 +15,8 @@ from taxapp2.users.models import LGA
 from taxapp2.users.serializers import (
     LGASerializer, 
     TaxAreaSerializer, 
-    WardDetailSerializer
+    WardDetailSerializer,
+    is_strong_password,
 )
 
 
@@ -44,13 +45,38 @@ class NewUserSerializer(serializers.ModelSerializer):
         fields = ('username', 'email', 'first_name', 'last_name', 'phone', 'location','is_staff', 'is_active') 
 
 
+
+
 class NewCreateUserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True, validators=[password_validation.validate_password])
+    password = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
         fields = ('email', 'password', 'first_name', 'last_name', 'user_role', 'phone', 'location')
         extra_kwargs = {'location': {'queryset': LGA.objects.all()}}  
+
+    def validate(self, attrs):
+        password = attrs.get('password')
+        if not is_strong_password(password):
+            raise serializers.ValidationError("Password is not strong enough. Password must contain 8 characters, with uppercase, lowercase, digit and symbol.")
+
+        # Check for missing first_name or last_name if a single name is provided
+        if not attrs.get('first_name') and not attrs.get('last_name'):
+            full_name = attrs.get('full_name')
+            if full_name:
+                # Split the single name (assuming a space separator)
+                parts = full_name.split(' ', 1)
+                attrs['first_name'] = parts[0]
+                if len(parts) > 1:
+                    attrs['last_name'] = parts[1]
+                else:
+                    # Raise a specific validation error for missing last name
+                    raise serializers.ValidationError("A single name was provided. Please provide both first and last name, or separate them with a space.")
+            else:
+                # Raise a generic validation error for missing full_name
+                raise serializers.ValidationError("Please provide a full name, including both first and last name.")
+        return attrs
+
 
 class BusinessUserSerializer(serializers.ModelSerializer):
     user = NewCreateUserSerializer(required=True)
@@ -79,11 +105,8 @@ class BusinessUserSerializer(serializers.ModelSerializer):
         user_id = str(business_user.id)
         new_user_id = user_id[-4:] if len(user_id) >= 4 else user_id.zfill(4)
         business_user.tax_id = f"JG{today}{new_user_id}"
-        print('sssssssssss')
-        print(business_user.tax_id)
         business_user.save()
-        print('aaaaaaaaaa')
-        print(business_user.tax_id)
+        
         return business_user
 
     def validate(self, attrs):

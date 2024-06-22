@@ -1,5 +1,6 @@
 import uuid
 from django.contrib.auth.models import Group
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema
 from .models import (
@@ -39,6 +40,24 @@ class UserSerializer(serializers.ModelSerializer):
             )
 
 
+def is_strong_password(password):
+  """
+  This function checks for basic password strength requirements.
+
+  Args:
+      password: The password string to be checked.
+
+  Returns:
+      True if the password meets the requirements, False otherwise.
+  """
+  minLength = 8
+  hasUppercase = any(char.isupper() for char in password)
+  hasLowercase = any(char.islower() for char in password)
+  hasDigit = any(char.isdigit() for char in password)
+  hasSymbol = any(not char.isalnum() for char in password)
+  return (len(password) >= minLength and
+          hasUppercase and hasLowercase and hasDigit and hasSymbol)
+
 
 class CreateStaffSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(max_length=255, required=True)
@@ -49,14 +68,17 @@ class CreateStaffSerializer(serializers.ModelSerializer):
         fields = ('email', 'password', 'phone', 'user_role','full_name', 'location', 'ward')
 
     def create(self, validated_data):
+        
         full_name = validated_data.pop('full_name')
         first_name, last_name = full_name.split()
         validated_data['first_name'] = first_name
         validated_data['last_name'] = last_name
         validated_data['is_staff'] = True
-        validated_data['username'] = validated_data['email']
-        # generate unique staff ID
-        # validated_data['staff_id'] = str(uuid.uuid4())
+        if User.objects.get(username = validated_data['email']):
+            raise serializers.ValidationError('email already exist, please use a diffrent email.')
+        else:
+            validated_data['username'] = validated_data['email']
+        
         ward = validated_data.pop('ward', None)
         user = User.objects.create_user(**validated_data)
 
@@ -64,6 +86,13 @@ class CreateStaffSerializer(serializers.ModelSerializer):
             ward_monitor_user, _ = WardAndMonitor.objects.get_or_create(ward=ward, ward_monitor=user)
             validated_data['ward_monitor'] = ward_monitor_user
         return user
+
+    def validate(self, attrs):
+        password = attrs.get('password')
+        if not is_strong_password(password):
+            raise serializers.ValidationError("Password is not strong enough. Password must contain 8 characters, with uppercase, lowercase, digit and symbol.")
+
+        return attrs
 
 
 class ChangePasswordSerializer(serializers.Serializer):

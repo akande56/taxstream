@@ -108,6 +108,7 @@ class BusinessUserViewSet(viewsets.ModelViewSet):
     def create(self, request):
         serializer = BusinessUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        
         business_user = serializer.save()
         return Response(serializer.data, status=HTTP_201_CREATED)
 
