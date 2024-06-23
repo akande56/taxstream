@@ -20,7 +20,7 @@ class Command(BaseCommand):
             else:
                 user_id = user_id[-4:]  # Extract the last 4 digits
 
-            business_user.tax_id = f"{today}{user_id}"
+            business_user.tax_id = f"JG{today}{user_id}"
             business_user.save()
             count_updated += 1
 
