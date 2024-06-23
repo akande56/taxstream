@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { AppModal } from "../app/modal";
 import { AppButton } from "../app/button";
 import api from "@/api";
 import { toast } from "sonner";
+import AuditQueryModal from "./AuditQueryModal";
 
 interface BusinessInfoModalProps {
   open: boolean;
@@ -18,25 +20,10 @@ const AuditReviewModal: React.FC<BusinessInfoModalProps> = ({
 }) => {
   const [assesmentDetail, setAssesmentDetail] = useState(""); // Step 2
 
-  const handleDataUpdate = (e: any) => {
-    const { name, value } = e.target;
-    if (name === "assesment_detail") {
-      setAssesmentDetail(value);
-      console.log(value)
-    }
-  };
+  const [showQueryModal, setShowQueryModal] = useState<boolean>(false);
 
-  const updateBusiness = async () => {
-    const response = await api.put(
-      `/api/v1/assessments/audit_officer/query_update/${business.id}/`,
-      {
-        query: assesmentDetail,
-      }
-    );
-    const { data } = response;
-    console.log(data, "Data");
-    toast.success("Business updated successfully");
-    onClose();
+  const handleQuery = () => {
+    setShowQueryModal(!showQueryModal);
   };
 
   if (!business) {
@@ -62,6 +49,11 @@ const AuditReviewModal: React.FC<BusinessInfoModalProps> = ({
     >
       <h1 className="text-2xl font-bold">Staff Information</h1>
       <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+        <AuditQueryModal
+          open={showQueryModal}
+          onClose={() => setShowQueryModal(false)}
+          businessId={business.id}
+        />
         <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-xl font-bold mb-4">Tax Payee Details</h2>
           <div className="grid grid-cols-2 gap-4">
@@ -151,7 +143,7 @@ const AuditReviewModal: React.FC<BusinessInfoModalProps> = ({
                 {business.annualIncome}
               </div>
             </div>
-            <div className="col-span-2 flex items-center justify-between mt-4">
+            {/* <div className="col-span-2 flex items-center justify-between mt-4">
               <label className="block text-sm font-medium text-gray-700">
                 Assesment Detail:
               </label>
@@ -162,9 +154,27 @@ const AuditReviewModal: React.FC<BusinessInfoModalProps> = ({
                 onChange={handleDataUpdate}
                 type="text"
               />
-            </div>
-            <div className="flex gap-3">
+            </div> */}
+            {/* <div className="flex gap-3">
               <AppButton type="submit" onClick={updateBusiness} label="Save" />
+              <button
+                onClick={onClose}
+                className="bg-gray-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded-sm transition duration-200 ease-in-out w-full "
+              >
+                Cancel
+              </button>
+            </div> */}
+            <div className="col-span-2">
+              <div className="flex place-content-center">
+                <AppButton
+                  type="submit"
+                  label="Submit Query"
+                  onClick={() => handleQuery()}
+                />
+              </div>
+            </div>
+            <div className="flex w-full justify-around  gap-3">
+              <AppButton width="full" type="submit" label="Approve" />
               <button
                 onClick={onClose}
                 className="bg-gray-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded-sm transition duration-200 ease-in-out w-full "

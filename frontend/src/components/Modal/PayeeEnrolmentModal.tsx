@@ -20,9 +20,6 @@ import api from "@/api";
 import { toast } from "sonner";
 
 const addPayeeSchema = z.object({
-  taxid: z.string({
-    required_error: "Please enter Tax ID",
-  }),
   firstname: z.string({
     required_error: "Please enter First Name",
   }),
@@ -310,19 +307,6 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
           className="w-full flex flex-col gap-3"
           onSubmit={payeeform.handleSubmit(handleSubmit)}
         >
-          <FormField
-            control={payeeform.control}
-            name="taxid"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>TAX ID</FormLabel>
-                <FormControl>
-                  <Input type="text" placeholder="Enter Tax ID" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <div className="flex flex-row gap-2">
             <FormField
               control={payeeform.control}

@@ -1,4 +1,5 @@
 import React from "react";
+import Cert from "./Cert";
 
 interface Certificate {
   id: number;
@@ -57,6 +58,13 @@ const Certificate: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        <Cert
+          name="John Doe"
+          taxId="123456789"
+          dateIssue="June 19, 2024"
+          businessAddress="123 Business St, City, Country"
+        />
       </div>
     </div>
   );

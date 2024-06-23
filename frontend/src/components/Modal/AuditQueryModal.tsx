@@ -1,18 +1,39 @@
 import { useState } from "react";
 import { AppModal } from "../app/modal";
+import api from "@/api";
+import { toast } from "sonner";
 interface AuditQueryModalProps {
   open: boolean;
   onClose: () => void;
   businessId?: string;
 }
 
-const AuditQueryModal: React.FC<AuditQueryModalProps> = ({ open, onClose }) => {
+const AuditQueryModal: React.FC<AuditQueryModalProps> = ({
+  open,
+  onClose,
+  businessId,
+}) => {
   const [query, setQuery] = useState("");
+
+  const updateBusiness = async () => {
+    const response = await api.put(
+      `/api/v1/assessments/audit_officer/query_update/${businessId}/`,
+      {
+        query,
+      }
+    );
+    const { data } = response;
+    console.log(data, "Data");
+    toast.success("Query Added Successfully");
+    onClose();
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission logic here
     console.log("Submitted query:", query);
+
+    updateBusiness();
   };
 
   return (

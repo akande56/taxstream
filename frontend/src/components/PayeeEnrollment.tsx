@@ -62,6 +62,12 @@ const PayeeEnrollment = () => {
             businessStatus: item.business_status.status ? "Active" : "Inactive",
             withholdingTaxRate: item.withholding_tax_rate.rate,
             userId: item.user.email,
+            type: item.type,
+            ward: `${item.ward.area_name}-${item.ward.area_code}`,
+            taxArea: `${item.tax_area?.tax_area_office} ${item.tax_area?.tax_area_code}`,
+            lga: item.user.location?.name,
+            phone: item.user.phone,
+            annualIncome: item.anual_income,
           };
         });
         setPayees(payeeData);

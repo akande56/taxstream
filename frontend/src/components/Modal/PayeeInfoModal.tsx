@@ -39,16 +39,16 @@ const PayeeInfoModal: React.FC<PayeeInfoModalProps> = ({
               <div className="text-left">{payee.email}</div>
 
               <div className="text-right font-medium">Phone Number:</div>
-              <div className="text-left">[Phone Number]</div>
+              <div className="text-left">{payee?.phone}</div>
 
               <div className="text-right font-medium">LGA:</div>
-              <div className="text-left">[LGA]</div>
+              <div className="text-left">{payee?.lga}</div>
 
               <div className="text-right font-medium">WARD:</div>
-              <div className="text-left">[WARD]</div>
+              <div className="text-left">{payee?.ward}</div>
 
               <div className="text-right font-medium">TAX AREA:</div>
-              <div className="text-left">[TAX AREA]</div>
+              <div className="text-left">{payee?.taxArea}</div>
 
               <div className="text-right font-medium">Business Name:</div>
               <div className="text-left">{payee?.businessName}</div>
@@ -60,10 +60,10 @@ const PayeeInfoModal: React.FC<PayeeInfoModalProps> = ({
               <div className="text-left">{payee?.withholdingTaxRate}</div>
 
               <div className="text-right font-medium">Type:</div>
-              <div className="text-left">[Type]</div>
+              <div className="text-left">{payee?.type}</div>
 
               <div className="text-right font-medium">Annual Income:</div>
-              <div className="text-left">[Annual Income]</div>
+              <div className="text-left">{payee?.annualIncome}</div>
               <div className="flex flex-wrap justify-between p-2">
                 <div className="flex flex-col justify-around">
                   <div className="text-right font-medium">Audit Review:</div>
