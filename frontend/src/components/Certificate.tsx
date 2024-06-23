@@ -60,10 +60,10 @@ const Certificate: React.FC = () => {
         </div>
 
         <Cert
-          name="John Doe"
-          taxId="123456789"
-          dateIssue="June 19, 2024"
-          businessAddress="123 Business St, City, Country"
+          name="Usman Kamilu"
+          taxId="JG2506240030"
+          dateIssue="June 30, 2024"
+          businessAddress="Ringim Central Market, Ringim LGA"
         />
       </div>
     </div>

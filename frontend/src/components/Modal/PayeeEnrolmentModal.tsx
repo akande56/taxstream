@@ -131,53 +131,53 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
     setSelectedTaxArea(value);
   };
   // form init useEffect
-  useEffect(() => {
-    const fetchInitData = async () => {
-      try {
-        const fetchLga = await api.get("/api/v1/policy_configuration/lga/");
-        setLga(
-          fetchLga.data.map((item: { id: number; name: string }) => ({
-            value: item.id.toString(),
+  const fetchInitData = async () => {
+    try {
+      const fetchLga = await api.get("/api/v1/policy_configuration/lga/");
+      setLga(
+        fetchLga.data.map((item: { id: number; name: string }) => ({
+          value: item.id.toString(),
+          label: item.name,
+        }))
+      );
+
+      // const fetchWard = await api.get("/api/v1/policy_configuration/wards/");
+
+      // setWard(fetchWard.data);
+
+      // const fetchTaxArea = await api.get(
+      //   "/api/v1/policy_configuration/tax-areas/"
+      // );
+      // setTaxArea(fetchTaxArea.data);
+
+      const fetchBusinessClassification = await api.get(
+        "/api/v1/policy_configuration/business-classifications/"
+      );
+      setBusinessClassification(
+        fetchBusinessClassification.data.map(
+          (item: { id: number; name: string }) => ({
+            value: item.id,
             label: item.name,
-          }))
-        );
+          })
+        )
+      );
 
-        // const fetchWard = await api.get("/api/v1/policy_configuration/wards/");
-
-        // setWard(fetchWard.data);
-
-        // const fetchTaxArea = await api.get(
-        //   "/api/v1/policy_configuration/tax-areas/"
-        // );
-        // setTaxArea(fetchTaxArea.data);
-
-        const fetchBusinessClassification = await api.get(
-          "/api/v1/policy_configuration/business-classifications/"
-        );
-        setBusinessClassification(
-          fetchBusinessClassification.data.map(
-            (item: { id: number; name: string }) => ({
-              value: item.id,
-              label: item.name,
-            })
-          )
-        );
-
-        const fetchWithholdingTax = await api.get(
-          "/api/v1/policy_configuration/withholding-tax-rates/"
-        );
-        setWithholdingTax(
-          fetchWithholdingTax.data.map(
-            (item: { id: any; payment: any; rate: any }) => ({
-              value: item.id,
-              label: `${item.payment} - ${item.rate}`,
-            })
-          )
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    };
+      const fetchWithholdingTax = await api.get(
+        "/api/v1/policy_configuration/withholding-tax-rates/"
+      );
+      setWithholdingTax(
+        fetchWithholdingTax.data.map(
+          (item: { id: any; payment: any; rate: any }) => ({
+            value: item.id,
+            label: `${item.payment} - ${item.rate}`,
+          })
+        )
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
     fetchInitData();
   }, []);
 
@@ -291,6 +291,7 @@ const PayeeEnrollmentModal: React.FC<AddPayeeeModalProps> = ({
       type: data.type,
     };
     createPayee(payeeData);
+    fetchInitData();
     onClose();
   };
 
