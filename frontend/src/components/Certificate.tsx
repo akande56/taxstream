@@ -1,5 +1,5 @@
 import React from "react";
-import Cert from "./Cert";
+import { Link } from "react-router-dom";
 
 interface Certificate {
   id: number;
@@ -49,22 +49,18 @@ const Certificate: React.FC = () => {
                   <td className="py-2 px-4">{certificate.id}</td>
                   <td className="py-2 px-4">{certificate.date}</td>
                   <td className="py-2 px-4">
-                    <button className="bg-green-500 text-white px-4 py-2 rounded">
-                      Download
-                    </button>
+                    <Link
+                      to={`/dashboard/certificate/${certificate.id}`}
+                      className="bg-green-500 text-white px-4 py-2 rounded"
+                    >
+                      View
+                    </Link>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-
-        <Cert
-          name="Usman Kamilu"
-          taxId="JG2506240030"
-          dateIssue="June 30, 2024"
-          businessAddress="Ringim Central Market, Ringim LGA"
-        />
       </div>
     </div>
   );

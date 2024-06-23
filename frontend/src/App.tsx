@@ -24,6 +24,7 @@ import Certificate from "./components/Certificate";
 import TicketsMail from "./components/TicketsMail";
 import Tickets from "./components/Tickets";
 import Mail from "./components/Mail";
+import CertView from "./components/CertView";
 
 const App = () => {
   return (
@@ -98,15 +99,26 @@ const App = () => {
                   <ProtectedRoute element={<Invoice />} roles={roles.invoice} />
                 }
               />
-              <Route
-                path="certificate"
-                element={
-                  <ProtectedRoute
-                    element={<Certificate />}
-                    roles={roles.certificate}
-                  />
-                }
-              />
+              <Route path="certificate">
+                <Route
+                  index
+                  element={
+                    <ProtectedRoute
+                      element={<Certificate />}
+                      roles={roles.certificate}
+                    />
+                  }
+                />
+                <Route
+                  path=":id"
+                  element={
+                    <ProtectedRoute
+                      element={<CertView />}
+                      roles={roles.certificate}
+                    />
+                  }
+                />
+              </Route>
               <Route
                 path="assessment"
                 element={
