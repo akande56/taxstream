@@ -1,5 +1,7 @@
 import uuid
+from datetime import date, timedelta
 from django.db import models
+from django.core.validators import MinValueValidator
 # from django.contrib.auth.models import AbstractUser
 from taxapp2.users.models import User, TaxArea, Ward
 
@@ -74,6 +76,60 @@ class BusinessUser(models.Model):
 
 
 
+
+class Invoice(models.Model):
+    taxpayer = models.ForeignKey('BusinessUser', on_delete=models.CASCADE, related_name='taxpayer_invoices')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    due_date = models.DateField()
+    invoice_number = models.CharField(max_length=50, unique=True)  # Unique invoice number
+    status = models.CharField(max_length=20, choices=(
+        ('pending', 'Pending Payment'),
+        ('paid', 'Paid'),
+        ('overdue', 'Overdue'),
+    ), default='pending')
+    created_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Invoice #{self.invoice_number} for {self.taxpayer.user.email}"
+
+
+
+class Payment(models.Model):
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='invoice_payment_status')
+    payment_method = models.CharField(max_length=50, choices=(('card', 'card'), ('bank_transfer', 'bank-transfer')), null=True, blank=True)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], null=True, blank=True)
+    payment_date = models.DateField(blank=True, null=True)
+    transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    status = models.CharField(max_length=20, choices=(
+        ('pending', 'Pending Confirmation'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+    ), default='pending')
+    created_date = models.DateTimeField(auto_now_add=True)
+
+    # Additional fields from Flutterwave webhook response
+    charged_amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], null=True, blank=True)
+    app_fee = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], null=True, blank=True)
+    merchant_fee = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], null=True, blank=True)
+    processor_response = models.TextField(blank=True)
+    auth_model = models.CharField(max_length=50, blank=True)
+    ip_address = models.GenericIPAddressField(blank=True)
+    customer_name = models.CharField(max_length=255, blank=True)
+    customer_email = models.EmailField(blank=True)
+
+    # Card details (optional)
+    card_first_six_digits = models.CharField(max_length=10, blank=True)
+    card_last_four_digits = models.CharField(max_length=4, blank=True)
+    card_issuer = models.CharField(max_length=255, blank=True)
+    card_country = models.CharField(max_length=2, blank=True)
+    card_type = models.CharField(max_length=50, blank=True)
+    card_expiry = models.CharField(max_length=5, blank=True)
+
+    def __str__(self):
+        return f"Payment for invoice #{self.invoice.invoice_number}"
+
+
+
 def all_required_fields_filled(assessment): 
     # Get all model fields (excluding related fields)
     model_fields = assessment._meta.get_fields(include_parents=False)
@@ -85,6 +141,8 @@ def all_required_fields_filled(assessment):
         if field_value is None:
             return False
     return True
+
+
 
 
 class Assessment(models.Model):
@@ -108,11 +166,46 @@ class Assessment(models.Model):
     null= True,
     blank= True,
     )
+    next_due_date = models.DateField(blank=True, null=True)
+    current_invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True)
     query = models.CharField(max_length=150)
+    created_date = models.DateTimeField(auto_now_add=True)
     
+    def clean(self):
+        # Implement custom validation rules here (e.g., check for valid tax amount)
+        errors = super().clean()  # Call parent clean() for built-in validation
+        return errors
+
     def approve_assessment(self):
-        if all_required_fields_filled(self):  # Check if all required fields are filled
+    
+        if not self.assessment_status=='approved':  # Check validation and approval status
+
             self.assessment_status = 'approved'
+            
+
+            # Calculate due date based on tax_due_time
+            if self.tax_due_time == 'annually':
+                self.next_due_date = self.created_date + timedelta(days=365)  # Adjust for leap years if needed
+            elif self.tax_due_time == 'monthly':
+                self.next_due_date = self.created_date + timedelta(days=30)
+            else:
+                self.next_due_date = self.created_date + timedelta(days=1)
+            
             self.save()
+
+            
+            invoice = Invoice.objects.create(
+                taxpayer=self.user,
+                assessment=self,
+                amount=self.to_be_paid,  # Replace with your calculation function
+                due_date=self.next_due_date
+            )
+            invoice.save()
+            print("invoice for taxpayer created, id:")
+            print(invoice.id)
+            # Additional logic (e.g., sending invoice notification)
+
+    def get_current_invoice(self):
+        return self.current_invoice
 
     

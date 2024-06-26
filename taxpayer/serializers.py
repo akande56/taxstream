@@ -9,6 +9,8 @@ from .models import (
     WithholdingTaxRate, 
     BusinessStatus, 
     Assessment,
+    Payment,
+    Invoice,
 )
 
 from taxapp2.users.models import LGA
@@ -195,3 +197,18 @@ class UpdateAssessment_AuditOfficerSerializer(serializers.ModelSerializer):
         assessment.assessment_status = 'query'
         assessment.save()
         return assessment
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    invoice_number = serializers.CharField(source='invoice.invoice_number', read_only=True)
+
+    class Meta:
+        model = Payment
+        fields = '__all__'  # Include all fields (adjust as needed)
+
+class InvoiceSerializer(serializers.ModelSerializer):
+    payments = PaymentSerializer(many=True, read_only=True, source='invoice_payment_status')
+
+    class Meta:
+        model = Invoice
+        fields = '__all__'  # Include all fields (adjust as needed)

@@ -1,5 +1,14 @@
-import uuid
-from django.contrib.auth import get_user_model
+
+import os
+# import uuid
+import requests
+import hmac
+import hashlib
+import json
+# from django.contrib.auth import get_user_model
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.status import (
@@ -16,6 +25,8 @@ from .models import (
     BusinessStatus,
     WithholdingTaxRate,
     Assessment,
+    Invoice,
+    Payment,
 )
 from .serializers import (
     BusinessUserSerializer,
@@ -330,3 +341,141 @@ class ApproveAssessmentView(APIView):
       return Response({'error': 'Assessment not found'}, status=404)
     except Exception as e:  
       return Response({'error': str(e)}, status=500)
+
+
+
+# ****************** PAYMent ***************************** #
+
+class PaymentView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        # Get invoice ID from request
+        invoice_id = request.data.get('invoice_id')
+
+        
+        try:
+            invoice = Invoice.objects.get(pk=invoice_id)
+        except Invoice.DoesNotExist:
+            return Response({"message": "Invalid invoice ID"}, status=HTTP_400_BAD_REQUEST)
+
+        
+        customer_email = invoice.taxpayer.user.email
+        amount = invoice.amount
+        # currency = invoice.currency
+
+        
+        customer_name = f"{invoice.taxpayer.user.first_name}{invoice.taxpayer.user.last_name}"
+        customer_phone = invoice.taxpayer.user.phone
+
+    
+        data = {
+            "tx_ref": f"JG-tax-{invoice.id}-{invoice.taxpayer.tax_id}", 
+            "amount": str(amount),
+            "currency": "NGN",
+            "customer": {
+                "email": customer_email,
+                "name": customer_name,  
+                "phone_number": customer_phone, 
+            },
+            "redirect_url": 'https://taxstream-3r2y.onrender.com/payment',  # Capture response URL from client
+            
+            "meta": {  # Optional metadata to associate with the payment
+                "invoice_id": invoice.id
+            }
+        }
+        print(data)
+        # Make the request to Flutterwave's payment initiation endpoint
+        url = "https://api.flutterwave.com/v3/payments"
+        headers = {"Authorization": f"Bearer {os.environ.get('FLUTTERWAVE_SECRET_KEY')}"}
+        response = requests.post(url, json=data, headers=headers)
+
+        # Check for successful response
+        if response.status_code == 200:
+            # Payment initiated successfully
+            payment_data = response.json()
+            redirect_url = payment_data.get('data', {}).get('link')  # Extract redirect URL
+            return Response({"message": "Payment initiated successfully", "redirect_url": redirect_url})
+        else:
+            # Handle error (log the error and return a user-friendly message)
+            return Response(response.json(), status=HTTP_400_BAD_REQUEST)
+
+
+
+
+@csrf_exempt
+def payment_webhook(request):
+    if request.method == 'POST':
+    
+        if settings.DEBUG:  # For development, temporarily disable verification
+            is_valid = True
+        else:            
+            data = request.body
+            hash_algorithm = hashlib.sha256
+            secret = settings.FLUTTERWAVE_SECRET_KEY.encode('utf-8')
+            signature = hmac.new(secret, data, hash_algorithm).hexdigest()
+            is_valid = request.META.get('HTTP_X_FLUTTERWAVE_HASH') == signature
+
+        if is_valid:
+            # Process the payment data (example using JSON)
+            data = json.loads(request.body.decode())
+            transaction_id = data.get('data', {}).get('transaction_id')
+            payment_status = data.get('data', {}).get('status')
+            invoice_id = data.get('meta', {}).get('invoice_id')
+            invoice = Invoice.objects.get(pk=invoice_id)
+
+            # Update your Payment model based on transaction ID and status
+            try:
+                payment = Payment.objects.get_or_create(transaction_id=transaction_id, invoice= invoice)
+                payment.status = payment_status
+                payment.amount_paid = invoice.amount
+                payment.currency = invoice.currency
+
+                # Populate other Payment fields based on invoice or request data
+                payment.charged_amount = data.get('data', {}).get('charged_amount', None)
+                payment.app_fee = data.get('data', {}).get('app_fee', None)
+                payment.merchant_fee = data.get('data', {}).get('merchant_fee', None)
+                payment.processor_response = data.get('data', {}).get('processor_response')
+                payment.auth_model = data.get('data', {}).get('auth_model')
+                payment.ip_address = data.get('data', {}).get('ip')
+                payment.customer_name = data.get('data', {}).get('customer', {}).get('name')
+                payment.customer_email = data.get('data', {}).get('customer', {}).get('email')
+                payment.card_first_six_digits = data.get('data', {}).get('card', {}).get('first_6digits')
+                payment.card_last_four_digits = data.get('data', {}).get('card', {}).get('last_4digits')
+                payment.card_issuer = data.get('data', {}).get('card', {}).get('issuer')
+                payment.card_country = data.get('data', {}).get('card', {}).get('country')
+                payment.card_type = data.get('data', {}).get('card', {}).get('type')
+                payment.card_expiry = data.get('data', {}).get('card', {}).get('expiry')
+                payment.status = payment_status   
+                payment.save()
+            except Payment.DoesNotExist:
+                # Handle potential errors (e.g., transaction not found)
+                pass
+
+            return Response({'message' : 'Webhook received and processed successfully'})
+        else:
+            return Response({'message' : 'Invalid webhook signature'}, status=400)
+    else:
+        return HttpResponse({'message': 'Method not allowed'}, status=405)
+
+
+
+class PaymentListView(ListAPIView):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerialize
+
+
+class InvoiceListView(ListAPIView):
+    queryset = Invoice.objects.all()
+    serializer_class = InvoiceSerializer
+
+
+class PaymentDetailView(RetrieveAPIView):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+    lookup_field = 'pk' 
+
+
+class InvoiceDetailView(RetrieveAPIView):
+    queryset = Invoice.objects.all()
+    serializer_class = InvoiceSerializer
+    lookup_field = 'pk'

@@ -37,6 +37,8 @@ from taxpayer.views import (
     UpdateAssessmentView_AssessmentOfficer,
     UpdateAssessmentView_AuditOfficer,
     ApproveAssessmentView,
+    PaymentView,
+    payment_webhook,
 )
 
 
@@ -82,7 +84,13 @@ urlpatterns += [
     path('api/v1/assessments/assessment_officer/update/<int:pk>/', UpdateAssessmentView_AssessmentOfficer.as_view(), name='assessment-officer'),
     path('api/v1/assessments/audit_officer/query_update/<int:pk>/', UpdateAssessmentView_AuditOfficer.as_view(), name='audit-officer'),
     path('api/v1/assessments/audit_officer/approve/<int:assessment_id>/', ApproveAssessmentView.as_view(), name='update-assessment'),
-    
+    #payment
+    path("api/v1/user/taxpayer/invoice/initiate_payment/", PaymentView.as_view(), name='invoice_payment'),
+    path('api/v1/user/taxpayer/invoice/payments/webhook/', payment_webhook, name='flutterwave-webhook'),
+    path('api/v1/user/taxpayer/invoice/payments/', PaymentListView.as_view()),
+    path('api/v1/user/taxpayer/invoice/payments/<int:pk>/', PaymentDetailView.as_view()),
+    path('api/v1/user/taxpayer/invoices/', InvoiceListView.as_view()),
+    path('api/v1/user/taxpayer/invoices/<int:pk>/', InvoiceDetailView.as_view()),
     #Token
     # path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),

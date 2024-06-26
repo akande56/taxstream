@@ -16,3 +16,6 @@ django-rest-passwordreset
 
 # email
 django-sendgrid-v5
+
+#payment flutter Rave
+rave-python-1.4.0

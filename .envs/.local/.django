@@ -2,3 +2,4 @@
 # ------------------------------------------------------------------------------
 USE_DOCKER=yes
 IPYTHONDIR=/app/.ipython
+FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-56caa2d5c6dd65208fa37424fb1db7e7-X"
