@@ -196,7 +196,7 @@ class Assessment(models.Model):
             print('assessment:::')
             print(self)
             
-            invoice = Invoice.objects.create(
+            invoice = Invoice.objects.get_or_create(
                 taxpayer=self.user,
                 assessment=self,
                 amount=self.to_be_paid,  # Replace with your calculation function

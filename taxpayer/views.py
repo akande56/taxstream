@@ -16,7 +16,7 @@ from rest_framework.status import (
     HTTP_400_BAD_REQUEST
 )
 from rest_framework import viewsets
-from rest_framework.generics import ListAPIView, UpdateAPIView
+from rest_framework.generics import ListAPIView, UpdateAPIView, RetrieveAPIView
 from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiTypes, OpenApiExample
 from .models import (
