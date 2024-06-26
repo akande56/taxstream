@@ -19,3 +19,4 @@ django-sendgrid-v5
 
 #payment flutter Rave
 # rave-python-1.4.0 
+requests==2.31.0
