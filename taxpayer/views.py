@@ -40,7 +40,7 @@ from .serializers import (
     AssessmentSerializer,
     UpdateAssessment_AssessmentOfficerSerializer,
     UpdateAssessment_AuditOfficerSerializer,
-
+    PaymentSerializer,
 )
 from taxapp2.users.models import LGA
 from taxapp2.users.permissions import IsAuditor_or_IsAssessor, IsAuditOfficer
@@ -461,7 +461,7 @@ def payment_webhook(request):
 
 class PaymentListView(ListAPIView):
     queryset = Payment.objects.all()
-    serializer_class = PaymentSerialize
+    serializer_class = PaymentSerializer
 
 
 class InvoiceListView(ListAPIView):
