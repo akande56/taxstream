@@ -18,4 +18,4 @@ django-rest-passwordreset
 django-sendgrid-v5
 
 #payment flutter Rave
-rave-python-1.4.0
+# rave-python-1.4.0 
