@@ -181,6 +181,7 @@ class Assessment(models.Model):
         if not self.assessment_status=='approved':  # Check validation and approval status
 
             self.assessment_status = 'approved'
+            print('approved....')
             
 
             # Calculate due date based on tax_due_time
@@ -192,7 +193,8 @@ class Assessment(models.Model):
                 self.next_due_date = self.created_date + timedelta(days=1)
             
             self.save()
-
+            print('assessment:::')
+            print(self)
             
             invoice = Invoice.objects.create(
                 taxpayer=self.user,
