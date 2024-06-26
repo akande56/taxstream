@@ -39,6 +39,10 @@ from taxpayer.views import (
     ApproveAssessmentView,
     PaymentView,
     payment_webhook,
+    PaymentListView,
+    InvoiceListView,
+    PaymentDetailView,
+    InvoiceDetailView,
 )
 
 
