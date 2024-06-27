@@ -211,4 +211,12 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Invoice
-        fields = '__all__'  # Include all fields (adjust as needed)
+        fields = '__all__'
+
+class InitPaymentInvoiceSerializer(serializers.Serializer):
+    invoice_id = serializers.IntegerField()
+    
+
+class PaymentResponseSerializer(serializers.Serializer):
+    message = serializers.CharField(read_only=True)
+    redirect_url = serializers.CharField(read_only=True)

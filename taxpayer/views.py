@@ -5,6 +5,8 @@ import requests
 import hmac
 import hashlib
 import json
+import logging
+from datetime import date, timedelta
 # from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
@@ -13,12 +15,20 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.status import (
     HTTP_201_CREATED,
-    HTTP_400_BAD_REQUEST
+    HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
+    HTTP_500_INTERNAL_SERVER_ERROR
 )
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView, UpdateAPIView, RetrieveAPIView
 from rest_framework.views import APIView
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiTypes, OpenApiExample
+from drf_spectacular.utils import (
+    extend_schema, 
+    extend_schema_view, 
+    OpenApiParameter, 
+    OpenApiTypes, 
+    OpenApiExample,
+)
 from .models import (
     BusinessUser,
     BusinessClassification,
@@ -42,10 +52,13 @@ from .serializers import (
     UpdateAssessment_AuditOfficerSerializer,
     PaymentSerializer,
     InvoiceSerializer,
+    InitPaymentInvoiceSerializer,
+    PaymentResponseSerializer,
 )
 from taxapp2.users.models import LGA
 from taxapp2.users.permissions import IsAuditor_or_IsAssessor, IsAuditOfficer
 
+logger = logging.getLogger(__name__)
 
 @extend_schema_view(
     list=extend_schema(
@@ -237,7 +250,7 @@ class AssessmentListView(ListAPIView):
     
     serializer_class = AssessmentSerializer
     permission_classes = [IsAdminUser]
-
+    filter_fields = ('assessment_status')
     def get_queryset(self):
         queryset = Assessment.objects.all()
         # user_area = self.request.user.location
@@ -326,80 +339,118 @@ class UpdateAssessmentView_AuditOfficer(UpdateAPIView):
 )
 class ApproveAssessmentView(APIView):
   permission_classes = [IsAdminUser]
-  
+  InvoiceSerializer = []
   def put(self, request, assessment_id):
     try:
       assessment = Assessment.objects.get(pk=assessment_id)
       
-      # Manual validation (optional)
-    #   if not all_required_fields_filled(assessment):  # Check for required fields
-    #       return Response({'error': 'Missing required fields'}, status=400)
+      if assessment.assessment_status == 'reviewed':
+        assessment.assessment_status = 'approved'
+        print('approved....')
 
-      assessment.approve_assessment()  
-      assessment.save()
-      return Response({'message': 'Assessment updated successfully'})
+        # Calculate due date based on tax_due_time
+        if assessment.tax_due_time == 'annually':
+            assessment.next_due_date = assessment.created_date + timedelta(days=365)  # Adjust for leap years if needed
+        elif assessment.tax_due_time == 'monthly':
+            assessment.next_due_date = assessment.created_date + timedelta(days=30)
+        else:
+            assessment.next_due_date = assessment.created_date + timedelta(days=1)
+    
+        
+        invoice, created = Invoice.objects.get_or_create(
+            taxpayer=assessment.user,
+            assessment=assessment,
+            amount=assessment.to_be_paid,  # Replace with your calculation function
+            due_date=assessment.next_due_date
+        )
+        invoice.save()
+        assessment.save()
+        return Response({'message': 'Assessment updated successfully'})
+      else:
+        # Handle other assessment statuses with appropriate messages
+        if assessment.assessment_status == 'pending review':
+          return Response({'message': 'Assessment form yet to be reviewed, contact assessment_office to review.'})
+        elif assessment.assessment_status == 'approved':
+          return Response({'message': 'Assessment is already approved.'})
+        elif assessment.assessment_status == 'query':
+          return Response({'message': 'Assessment is currently under query, and cannot be approved. contact assessment_office to review'})
+        else:
+          return Response({'message': f'Invalid assessment status: {assessment.assessment_status}'})
     except Assessment.DoesNotExist:
-      return Response({'error': 'Assessment not found'}, status=404)
+      return Response({'error': 'Assessment not found'}, status=HTTP_404_NOT_FOUND)
     except Exception as e:  
-      return Response({'error': str(e)}, status=500)
+      return Response({'error': str(e)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 
 # ****************** PAYMent ***************************** #
-
+@extend_schema_view(
+    description="Initiate Flutterwave payment, returns payment link; to be sent to frontend so taxpayer can be redirected to flutterwave app to complete payment.",
+    requests=InitPaymentInvoiceSerializer,
+    responses={
+        200: PaymentResponseSerializer, 
+    }
+)
 class PaymentView(APIView):
-    permission_classes = [AllowAny]
+    serializer_class = InitPaymentInvoiceSerializer
+    permission_classes = [AllowAny]  # Consider security implications in production
+
     def post(self, request):
         # Get invoice ID from request
         invoice_id = request.data.get('invoice_id')
 
-        
         try:
             invoice = Invoice.objects.get(pk=invoice_id)
         except Invoice.DoesNotExist:
             return Response({"message": "Invalid invoice ID"}, status=HTTP_400_BAD_REQUEST)
 
-        
         customer_email = invoice.taxpayer.user.email
         amount = invoice.amount
-        # currency = invoice.currency
-
-        
-        customer_name = f"{invoice.taxpayer.user.first_name}{invoice.taxpayer.user.last_name}"
+        customer_name = f"{invoice.taxpayer.user.first_name} {invoice.taxpayer.user.last_name}"
         customer_phone = invoice.taxpayer.user.phone
 
-    
         data = {
-            "tx_ref": f"JG-tax-{invoice.id}-{invoice.taxpayer.tax_id}", 
+            "tx_ref": f"JG-tax-{invoice.id}-{invoice.taxpayer.tax_id}",
             "amount": str(amount),
-            "currency": "NGN",
+            "currency": "NGN", 
             "customer": {
                 "email": customer_email,
-                "name": customer_name,  
-                "phone_number": customer_phone, 
+                "name": customer_name,
+                "phone_number": customer_phone,
             },
             "redirect_url": 'https://taxstream-3r2y.onrender.com/payment',  # Capture response URL from client
-            
-            "meta": {  # Optional metadata to associate with the payment
+            "meta": {  
                 "invoice_id": invoice.id
             }
         }
-        print(data)
-        # Make the request to Flutterwave's payment initiation endpoint
-        url = "https://api.flutterwave.com/v3/payments"
-        headers = {"Authorization": f"Bearer {os.environ.get('FLUTTERWAVE_SECRET_KEY')}"}
-        response = requests.post(url, json=data, headers=headers)
 
-        # Check for successful response
-        if response.status_code == 200:
-            # Payment initiated successfully
-            payment_data = response.json()
-            redirect_url = payment_data.get('data', {}).get('link')  # Extract redirect URL
-            return Response({"message": "Payment initiated successfully", "redirect_url": redirect_url})
+        try:
+            url = "https://api.flutterwave.com/v3/payments"
+            headers = {"Authorization": f"Bearer {os.environ.get('FLUTTERWAVE_SECRET_KEY')}"}
+            response = requests.post(url, json=data, headers=headers)
+            response.raise_for_status()  # Raise an exception for non-200 status codes
+
+        except requests.exceptions.RequestException as e:
+            # Handle any general request errors (network issues, timeouts)
+            return Response({"message": f"Error initiating payment: {str(e)}"}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+        except Invoice.DoesNotExist:
+            # Handle the case where the invoice is no longer available after initial retrieval (unlikely but possible)
+            return Response({"message": "Invoice not found"}, status=HTTP_404_NOT_FOUND)
+        except Exception as e:
+            # Catch any other unexpected errors
+            logger.error(f"Unexpected error during payment initiation: {str(e)}")
+            return Response({"message": "Internal server error"}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+        
         else:
-            # Handle error (log the error and return a user-friendly message)
-            return Response(response.json(), status=HTTP_400_BAD_REQUEST)
-
+            # Successful response
+            payment_data = response.json()
+            redirect_url = payment_data.get('data', {}).get('link')
+            serializer = PaymentResponseSerializer(
+                data={"message": "Payment initiated successfully", "redirect_url": redirect_url}
+            )
+            serializer.is_valid(raise_exception=True)
+            return Response(serializer.data)
 
 
 
@@ -460,22 +511,43 @@ def payment_webhook(request):
 
 
 
+@extend_schema(
+    description="Get a list of all payments.",
+    responses={200: PaymentSerializer(many=True)},  
+)
 class PaymentListView(ListAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
 
 
+
+@extend_schema(
+    description="Get a list of all invoices.",
+    responses={200: InvoiceSerializer(many=True)},  
+)
 class InvoiceListView(ListAPIView):
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
 
 
+
+@extend_schema(
+    description="Get a specific payment by its primary key.",
+    request=PaymentSerializer,
+    responses={200: PaymentSerializer},
+)
 class PaymentDetailView(RetrieveAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
     lookup_field = 'pk' 
 
 
+
+@extend_schema(
+    description="Get a specific invoice by its primary key.",
+    request=PaymentSerializer,
+    responses={200: InvoiceSerializer},
+)
 class InvoiceDetailView(RetrieveAPIView):
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer

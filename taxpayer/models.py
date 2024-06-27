@@ -81,7 +81,7 @@ class Invoice(models.Model):
     taxpayer = models.ForeignKey('BusinessUser', on_delete=models.CASCADE, related_name='taxpayer_invoices')
     amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     due_date = models.DateField()
-    invoice_number = models.CharField(max_length=50, unique=True)  # Unique invoice number
+    invoice_number = models.CharField(max_length=50, unique=True, default=uuid.uuid4)  # Unique invoice number
     status = models.CharField(max_length=20, choices=(
         ('pending', 'Pending Payment'),
         ('paid', 'Paid'),
@@ -167,7 +167,7 @@ class Assessment(models.Model):
     blank= True,
     )
     next_due_date = models.DateField(blank=True, null=True)
-    current_invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True)
+    # current_invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True)
     query = models.CharField(max_length=150)
     created_date = models.DateTimeField(auto_now_add=True)
     
@@ -176,38 +176,38 @@ class Assessment(models.Model):
         errors = super().clean()  # Call parent clean() for built-in validation
         return errors
 
-    def approve_assessment(self):
+    # def approve_assessment(self):
     
-        if not self.assessment_status=='approved':  # Check validation and approval status
+    #     if not self.assessment_status=='approved':  # Check validation and approval status
 
-            self.assessment_status = 'approved'
-            print('approved....')
+    #         self.assessment_status = 'approved'
+    #         print('approved....')
             
 
-            # Calculate due date based on tax_due_time
-            if self.tax_due_time == 'annually':
-                self.next_due_date = self.created_date + timedelta(days=365)  # Adjust for leap years if needed
-            elif self.tax_due_time == 'monthly':
-                self.next_due_date = self.created_date + timedelta(days=30)
-            else:
-                self.next_due_date = self.created_date + timedelta(days=1)
+    #         # Calculate due date based on tax_due_time
+    #         if self.tax_due_time == 'annually':
+    #             self.next_due_date = self.created_date + timedelta(days=365)  # Adjust for leap years if needed
+    #         elif self.tax_due_time == 'monthly':
+    #             self.next_due_date = self.created_date + timedelta(days=30)
+    #         else:
+    #             self.next_due_date = self.created_date + timedelta(days=1)
             
-            self.save()
-            print('assessment:::')
-            print(self)
+    #         self.save()
+    #         print('assessment:::')
+    #         print(self)
             
-            invoice = Invoice.objects.get_or_create(
-                taxpayer=self.user,
-                assessment=self,
-                amount=self.to_be_paid,  # Replace with your calculation function
-                due_date=self.next_due_date
-            )
-            invoice.save()
-            print("invoice for taxpayer created, id:")
-            print(invoice.id)
+    #         invoice = Invoice.objects.get_or_create(
+    #             taxpayer=self.user,
+    #             assessment=self,
+    #             amount=self.to_be_paid,  # Replace with your calculation function
+    #             due_date=self.next_due_date
+    #         )
+    #         invoice.save()
+    #         print("invoice for taxpayer created, id:")
+    #         print(invoice.id)
             # Additional logic (e.g., sending invoice notification)
 
-    def get_current_invoice(self):
-        return self.current_invoice
+    # def get_current_invoice(self):
+    #     return self.current_invoice
 
     
