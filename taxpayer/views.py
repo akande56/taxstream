@@ -6,7 +6,8 @@ import hmac
 import hashlib
 import json
 import logging
-from datetime import date, timedelta
+# from datetime import date, timedelta
+from dateutil.relativedelta import relativedelta
 # from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
@@ -17,7 +18,8 @@ from rest_framework.status import (
     HTTP_201_CREATED,
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
-    HTTP_500_INTERNAL_SERVER_ERROR
+    HTTP_500_INTERNAL_SERVER_ERROR,
+    HTTP_200_OK
 )
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView, UpdateAPIView, RetrieveAPIView
@@ -25,8 +27,8 @@ from rest_framework.views import APIView
 from drf_spectacular.utils import (
     extend_schema, 
     extend_schema_view, 
-    OpenApiParameter, 
-    OpenApiTypes, 
+    # OpenApiParameter, 
+    # OpenApiTypes, 
     OpenApiExample,
 )
 from .models import (
@@ -54,6 +56,7 @@ from .serializers import (
     InvoiceSerializer,
     InitPaymentInvoiceSerializer,
     PaymentResponseSerializer,
+    ManualPaymentVerificationSerializer,
 )
 from taxapp2.users.models import LGA
 from taxapp2.users.permissions import IsAuditor_or_IsAssessor, IsAuditOfficer
@@ -346,15 +349,15 @@ class ApproveAssessmentView(APIView):
       
       if assessment.assessment_status == 'reviewed':
         assessment.assessment_status = 'approved'
-        print('approved....')
-
+        
+        today = timezone.now().date()
         # Calculate due date based on tax_due_time
         if assessment.tax_due_time == 'annually':
-            assessment.next_due_date = assessment.created_date + timedelta(days=365)  # Adjust for leap years if needed
+            assessment.next_due_date =  today + relativedelta(years=1)
         elif assessment.tax_due_time == 'monthly':
-            assessment.next_due_date = assessment.created_date + timedelta(days=30)
+            assessment.next_due_date = today + relativedelta(months=1)
         else:
-            assessment.next_due_date = assessment.created_date + timedelta(days=1)
+            assessment.next_due_date = today + relativedelta(days=1)
     
         
         invoice, created = Invoice.objects.get_or_create(
@@ -365,7 +368,8 @@ class ApproveAssessmentView(APIView):
         )
         invoice.save()
         assessment.save()
-        return Response({'message': 'Assessment updated successfully'})
+        return Response({'message': 'Assessment updated successfully'}, status=HTTP_200_OK)
+      
       else:
         # Handle other assessment statuses with appropriate messages
         if assessment.assessment_status == 'pending review':
@@ -446,11 +450,14 @@ class PaymentView(APIView):
             # Successful response
             payment_data = response.json()
             redirect_url = payment_data.get('data', {}).get('link')
-            serializer = PaymentResponseSerializer(
-                data={"message": "Payment initiated successfully", "redirect_url": redirect_url}
-            )
-            serializer.is_valid(raise_exception=True)
-            return Response(serializer.data)
+            # serializer = PaymentResponseSerializer(
+            #     data={"message": "Payment initiated successfully", "redirect_url": redirect_url}
+            # )
+            # serializer.message = "Payment initiated successfully"
+            # serializer.redirect_url = redirect_url
+            # serializer.is_valid(raise_exception=True)
+            # print(serializer.message)
+            return Response({"message": "Payment initiated successfully", "redirect_url": redirect_url})
 
 
 
@@ -509,6 +516,111 @@ def payment_webhook(request):
     else:
         return HttpResponse({'message': 'Method not allowed'}, status=405)
 
+
+
+@extend_schema_view(
+    summary="Manually verify a payment using Flutterwave transaction ID.",
+    description="This endpoint allows manual verification of a payment by providing the transaction ID and tx_ref received from Flutterwave. The invoice ID is extracted from the tx_ref and checked against the provided invoice_id. Upon successful verification, the payment and invoice statuses are updated.",
+    request=ManualPaymentVerificationSerializer,
+    responses={
+        200: 'Payment verified and updated successfully.',
+        400: 'Bad request (invalid data, invoice not found, etc.)',
+    }
+)
+class ManualPaymentVerificationView(APIView):
+    def post(self, request):
+        serializer = ManualPaymentVerificationSerializer(data=request.data)
+        if serializer.is_valid():
+            transaction_id = serializer.validated_data['transaction_id']
+            invoice_id = serializer.validated_data.get('invoice_id')
+            tx_ref = serializer.validated_data['tx_ref']
+            provided_invoice_id = serializer.validated_data.get('invoice_id')
+            
+            try:
+                # Assuming tx_ref format is "JG-tax-{invoice_id}-{taxpayer_tax_id}"
+                extracted_invoice_id = int(tx_ref.split('-')[2])
+            except (IndexError, ValueError):
+                return Response({"message": "Invalid tx_ref format"}, status=HTTP_400_BAD_REQUEST)
+
+            # Check if provided invoice_id matches extracted invoice_id
+            if provided_invoice_id != extracted_invoice_id:
+                
+                return Response({"message": "Invoice ID mismatch"}, status=HTTP_400_BAD_REQUEST)
+
+            try:
+                invoice = Invoice.objects.get(pk=extracted_invoice_id)
+            except Invoice.DoesNotExist:
+                return Response({"message": "Invalid invoice ID"}, status=HTTP_400_BAD_REQUEST)
+
+            try:
+                payment = Payment.objects.get(transaction_id=transaction_id)
+            except Payment.DoesNotExist:
+                if invoice_id:
+                    try:
+                        invoice = Invoice.objects.get(pk=invoice_id)
+                        payment = Payment.objects.create(transaction_id=transaction_id, invoice=invoice)
+                    except Invoice.DoesNotExist:
+                        return Response({"message": "Invalid invoice ID"}, status=HTTP_400_BAD_REQUEST)
+                
+
+            # Implement logic to verify payment with Flutterwave API (pseudocode)
+            data = self.verify_payment(transaction_id)
+
+            if data:
+                verification_status = data.get('status', '').lower()
+                if verification_status == 'successful':
+                    payment.status = 'completed'
+                    payment.amount_paid = invoice.amount
+                    payment.currency = invoice.currency
+
+                    # Populate other Payment fields based on invoice or request data
+                    payment.charged_amount = data.get('data', {}).get('charged_amount', None)
+                    payment.app_fee = data.get('data', {}).get('app_fee', None)
+                    payment.merchant_fee = data.get('data', {}).get('merchant_fee', None)
+                    payment.processor_response = data.get('data', {}).get('processor_response')
+                    payment.auth_model = data.get('data', {}).get('auth_model')
+                    payment.ip_address = data.get('data', {}).get('ip')
+                    payment.customer_name = data.get('data', {}).get('customer', {}).get('name')
+                    payment.customer_email = data.get('data', {}).get('customer', {}).get('email')
+                    payment.card_first_six_digits = data.get('data', {}).get('card', {}).get('first_6digits')
+                    payment.card_last_four_digits = data.get('data', {}).get('card', {}).get('last_4digits')
+                    payment.card_issuer = data.get('data', {}).get('card', {}).get('issuer')
+                    payment.card_country = data.get('data', {}).get('card', {}).get('country')
+                    payment.card_type = data.get('data', {}).get('card', {}).get('type')
+                    payment.card_expiry = data.get('data', {}).get('card', {}).get('expiry')
+                    payment.save()
+                    if invoice:
+                        invoice.status = 'paid'
+                        invoice.save()
+                serializer = PaymentSerializer(payment)
+                return Response(serializer.data, status=HTTP_200_OK)
+            else:
+                return Response({"message": "Payment verification failed"}, status=HTTP_400_BAD_REQUEST)
+
+        else:
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+
+    def verify_payment(self, transaction_id):
+        url = f"https://api.flutterwave.com/v3/transactions/{transaction_id}/verify"
+        headers = {
+            "Authorization": f"Bearer {os.environ.get('FLUTTERWAVE_SECRET_KEY')}",
+            "Content-Type": "application/json",
+        }
+
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            verification_data = response.json()
+            
+            if verification_data.get('status') == 'success':
+                return verification_data.get('data')
+            else:
+                return None
+        except requests.exceptions.RequestException as e:
+            print(f"Error verifying payment: {str(e)}")
+            return None
 
 
 @extend_schema(

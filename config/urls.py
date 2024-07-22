@@ -43,6 +43,7 @@ from taxpayer.views import (
     InvoiceListView,
     PaymentDetailView,
     InvoiceDetailView,
+    ManualPaymentVerificationView,
 )
 
 
@@ -90,6 +91,7 @@ urlpatterns += [
     path('api/v1/assessments/audit_officer/approve/<int:assessment_id>/', ApproveAssessmentView.as_view(), name='update-assessment'),
     #payment
     path("api/v1/user/taxpayer/invoice/initiate_payment/", PaymentView.as_view(), name='invoice_payment'),
+    path('api/v1/user/taxpayer/payments/verify/', ManualPaymentVerificationView.as_view(), name='manual-payment-verification'),
     path('api/v1/user/taxpayer/invoice/payments/webhook/', payment_webhook, name='flutterwave-webhook'),
     path('api/v1/user/taxpayer/invoice/payments/', PaymentListView.as_view()),
     path('api/v1/user/taxpayer/invoice/payments/<int:pk>/', PaymentDetailView.as_view()),

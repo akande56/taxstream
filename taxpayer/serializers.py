@@ -220,3 +220,9 @@ class InitPaymentInvoiceSerializer(serializers.Serializer):
 class PaymentResponseSerializer(serializers.Serializer):
     message = serializers.CharField(read_only=True)
     redirect_url = serializers.CharField(read_only=True)
+
+
+class ManualPaymentVerificationSerializer(serializers.Serializer):
+    transaction_id = serializers.CharField(required=True)
+    invoice_id = serializers.IntegerField(required=False)
+    tx_ref = serializers.CharField()
