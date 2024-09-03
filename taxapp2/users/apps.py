@@ -8,6 +8,6 @@ class UsersConfig(AppConfig):
     name = "taxapp2.users"
     verbose_name = _("Users")
 
-    # def ready(self):
+    def ready(self):
         # with contextlib.suppress(ImportError):
-        # import taxapp2.users.signals
+        import taxapp2.users.signals
