@@ -10,4 +10,4 @@ class UsersConfig(AppConfig):
 
     def ready(self):
         # with contextlib.suppress(ImportError):
-        import taxapp2.users.signals
+        # import taxapp2.users.signals
