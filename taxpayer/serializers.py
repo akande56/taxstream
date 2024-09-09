@@ -1,5 +1,7 @@
 import uuid
 import datetime as dt
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from rest_framework import serializers
 from django.contrib.auth import password_validation
 from .models import (
@@ -181,8 +183,28 @@ class UpdateAssessment_AssessmentOfficerSerializer(serializers.ModelSerializer):
         assessment = instance
         assessment.to_be_paid = validated_data['to_be_paid']
         assessment.tax_due_time = validated_data['tax_due_time']
-        assessment.assessment_status = 'reviewed'
+        # temporary set to approved.. i,e. no need for audit to query and subsequently approve
+        # also update assessement due date
+        assessment.assessment_status = 'approved'
+        today = datetime.now().date()
+        if assessment.tax_due_time == 'annually':
+            assessment.next_due_date =  today + relativedelta(years=1)
+        elif assessment.tax_due_time == 'monthly':
+            assessment.next_due_date = today + relativedelta(months=1)
+        else:
+            assessment.next_due_date = today + relativedelta(days=1)
         assessment.save()
+         
+        #temporary create invoice; previousely had to be approved for invoice to be created
+        if Invoice.objects.filter(taxpayer=assessment.user):
+            pass
+        else:
+            invoice = Invoice.objects.create(
+            taxpayer=assessment.user,
+            amount=assessment.to_be_paid, 
+            due_date=assessment.next_due_date
+            )
+            invoice.save()
         return assessment
 
 
@@ -206,12 +228,14 @@ class PaymentSerializer(serializers.ModelSerializer):
         model = Payment
         fields = '__all__'  # Include all fields (adjust as needed)
 
+
 class InvoiceSerializer(serializers.ModelSerializer):
     payments = PaymentSerializer(many=True, read_only=True, source='invoice_payment_status')
 
     class Meta:
         model = Invoice
         fields = '__all__'
+
 
 class InitPaymentInvoiceSerializer(serializers.Serializer):
     invoice_id = serializers.IntegerField()
@@ -225,4 +249,4 @@ class PaymentResponseSerializer(serializers.Serializer):
 class ManualPaymentVerificationSerializer(serializers.Serializer):
     transaction_id = serializers.CharField(required=True)
     invoice_id = serializers.IntegerField(required=False)
-    tx_ref = serializers.CharField()
+    tx_ref = serializers.CharField(required=False)

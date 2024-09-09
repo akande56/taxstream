@@ -1,4 +1,3 @@
-
 import os
 # import uuid
 import requests
@@ -7,6 +6,7 @@ import hashlib
 import json
 import logging
 # from datetime import date, timedelta
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 # from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -350,7 +350,7 @@ class ApproveAssessmentView(APIView):
       if assessment.assessment_status == 'reviewed':
         assessment.assessment_status = 'approved'
         
-        today = timezone.now().date()
+        today = datetime.now().date()
         # Calculate due date based on tax_due_time
         if assessment.tax_due_time == 'annually':
             assessment.next_due_date =  today + relativedelta(years=1)
@@ -359,16 +359,18 @@ class ApproveAssessmentView(APIView):
         else:
             assessment.next_due_date = today + relativedelta(days=1)
     
-        
-        invoice, created = Invoice.objects.get_or_create(
+        if Invoice.objects.filter(taxpayer = assessment.user):
+            pass
+        else:
+            invoice, created = Invoice.objects.get_or_create(
             taxpayer=assessment.user,
-            assessment=assessment,
             amount=assessment.to_be_paid,  # Replace with your calculation function
             due_date=assessment.next_due_date
-        )
-        invoice.save()
+            )
+            invoice.save()
+
         assessment.save()
-        return Response({'message': 'Assessment updated successfully'}, status=HTTP_200_OK)
+        return Response({'message': 'Assessment approved successfully'}, status=HTTP_200_OK)
       
       else:
         # Handle other assessment statuses with appropriate messages
@@ -407,7 +409,7 @@ class PaymentView(APIView):
         try:
             invoice = Invoice.objects.get(pk=invoice_id)
         except Invoice.DoesNotExist:
-            return Response({"message": "Invalid invoice ID"}, status=HTTP_400_BAD_REQUEST)
+            return Response({"message": "Invalid invoice ID"}, status=HTTP_400_BAD_REQUEST) 
 
         customer_email = invoice.taxpayer.user.email
         amount = invoice.amount
@@ -518,8 +520,7 @@ def payment_webhook(request):
 
 
 
-@extend_schema_view(
-    summary="Manually verify a payment using Flutterwave transaction ID.",
+@extend_schema(
     description="This endpoint allows manual verification of a payment by providing the transaction ID and tx_ref received from Flutterwave. The invoice ID is extracted from the tx_ref and checked against the provided invoice_id. Upon successful verification, the payment and invoice statuses are updated.",
     request=ManualPaymentVerificationSerializer,
     responses={
@@ -539,6 +540,7 @@ class ManualPaymentVerificationView(APIView):
             try:
                 # Assuming tx_ref format is "JG-tax-{invoice_id}-{taxpayer_tax_id}"
                 extracted_invoice_id = int(tx_ref.split('-')[2])
+        
             except (IndexError, ValueError):
                 return Response({"message": "Invalid tx_ref format"}, status=HTTP_400_BAD_REQUEST)
 
@@ -571,7 +573,7 @@ class ManualPaymentVerificationView(APIView):
                 if verification_status == 'successful':
                     payment.status = 'completed'
                     payment.amount_paid = invoice.amount
-                    payment.currency = invoice.currency
+                    payment.currency ="NGN"
 
                     # Populate other Payment fields based on invoice or request data
                     payment.charged_amount = data.get('data', {}).get('charged_amount', None)
@@ -611,6 +613,7 @@ class ManualPaymentVerificationView(APIView):
 
         try:
             response = requests.get(url, headers=headers)
+            print('response: ', response.content)
             response.raise_for_status()
             verification_data = response.json()
             
