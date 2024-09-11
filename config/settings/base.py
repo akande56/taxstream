@@ -352,7 +352,9 @@ SPECTACULAR_SETTINGS = {
 CORS_URLS_REGEX = r"^/api/.*$"
 # Allow methods required for preflight requests
 CORS_ALLOWED_ORIGINS = [
-    "https://taxstream-3r2y.onrender.com",  # Add your React app's domain
+    "https://jirs.com.ng",gi
+    "http://jirs.com.ng",
+    "jirs.com.ng",
     # "https://tax-stream.vercel.app",
     # Add other allowed origins as needed
     "http://127.0.0.1:5173",
