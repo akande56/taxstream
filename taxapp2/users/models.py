@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 # from django.conf import settings
 # from django.dispatch import receiver
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 # from django.db.models.signals import post_save
 # from rest_framework.authtoken.models import Token
 
@@ -21,6 +21,12 @@ class LGA(models.Model):
         return self.name
 
 
+class CustomManager(UserManager):
+    def create_superuser(self, username, email, password, **extra_fields):
+        extra_fields.setdefault('user_role', 'admin')
+        return super().create_superuser(username, email, password, **extra_fields)
+
+
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     USER_ROLES = (
@@ -31,11 +37,13 @@ class User(AbstractUser):
         ('assessment_officer', 'ASSESSMENT OFFICER'),
         ('audit_officer', 'AUDIT OFFICER' ),
         ('tax_payer', 'TAX PAYER'),
+        ('admin', 'Admin')
     )
     user_role = models.CharField(max_length=20, choices=USER_ROLES)
     # staff_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4, null=True)
     phone = models.CharField(max_length=11)
     location = models.ForeignKey(LGA, on_delete=models.SET_NULL, null=True, blank= True, related_name='user_in_location')
+    objects = CustomManager() #handles admin user 
     
     def __str__(self):
         return self.username
