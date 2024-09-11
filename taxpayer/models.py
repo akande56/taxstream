@@ -95,8 +95,8 @@ class Invoice(models.Model):
 
 
 class Payment(models.Model):
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='invoice_payment_status')
-    payment_method = models.CharField(max_length=50, choices=(('card', 'card'), ('bank_transfer', 'bank-transfer')), null=True, blank=True)
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='invoice_payment_receipt')
+    payment_method = models.CharField(max_length=50, null=True, blank=True)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], null=True, blank=True)
     payment_date = models.DateField(blank=True, null=True)
     transaction_id = models.CharField(max_length=100, blank=True, null=True)
@@ -107,7 +107,7 @@ class Payment(models.Model):
     ), default='pending')
     created_date = models.DateTimeField(auto_now_add=True)
 
-    # Additional fields from Flutterwave webhook response
+    # A dditional fields from Flutterwave webhook response
     charged_amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], null=True, blank=True)
     app_fee = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], null=True, blank=True)
     merchant_fee = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], null=True, blank=True)
@@ -209,5 +209,3 @@ class Assessment(models.Model):
 
     # def get_current_invoice(self):
     #     return self.current_invoice
-
-    

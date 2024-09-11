@@ -230,7 +230,7 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
-    payments = PaymentSerializer(many=True, read_only=True, source='invoice_payment_status')
+    payment_reciept = PaymentSerializer(many=True, read_only=True, source='invoice_payment_receipt')
 
     class Meta:
         model = Invoice

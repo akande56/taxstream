@@ -569,6 +569,7 @@ class ManualPaymentVerificationView(APIView):
             data = self.verify_payment(transaction_id)
 
             if data:
+                print("data: ",data)
                 verification_status = data.get('status', '').lower()
                 if verification_status == 'successful':
                     payment.status = 'completed'
@@ -576,14 +577,16 @@ class ManualPaymentVerificationView(APIView):
                     payment.currency ="NGN"
 
                     # Populate other Payment fields based on invoice or request data
-                    payment.charged_amount = data.get('data', {}).get('charged_amount', None)
-                    payment.app_fee = data.get('data', {}).get('app_fee', None)
-                    payment.merchant_fee = data.get('data', {}).get('merchant_fee', None)
-                    payment.processor_response = data.get('data', {}).get('processor_response')
-                    payment.auth_model = data.get('data', {}).get('auth_model')
-                    payment.ip_address = data.get('data', {}).get('ip')
-                    payment.customer_name = data.get('data', {}).get('customer', {}).get('name')
-                    payment.customer_email = data.get('data', {}).get('customer', {}).get('email')
+                    payment.charged_amount = data['charged_amount']
+                    payment.app_fee = data['app_fee']
+                    payment.merchant_fee = data['merchant_fee']
+                    payment.processor_response = data['processor_response']
+                    payment.auth_model = data['auth_model']
+                    payment.ip_address = data['ip']
+                    payment.customer_name = data['customer']['name']
+                    payment.customer_email = data['email']['email']
+                    payment.payment_date = data['payment_type']
+                    payment.created_date = data['created_at']
                     payment.card_first_six_digits = data.get('data', {}).get('card', {}).get('first_6digits')
                     payment.card_last_four_digits = data.get('data', {}).get('card', {}).get('last_4digits')
                     payment.card_issuer = data.get('data', {}).get('card', {}).get('issuer')
