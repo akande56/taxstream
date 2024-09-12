@@ -352,7 +352,7 @@ SPECTACULAR_SETTINGS = {
 CORS_URLS_REGEX = r"^/api/.*$"
 # Allow methods required for preflight requests
 CORS_ALLOWED_ORIGINS = [
-    "https://jirs.com.ng",gi
+    "https://jirs.com.ng",
     "http://jirs.com.ng",
     "jirs.com.ng",
     # "https://tax-stream.vercel.app",
