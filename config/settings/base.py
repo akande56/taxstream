@@ -354,13 +354,11 @@ CORS_URLS_REGEX = r"^/api/.*$"
 CORS_ALLOWED_ORIGINS = [
     "https://jirs.com.ng",
     "http://jirs.com.ng",
-    "jirs.com.ng",
     # "https://tax-stream.vercel.app",
     # Add other allowed origins as needed
     "http://127.0.0.1:5173",
     "http://localhost:5173",
-    
-]
+    ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     'accept',
@@ -387,4 +385,4 @@ CORS_ALLOW_METHODS = [
     'PATCH',
     'POST',
     'PUT',
-]
+    ]
