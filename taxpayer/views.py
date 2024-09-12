@@ -425,7 +425,7 @@ class PaymentView(APIView):
                 "name": customer_name,
                 "phone_number": customer_phone,
             },
-            "redirect_url": 'https://taxstream-3r2y.onrender.com/payment',  # Capture response URL from client
+            "redirect_url": 'https://jirs.com.ng/payment',  # Capture response URL from client
             "meta": {  
                 "invoice_id": invoice.id
             }
