@@ -2,7 +2,7 @@ from django.contrib.auth import update_session_auth_hash, authenticate, get_user
 from django.contrib.auth.models import Group
 from django.utils.http import urlsafe_base64_encode
 from django.urls import reverse
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, serializers
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework_simplejwt.views import TokenRefreshView
 from drf_spectacular.utils import (
@@ -137,7 +137,7 @@ class UserStaffCreateView(APIView):
             user = serializer.save()
             serializer = UserSerializer(user)
             return Response(serializer.data, status=HTTP_201_CREATED)
-        except serializer.ValidationError as e:
+        except serializers.ValidationError as e:
             return Response(e.detail, status=HTTP_400_BAD_REQUEST)
 
 

@@ -21,7 +21,7 @@ from rest_framework.status import (
     HTTP_500_INTERNAL_SERVER_ERROR,
     HTTP_200_OK
 )
-from rest_framework import viewsets
+from rest_framework import viewsets, serializers
 from rest_framework.generics import ListAPIView, UpdateAPIView, RetrieveAPIView
 from rest_framework.views import APIView
 from drf_spectacular.utils import (
@@ -140,7 +140,7 @@ class BusinessUserViewSet(viewsets.ModelViewSet):
             business_user = serializer.save()
             Assessment.objects.create(user=business_user)
             return Response(serializer.data, status=HTTP_201_CREATED)
-        except serializer.ValidationError as e:
+        except serializers.ValidationError as e:
             return Response(e.detail, status=HTTP_400_BAD_REQUEST)
 
 
