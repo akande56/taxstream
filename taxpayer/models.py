@@ -60,7 +60,7 @@ class BusinessUser(models.Model):
     business_name = models.CharField(max_length=255)
     classification = models.ForeignKey(BusinessClassification, on_delete=models.CASCADE)
     withholding_tax_rate = models.ForeignKey(WithholdingTaxRate, on_delete=models.SET_NULL, null=True)
-    business_status = models.ForeignKey(BusinessStatus, on_delete=models.CASCADE)
+    business_status = models.ForeignKey(BusinessStatus, on_delete=models.CASCADE, default=1)
     ward = models.ForeignKey(Ward, on_delete=models.SET_NULL, null=True,related_name='taxpayer_ward', default=1)
     tax_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4)
     tax_area = models.ForeignKey(TaxArea, related_name='business_user_tax_area', on_delete=models.CASCADE, null=True)
