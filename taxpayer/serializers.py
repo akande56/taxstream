@@ -40,6 +40,7 @@ class BusinessStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = BusinessStatus
         fields = '__all__' 
+    
 
 
 class NewUserSerializer(serializers.ModelSerializer):
